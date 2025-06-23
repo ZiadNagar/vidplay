@@ -201,6 +201,224 @@
         right: 91px;
       }
 
+      /* ================================
+         OVERLAY MENU STYLES
+         ================================ */
+
+      /* Menu Toggle Button */
+      .menu-toggle {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 10px;
+        width: 44px;
+        height: 44px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        outline: none;
+        backdrop-filter: blur(10px);
+      }
+
+      .menu-toggle:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .menu-toggle:focus {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+      }
+
+      .menu-toggle:active {
+        transform: scale(0.95);
+      }
+
+      /* Overlay Menu Container */
+      .overlay-menu {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 12px;
+        padding: 16px;
+        transform: translateX(-100%) scale(0.8);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 1000;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        min-width: 200px;
+        max-width: 280px;
+      }
+
+      .overlay-menu.visible {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Menu Header */
+      .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 14px;
+        font-weight: 400;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        text-transform: none;
+        letter-spacing: 0.5px;
+      }
+
+      .menu-title {
+        font-weight: 500;
+      }
+
+      .menu-close {
+        background: none;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 18px;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        outline: none;
+      }
+
+      .menu-close:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+      }
+
+      .menu-close:focus {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+      }
+
+      /* Menu Buttons Container */
+      .menu-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* Individual Menu Buttons */
+      .menu-button {
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.03);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 400;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        text-transform: none;
+        outline: none;
+        backdrop-filter: blur(10px);
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+      }
+
+      .menu-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.08),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
+
+      .menu-button:hover::before {
+        left: 100%;
+      }
+
+      .menu-button:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        color: white;
+      }
+
+      .menu-button:active {
+        transform: translateY(0);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .menu-button:focus {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+      }
+
+      /* ================================
+         EXISTING CONTROL BUTTONS
+         ================================ */
+      /* Shared button styling */
+      .control-button {
+        position: absolute;
+        bottom: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        outline: none;
+        backdrop-filter: blur(10px);
+      }
+
+      .control-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Individual button positions */
+      .fullscreen-button {
+        right: 15px;
+      }
+
+      .mute-button {
+        right: 53px;
+      }
+
+      .replay-button {
+        right: 91px;
+      }
+
       /* Legacy button styles for compatibility */
       .fullscreen-button,
       .mute-button,
@@ -485,23 +703,233 @@
         font-size: 12px;
         font-family: monospace;
         z-index: 200;
+      } /* ================================
+         RESPONSIVE DESIGN
+         ================================ */
+
+      /* Base/Mobile First Styles (320px+) */
+      @media (min-width: 320px) {
+        body {
+          padding: 5px;
+        }
+
+        .video-container {
+          max-width: 100%;
+          border-radius: 4px;
+        }
+
+        .video-region {
+          width: 28px;
+          height: 28px;
+          font-size: 14px;
+        }
+
+        .menu-toggle {
+          width: 36px;
+          height: 36px;
+          font-size: 14px;
+        }
+
+        .overlay-menu {
+          min-width: 160px;
+          max-width: 200px;
+          padding: 12px;
+        }
+
+        .menu-button {
+          padding: 8px 12px;
+          font-size: 12px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 28px;
+          height: 28px;
+          font-size: 12px;
+          bottom: 10px;
+        }
+
+        .mute-button {
+          right: 36px;
+        }
+
+        .replay-button {
+          right: 72px;
+        }
+
+        .time-indicator {
+          font-size: 10px;
+          padding: 2px 6px;
+          bottom: 8px;
+        }
+
+        .status-message {
+          font-size: 12px;
+          padding: 6px 12px;
+        }
       }
 
-      /* ================================
-         RESPONSIVE DESIGN
-         ================================ */ /* Tablet and medium screens */
-      @media (max-width: 768px) {
+      /* Small Mobile (375px+) */
+      @media (min-width: 375px) {
+        .video-region {
+          width: 32px;
+          height: 32px;
+          font-size: 16px;
+        }
+
+        .menu-toggle {
+          width: 40px;
+          height: 40px;
+          font-size: 15px;
+        }
+
+        .overlay-menu {
+          min-width: 180px;
+          max-width: 220px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 30px;
+          height: 30px;
+          font-size: 13px;
+        }
+
+        .mute-button {
+          right: 38px;
+        }
+
+        .replay-button {
+          right: 76px;
+        }
+      }
+
+      /* Large Mobile (425px+) */
+      @media (min-width: 425px) {
+        body {
+          padding: 8px;
+        }
+
+        .video-region {
+          width: 35px;
+          height: 35px;
+          font-size: 18px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 32px;
+          height: 32px;
+          font-size: 14px;
+        }
+
+        .mute-button {
+          right: 40px;
+        }
+
+        .replay-button {
+          right: 80px;
+        }
+
+        .time-indicator {
+          font-size: 11px;
+          padding: 3px 7px;
+        }
+      }
+
+      /* Mobile Landscape & Small Tablets (600px+) */
+      @media (min-width: 600px) {
+        body {
+          padding: 10px;
+        }
+
+        .video-container {
+          border-radius: 6px;
+        }
+
         .video-region {
           width: 40px;
           height: 40px;
           font-size: 20px;
         }
 
+        .menu-toggle {
+          width: 42px;
+          height: 42px;
+          font-size: 16px;
+        }
+
+        .overlay-menu {
+          min-width: 200px;
+          max-width: 260px;
+          padding: 14px;
+        }
+
+        .menu-button {
+          padding: 10px 14px;
+          font-size: 13px;
+        }
+
+        /* Reposition regions for landscape/tablet layout */
+        .region-rent {
+          top: 40%;
+          left: 25%;
+        }
+
+        .region-transportation {
+          top: 42%;
+          right: 35%;
+        }
+
+        .region-inventory {
+          top: 48%;
+          right: 25%;
+        }
+
+        .region-labor {
+          top: 52%;
+          right: 20%;
+        }
+
+        .region-other {
+          top: 56%;
+          right: 15%;
+        }
+      }
+
+      /* Tablets Portrait (768px+) */
+      @media (min-width: 768px) {
+        .video-region {
+          width: 45px;
+          height: 45px;
+          font-size: 22px;
+        }
+
+        .menu-toggle {
+          width: 44px;
+          height: 44px;
+          font-size: 16px;
+        }
+
+        .overlay-menu {
+          min-width: 220px;
+          max-width: 280px;
+          padding: 16px;
+        }
+
+        .menu-button {
+          padding: 12px 16px;
+          font-size: 13px;
+        }
+
         .fullscreen-button,
         .mute-button,
         .replay-button {
-          width: 36px;
-          height: 36px;
+          width: 34px;
+          height: 34px;
           font-size: 14px;
         }
 
@@ -512,52 +940,431 @@
         .replay-button {
           right: 84px;
         }
-      } /* Mobile phones and small screens */
-      @media (max-width: 480px) {
+
+        .time-indicator {
+          font-size: 12px;
+          padding: 4px 8px;
+        }
+
+        .status-message {
+          font-size: 14px;
+          padding: 8px 16px;
+        }
+      }
+
+      /* Tablets Landscape & Small Desktop (1024px+) */
+      @media (min-width: 1024px) {
+        .video-region {
+          width: 50px;
+          height: 50px;
+          font-size: 24px;
+        }
+
+        .overlay-menu {
+          min-width: 240px;
+          max-width: 300px;
+        }
+
+        /* Enhanced positioning for larger screens */
+        .region-rent {
+          top: 46%;
+          left: 35%;
+        }
+
+        .region-transportation {
+          top: 47%;
+          right: 49%;
+        }
+
+        .region-inventory {
+          top: 51%;
+          right: 30%;
+        }
+
+        .region-labor {
+          top: 53%;
+          right: 24%;
+        }
+
+        .region-other {
+          top: 55%;
+          right: 18%;
+        }
+
+        /* Reduce animation intensity for better performance */
+        .video-region.visible {
+          animation: breathe 2s ease-in-out infinite,
+            pulseRing 2s ease-in-out infinite;
+        }
+
+        .region-icon {
+          animation: iconBounce 2s ease-in-out infinite;
+        }
+      }
+
+      /* Desktop (1200px+) */
+      @media (min-width: 1200px) {
+        body {
+          padding: 15px;
+        }
+
+        .video-container {
+          border-radius: 8px;
+          max-width: 1200px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 36px;
+          height: 36px;
+          font-size: 15px;
+        }
+
+        .mute-button {
+          right: 45px;
+        }
+
+        .replay-button {
+          right: 90px;
+        }
+      }
+
+      /* Large Desktop (1440px+) */
+      @media (min-width: 1440px) {
+        .video-container {
+          max-width: 1400px;
+        }
+
+        .overlay-menu {
+          min-width: 260px;
+          max-width: 320px;
+        }
+
+        .menu-button {
+          padding: 14px 18px;
+          font-size: 14px;
+        }
+      }
+
+      /* Ultra-wide & 4K Displays (1920px+) */
+      @media (min-width: 1920px) {
+        body {
+          padding: 20px;
+        }
+
+        .video-container {
+          max-width: 1600px;
+        }
+
+        .video-region {
+          width: 55px;
+          height: 55px;
+          font-size: 26px;
+        }
+
+        .overlay-menu {
+          min-width: 280px;
+          max-width: 350px;
+          padding: 18px;
+        }
+
+        .menu-button {
+          padding: 16px 20px;
+          font-size: 15px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 38px;
+          height: 38px;
+          font-size: 16px;
+        }
+
+        .mute-button {
+          right: 48px;
+        }
+
+        .replay-button {
+          right: 96px;
+        }
+      }
+
+      /* Ultra-wide Monitors (2560px+) */
+      @media (min-width: 2560px) {
+        .video-container {
+          max-width: 2000px;
+        }
+
+        .overlay-menu {
+          min-width: 300px;
+          max-width: 380px;
+        }
+      }
+
+      /* Height-based responsive adjustments */
+      @media (max-height: 600px) {
         .video-region {
           width: 35px;
           height: 35px;
           font-size: 18px;
         }
 
-        /* Reposition regions for mobile layout with maintained animations */
+        .overlay-menu {
+          max-height: 400px;
+          overflow-y: auto;
+        }
+
+        .menu-button {
+          padding: 8px 12px;
+          font-size: 12px;
+        }
+
+        .status-message {
+          top: 10px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-height: 480px) {
+        .video-region {
+          width: 30px;
+          height: 30px;
+          font-size: 16px;
+        }
+
+        .overlay-menu {
+          max-height: 300px;
+          padding: 10px;
+        }
+
+        .menu-button {
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+
+        .time-indicator {
+          font-size: 10px;
+          padding: 2px 6px;
+        }
+      }
+
+      /* Orientation-specific styles */
+      @media (orientation: landscape) and (max-height: 600px) {
+        .overlay-menu {
+          max-height: 80vh;
+          overflow-y: auto;
+        }
+
+        /* Compact layout for landscape mode */
         .region-rent {
-          top: 15%;
-          left: 10%;
-          animation-delay: 0s;
+          top: 25%;
+          left: 15%;
         }
-
         .region-transportation {
-          top: 15%;
-          right: 10%;
-          animation-delay: 0.4s;
+          top: 25%;
+          right: 25%;
         }
-
         .region-inventory {
-          bottom: 35%;
-          left: 10%;
-          animation-delay: 0.8s;
+          bottom: 25%;
+          left: 15%;
         }
-
         .region-labor {
-          bottom: 35%;
-          right: 10%;
-          animation-delay: 1.2s;
+          bottom: 25%;
+          right: 25%;
         }
-
         .region-other {
-          bottom: 12%;
+          bottom: 15%;
           left: 50%;
-          animation-delay: 1.6s;
+          transform: translateX(-50%);
+        }
+      }
+
+      @media (orientation: portrait) and (min-width: 768px) {
+        /* Portrait tablet specific adjustments */
+        .region-rent {
+          top: 20%;
+          left: 15%;
+        }
+        .region-transportation {
+          top: 20%;
+          right: 15%;
+        }
+        .region-inventory {
+          top: 40%;
+          left: 15%;
+        }
+        .region-labor {
+          top: 40%;
+          right: 15%;
+        }
+        .region-other {
+          bottom: 20%;
+          left: 50%;
+          transform: translateX(-50%);
+        }
+      }
+
+      /* High-DPI displays */
+      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+        .video-region {
+          border-width: 1px;
         }
 
-        /* Reduce animation intensity on mobile for performance */
+        .progress-scrubber {
+          width: 10px;
+          height: 10px;
+        }
+
+        .overlay-menu {
+          border-width: 1px;
+        }
+      }
+
+      /* Reduced motion preferences */
+      @media (prefers-reduced-motion: reduce) {
         .video-region.visible {
-          animation: breathe 3s ease-in-out infinite;
+          animation: none;
+          transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .region-icon {
-          animation: iconBounce 3s ease-in-out infinite;
+          animation: none;
+        }
+
+        .menu-button::before {
+          transition: none;
+        }
+
+        .overlay-menu {
+          transition: opacity 0.2s ease, visibility 0.2s ease;
+          transform: none;
+        }
+
+        .overlay-menu.visible {
+          transform: none;
+        }
+      }
+
+      /* High contrast mode */
+      @media (prefers-contrast: high) {
+        .video-region {
+          border-color: white;
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+        }
+
+        .overlay-menu {
+          background: rgba(0, 0, 0, 0.9);
+          border-color: white;
+        }
+
+        .menu-button {
+          border-color: white;
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-button:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: white;
+        }
+      }
+
+      /* Dark mode preference */
+      @media (prefers-color-scheme: dark) {
+        .overlay-menu {
+          background: rgba(20, 20, 20, 0.95);
+          backdrop-filter: blur(25px);
+        }
+
+        .menu-button {
+          background: rgba(255, 255, 255, 0.05);
+          border-color: rgba(255, 255, 255, 0.1);
+        }
+      }
+
+      /* Touch device optimizations */
+      @media (pointer: coarse) {
+        .video-region {
+          min-width: 44px;
+          min-height: 44px;
+        }
+
+        .menu-toggle {
+          min-width: 44px;
+          min-height: 44px;
+        }
+
+        .menu-button {
+          min-height: 44px;
+          padding: 12px 16px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          min-width: 44px;
+          min-height: 44px;
+        }
+      }
+
+      /* Hover-capable devices */
+      @media (hover: hover) {
+        .video-region:hover {
+          transform: scale(1.15);
+        }
+
+        .menu-button:hover {
+          transform: translateY(-2px);
+        }
+      }
+
+      /* Non-hover devices (touch) */
+      @media (hover: none) {
+        .video-region:hover {
+          transform: scale(1.05);
+        }
+
+        .menu-button:hover {
+          transform: none;
+        }
+
+        .video-region:active {
+          transform: scale(0.95);
+        }
+      }
+
+      /* Foldable devices */
+      @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+        .video-container {
+          max-width: 90vw;
+        }
+
+        .overlay-menu {
+          max-width: 250px;
+        }
+      }
+
+      /* Print styles */
+      @media print {
+        .video-region,
+        .overlay-menu,
+        .menu-toggle,
+        .fullscreen-button,
+        .mute-button,
+        .replay-button,
+        .progress-container,
+        .time-indicator,
+        .status-message,
+        .play-pause-overlay,
+        .loading-spinner {
+          display: none !important;
+        }
+
+        .video-container {
+          box-shadow: none;
+          border: 1px solid #000;
         }
       }
     </style>
@@ -683,6 +1490,73 @@
       >
         🔄
       </button>
+
+      <!-- Overlay Menu Toggle Button -->
+      <button
+        class="menu-toggle"
+        id="menuToggle"
+        aria-label="Open video sections menu"
+        title="Video Sections Menu"
+      >
+        ☰
+      </button>
+
+      <!-- Overlay Menu -->
+      <div class="overlay-menu" id="overlayMenu" role="menu">
+        <div class="menu-header">
+          <span class="menu-title">Video Sections</span>
+          <button
+            class="menu-close"
+            id="menuClose"
+            aria-label="Close menu"
+            title="Close menu"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="menu-buttons">
+          <button
+            class="menu-button"
+            onclick="playPeriod(4.5, 15, 'Rent')"
+            role="menuitem"
+            aria-label="Play Rent Services section from 4.5 to 15 seconds"
+          >
+            💰 Rent
+          </button>
+          <button
+            class="menu-button"
+            onclick="playPeriod(15, 22.6, 'Transportation')"
+            role="menuitem"
+            aria-label="Play Transportation section from 15 to 22.6 seconds"
+          >
+            🚚 Transportation
+          </button>
+          <button
+            class="menu-button"
+            onclick="playPeriod(23.1, 32.8, 'Inventory Carry')"
+            role="menuitem"
+            aria-label="Play Inventory Carry section from 23.1 to 32.8 seconds"
+          >
+            📦 Inventory Carry
+          </button>
+          <button
+            class="menu-button"
+            onclick="playPeriod(32.9, 43.4, 'Labor')"
+            role="menuitem"
+            aria-label="Play Labor Solutions section from 32.9 to 43.4 seconds"
+          >
+            👷 Labor
+          </button>
+          <button
+            class="menu-button"
+            onclick="playPeriod(43.5, 56.4, 'Other Services')"
+            role="menuitem"
+            aria-label="Play Other Services section from 43.5 to 56.4 seconds"
+          >
+            🛠️ Other Services
+          </button>
+        </div>
+      </div>
     </div>
     <script>
       /**
@@ -706,6 +1580,9 @@
           this.timeIndicator = document.getElementById("timeIndicator");
           this.loadingSpinner = document.getElementById("loadingSpinner");
           this.statusMessage = document.getElementById("statusMessage");
+          this.menuToggle = document.getElementById("menuToggle");
+          this.overlayMenu = document.getElementById("overlayMenu");
+          this.menuClose = document.getElementById("menuClose");
 
           // Player state variables
           this.stopTime = null; // End time for current period playback
@@ -713,6 +1590,7 @@
           this.isDragging = false; // Progress bar dragging state
           this.isInitialAutoplay = true; // First-time autoplay flag
           this.isPlayingPeriod = false; // Currently playing a specific period
+          this.isMenuOpen = false; // Menu open/close state
 
           // Video section definitions with timestamps and region mappings
           this.videoPeriods = [
@@ -766,6 +1644,8 @@
           );
           this.muteButton.addEventListener("click", () => this.toggleMute());
           this.replayButton.addEventListener("click", () => this.replayVideo());
+          this.menuToggle.addEventListener("click", () => this.toggleMenu());
+          this.menuClose.addEventListener("click", () => this.closeMenu());
 
           // Progress bar interaction events
           this.progressContainer.addEventListener("click", (e) =>
@@ -829,6 +1709,17 @@
             this.handleFullscreenChange()
           );
 
+          // Click outside menu to close
+          document.addEventListener("click", (e) => {
+            if (
+              this.isMenuOpen &&
+              !this.overlayMenu.contains(e.target) &&
+              !this.menuToggle.contains(e.target)
+            ) {
+              this.closeMenu();
+            }
+          });
+
           // Initialize mobile support
           this.initializeMobileSupport();
         }
@@ -880,6 +1771,17 @@
               case ".": // Period: Frame forward
                 this.seekRelative(0.1);
                 e.preventDefault();
+                break;
+              case "Tab": // Tab: Toggle menu
+                if (e.shiftKey) break; // Allow normal tab behavior with Shift
+                this.toggleMenu();
+                e.preventDefault();
+                break;
+              case "Escape": // Escape: Close menu
+                if (this.isMenuOpen) {
+                  this.closeMenu();
+                  e.preventDefault();
+                }
                 break;
             }
           });
@@ -1006,7 +1908,55 @@
 
         /**
          * ========================================
-         * FULLSCREEN HANDLING
+         * OVERLAY MENU HANDLING
+         * ========================================
+         */
+
+        /**
+         * Toggle overlay menu visibility
+         */
+        toggleMenu() {
+          this.isMenuOpen = !this.isMenuOpen;
+
+          if (this.isMenuOpen) {
+            this.openMenu();
+          } else {
+            this.closeMenu();
+          }
+        }
+
+        /**
+         * Open overlay menu
+         */
+        openMenu() {
+          this.isMenuOpen = true;
+          this.overlayMenu.classList.add("visible");
+          this.menuToggle.style.opacity = "0";
+          this.menuToggle.style.pointerEvents = "none";
+
+          // Focus on first menu button for accessibility
+          const firstButton = this.overlayMenu.querySelector(".menu-button");
+          if (firstButton) {
+            firstButton.focus();
+          }
+        }
+
+        /**
+         * Close overlay menu
+         */
+        closeMenu() {
+          this.isMenuOpen = false;
+          this.overlayMenu.classList.remove("visible");
+          this.menuToggle.style.opacity = "1";
+          this.menuToggle.style.pointerEvents = "all";
+
+          // Return focus to toggle button
+          this.menuToggle.focus();
+        }
+
+        /**
+         * ========================================
+         * EXISTING FULLSCREEN HANDLING
          * ========================================
          */
 
@@ -1199,8 +2149,12 @@
 
         /**
          * Play a specific video period/section
-         */
-        playPeriod(start, end, sectionName) {
+         */ playPeriod(start, end, sectionName) {
+          // Close menu if open
+          if (this.isMenuOpen) {
+            this.closeMenu();
+          }
+
           this.video.currentTime = start;
           this.stopTime = end;
           this.isPlayingPeriod = true;
@@ -1327,11 +2281,16 @@
             this.progressTooltip.style.opacity = "1";
           }
         }
-
         /**
          * Initialize mobile device support
          */
         initializeMobileSupport() {
+          // Detect device type and capabilities
+          this.isTouchDevice =
+            "ontouchstart" in window || navigator.maxTouchPoints > 0;
+          this.isSmallScreen = window.innerWidth < 768;
+          this.isHighDPI = window.devicePixelRatio > 1.5;
+
           // Handle screen orientation changes
           window.addEventListener("orientationchange", () => {
             setTimeout(() => {
@@ -1339,9 +2298,13 @@
             }, 100);
           });
 
-          // Handle window resize
+          // Handle window resize with debouncing
+          let resizeTimeout;
           window.addEventListener("resize", () => {
-            this.handleResize();
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+              this.handleResize();
+            }, 150);
           });
 
           // Prevent multi-touch gestures on video
@@ -1351,20 +2314,232 @@
             }
           });
 
-          // Double-tap to fullscreen on mobile
+          // Enhanced double-tap handling for mobile
           let lastTouchEnd = 0;
+          let tapCount = 0;
           this.video.addEventListener(
             "touchend",
             (e) => {
               const now = new Date().getTime();
-              if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-                this.toggleFullscreen();
+              const timeSinceLastTap = now - lastTouchEnd;
+
+              if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
+                tapCount++;
+                if (tapCount === 2) {
+                  e.preventDefault();
+                  this.toggleFullscreen();
+                  tapCount = 0;
+                }
+              } else {
+                tapCount = 1;
               }
               lastTouchEnd = now;
             },
             false
           );
+
+          // Optimize for different screen sizes
+          this.optimizeForScreenSize();
+
+          // Handle device-specific optimizations
+          this.handleDeviceOptimizations();
+        }
+
+        /**
+         * Optimize performance and UI for current screen size
+         */
+        optimizeForScreenSize() {
+          const screenWidth = window.innerWidth;
+          const screenHeight = window.innerHeight;
+
+          // Ultra-small screens (< 375px)
+          if (screenWidth < 375) {
+            this.reduceAnimations();
+            this.optimizeForSmallScreen();
+          }
+
+          // Medium screens (375px - 768px)
+          else if (screenWidth < 768) {
+            this.optimizeForMobile();
+          }
+
+          // Large screens (768px - 1440px)
+          else if (screenWidth < 1440) {
+            this.optimizeForTabletDesktop();
+          }
+
+          // Ultra-wide screens (> 1440px)
+          else {
+            this.optimizeForLargeScreen();
+          }
+
+          // Height-based optimizations
+          if (screenHeight < 600) {
+            this.optimizeForShortScreen();
+          }
+        }
+
+        /**
+         * Reduce animations for small/slow devices
+         */
+        reduceAnimations() {
+          const style = document.createElement("style");
+          style.textContent = `
+            .video-region.visible {
+              animation: none !important;
+              transition: opacity 0.2s ease, transform 0.2s ease !important;
+            }
+            .region-icon {
+              animation: none !important;
+            }
+            .overlay-menu {
+              transition: opacity 0.2s ease, visibility 0.2s ease !important;
+            }
+          `;
+          document.head.appendChild(style);
+        }
+
+        /**
+         * Optimize for very small screens
+         */
+        optimizeForSmallScreen() {
+          // Reduce overlay menu size
+          this.overlayMenu.style.minWidth = "140px";
+          this.overlayMenu.style.maxWidth = "180px";
+
+          // Simplify status messages
+          this.showStatus = (message, duration = 2000) => {
+            this.statusMessage.textContent =
+              message.length > 30 ? message.substring(0, 27) + "..." : message;
+            this.statusMessage.classList.add("visible");
+            setTimeout(() => {
+              this.statusMessage.classList.remove("visible");
+            }, duration);
+          };
+        }
+
+        /**
+         * Mobile-specific optimizations
+         */
+        optimizeForMobile() {
+          // Add touch-friendly padding
+          document.body.style.padding = "8px";
+
+          // Optimize menu for mobile
+          this.overlayMenu.style.maxHeight = "70vh";
+          this.overlayMenu.style.overflowY = "auto";
+        }
+
+        /**
+         * Tablet/Desktop optimizations
+         */
+        optimizeForTabletDesktop() {
+          // Standard optimizations for mid-range devices
+          document.body.style.padding = "12px";
+        }
+
+        /**
+         * Large screen optimizations
+         */
+        optimizeForLargeScreen() {
+          // Enhanced spacing for large screens
+          document.body.style.padding = "20px";
+
+          // Larger overlay menu
+          this.overlayMenu.style.minWidth = "280px";
+          this.overlayMenu.style.maxWidth = "350px";
+        }
+
+        /**
+         * Short screen optimizations
+         */
+        optimizeForShortScreen() {
+          // Compact overlay menu
+          this.overlayMenu.style.maxHeight = "80vh";
+          this.overlayMenu.style.overflowY = "auto";
+
+          // Smaller regions
+          const regions = document.querySelectorAll(".video-region");
+          regions.forEach((region) => {
+            region.style.width = "30px";
+            region.style.height = "30px";
+            region.style.fontSize = "16px";
+          });
+        }
+
+        /**
+         * Handle device-specific optimizations
+         */
+        handleDeviceOptimizations() {
+          // iOS-specific fixes
+          if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            this.handleiOSOptimizations();
+          }
+
+          // Android-specific fixes
+          if (/Android/.test(navigator.userAgent)) {
+            this.handleAndroidOptimizations();
+          }
+
+          // High-DPI display optimizations
+          if (this.isHighDPI) {
+            this.handleHighDPIOptimizations();
+          }
+        }
+
+        /**
+         * iOS-specific optimizations
+         */
+        handleiOSOptimizations() {
+          // Fix iOS video playback issues
+          this.video.playsInline = true;
+          this.video.webkitPlaysInline = true;
+
+          // Handle iOS safe areas
+          if (window.screen.height === 812 || window.screen.height === 896) {
+            document.body.style.paddingTop = "env(safe-area-inset-top, 20px)";
+            document.body.style.paddingBottom =
+              "env(safe-area-inset-bottom, 20px)";
+          }
+        }
+
+        /**
+         * Android-specific optimizations
+         */
+        handleAndroidOptimizations() {
+          // Android Chrome specific fixes
+          this.video.style.outline = "none";
+
+          // Handle Android back button for menu
+          if (history.pushState) {
+            window.addEventListener("popstate", () => {
+              if (this.isMenuOpen) {
+                this.closeMenu();
+                history.pushState(null, null, window.location.href);
+              }
+            });
+          }
+        }
+
+        /**
+         * High-DPI display optimizations
+         */
+        handleHighDPIOptimizations() {
+          // Sharper borders and elements
+          const style = document.createElement("style");
+          style.textContent = `
+            .video-region {
+              border-width: 0.5px !important;
+            }
+            .overlay-menu {
+              border-width: 0.5px !important;
+            }
+            .progress-scrubber {
+              width: 10px !important;
+              height: 10px !important;
+            }
+          `;
+          document.head.appendChild(style);
         }
         /**
          * Handle device orientation changes
@@ -1467,6 +2642,48 @@
               }
             }
           }
+        }
+
+        /**
+         * Toggle menu visibility
+         */
+        toggleMenu() {
+          this.isMenuOpen = !this.isMenuOpen;
+
+          if (this.isMenuOpen) {
+            this.openMenu();
+          } else {
+            this.closeMenu();
+          }
+        }
+
+        /**
+         * Open overlay menu
+         */
+        openMenu() {
+          this.isMenuOpen = true;
+          this.overlayMenu.classList.add("visible");
+          this.menuToggle.style.opacity = "0";
+          this.menuToggle.style.pointerEvents = "none";
+
+          // Focus on first menu button for accessibility
+          const firstButton = this.overlayMenu.querySelector(".menu-button");
+          if (firstButton) {
+            firstButton.focus();
+          }
+        }
+
+        /**
+         * Close overlay menu
+         */
+        closeMenu() {
+          this.isMenuOpen = false;
+          this.overlayMenu.classList.remove("visible");
+          this.menuToggle.style.opacity = "1";
+          this.menuToggle.style.pointerEvents = "all";
+
+          // Return focus to toggle button
+          this.menuToggle.focus();
         }
       }
 

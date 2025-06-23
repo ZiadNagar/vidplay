@@ -7,6 +7,7 @@ This project provides an enhanced video viewing experience for presentation or e
 ### Core Functionality
 
 - **Interactive Clickable Regions**: Hoverable hotspots that appear at specific times
+- **Overlay Menu Navigation**: Top-left menu with direct access to all video sections
 - **Section-based Navigation**: Jump directly to predefined video sections
 - **Custom Video Controls**: Play, pause, mute, fullscreen, and replay functionality
 - **Progress Bar with Seeking**: Click or drag to navigate through the video
@@ -34,13 +35,17 @@ This project provides an enhanced video viewing experience for presentation or e
 
 - **Click Video**: Play/pause toggle
 - **Double-click Video**: Enter/exit fullscreen
+- **Click Menu Button**: Open overlay menu with video sections
 - **Click Region Icons**: Jump to specific video sections
 - **Click Progress Bar**: Seek to specific time
 - **Hover Progress Bar**: Preview time at cursor position
+- **Click Outside Menu**: Close overlay menu
 
 ### Keyboard Shortcuts
 
-- **Space-bar**: Play/pause
+- **Spacebar**: Play/pause
+- **Tab**: Toggle overlay menu
+- **Escape**: Close overlay menu
 - **F**: Toggle fullscreen
 - **M**: Toggle mute
 - **R**: Replay from beginning
@@ -140,19 +145,62 @@ The project uses a sophisticated CSS animation system:
 
 ## Responsive Design
 
-### Breakpoints
+### Comprehensive Breakpoint Coverage
 
-- **Desktop**: > 768px - Full feature set
-- **Tablet**: 768px - 480px - Adjusted sizing
-- **Mobile**: < 480px - Repositioned regions and simplified animations
+The video player now supports all possible device dimensions with optimized layouts:
 
-### Mobile Optimizations
+#### Mobile Devices
 
-- Touch-friendly button sizes (minimum 44px)
-- Repositioned regions for better thumb access
-- Reduced animation complexity for performance
-- Orientation change handling
-- Touch gesture support
+- **Ultra-small phones**: 320px - 374px (iPhone SE, older Android)
+- **Small phones**: 375px - 424px (iPhone 12 mini, standard smartphones)
+- **Large phones**: 425px - 767px (iPhone Pro Max, large Android phones)
+
+#### Tablets & Convertibles
+
+- **Small tablets**: 768px - 1023px (iPad Mini, 7-8" tablets)
+- **Large tablets**: 1024px - 1199px (iPad Pro, Surface tablets)
+- **Foldable devices**: Variable dimensions with orientation detection
+
+#### Desktop & Monitors
+
+- **Small desktop**: 1200px - 1439px (13-15" laptops)
+- **Medium desktop**: 1440px - 1919px (Standard monitors, MacBook Pro)
+- **Large desktop**: 1920px - 2559px (Full HD, QHD displays)
+- **Ultra-wide**: 2560px+ (4K, ultra-wide monitors)
+
+### Advanced Responsive Features
+
+#### Adaptive Layouts
+
+- **Region positioning**: Automatically repositions clickable regions based on screen size
+- **Menu sizing**: Overlay menu adapts to available screen space
+- **Control scaling**: All interactive elements scale appropriately
+
+#### Performance Optimizations
+
+- **Reduced animations**: Disables complex animations on small/slow devices
+- **Touch optimization**: 44px minimum touch targets for accessibility
+- **Memory management**: Optimized for various device capabilities
+
+#### Device-Specific Enhancements
+
+- **iOS optimizations**: Safe area handling, playsinline fixes
+- **Android enhancements**: Back button handling, Chrome-specific fixes
+- **High-DPI displays**: Crisp rendering on Retina and high-resolution screens
+
+#### Accessibility & Preferences
+
+- **Reduced motion**: Respects user's motion preferences
+- **High contrast**: Enhanced visibility for accessibility needs
+- **Dark mode**: Automatic adaptation to system color scheme
+- **Touch vs. mouse**: Different interactions for touch and pointer devices
+
+### Orientation & Aspect Ratio Support
+
+- **Portrait tablets**: Optimized layout for vertical orientation
+- **Landscape mobile**: Compact layout for horizontal viewing
+- **Foldable devices**: Handles various aspect ratios and screen configurations
+- **Ultra-wide displays**: Maximizes content area while maintaining usability
 
 ## Getting Started
 
