@@ -6,7 +6,7 @@
     <title>Interactive Video Player with Clickable Regions</title>
     <style>
       /* ================================
-         GLOBAL STYLES & RESET
+         GLOBAL STYLES
          ================================ */
       * {
         margin: 0;
@@ -15,37 +15,40 @@
       }
 
       body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        min-height: 100vh;
         display: flex;
-        align-items: center;
         justify-content: center;
-        padding: 10px;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        overflow: hidden;
       }
 
       /* ================================
-         VIDEO CONTAINER & PLAYER
+         VIDEO CONTAINER STYLES
          ================================ */
       .video-container {
         position: relative;
-        width: 100%;
+        width: 90vw;
         max-width: 1200px;
-        background: #000;
-        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        aspect-ratio: 16 / 9;
       }
 
       #video {
         width: 100%;
-        height: auto;
-        display: block;
+        height: 100%;
+        object-fit: cover;
         outline: none;
       }
 
       /* ================================
-         CLICKABLE REGIONS
+         CLICKABLE REGIONS - FIXED POSITIONING
          ================================ */
 
       /* Container for all clickable regions */
@@ -57,7 +60,9 @@
         height: 100%;
         pointer-events: none;
         z-index: 100;
-      } /* Individual region buttons with icons */
+      }
+
+      /* Individual region buttons with icons */
       .video-region {
         position: absolute;
         background: rgba(255, 255, 255, 0.1);
@@ -78,7 +83,9 @@
         font-size: 24px;
         transform: scale(0.5);
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-      } /* Region visibility states */
+      }
+
+      /* Region visibility states */
       .video-region.visible {
         opacity: 0.7;
         visibility: visible;
@@ -95,14 +102,16 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
           0 0 0 10px rgba(255, 255, 255, 0.1);
         color: white;
-        animation: none; /* Stop animations on hover for better UX */
+        animation: none;
       }
 
       .video-region.visible:active {
         transform: scale(1.05);
         background: rgba(255, 255, 255, 0.25);
         animation: clickRipple 0.6s ease-out;
-      } /* Region content styling */
+      }
+
+      /* Region content styling */
       .region-icon {
         font-size: inherit;
         display: block;
@@ -115,8 +124,11 @@
 
       .region-title,
       .region-duration {
-        display: none; /* Hidden in this implementation */
-      } /* Specific positioning for each region with staggered animations */
+        display: none;
+      }
+
+      /* FIXED POSITIONING - Consistent across all screen sizes and fullscreen */
+      /* Using transform to position relative to container center for consistency */
       .region-rent {
         top: 46%;
         left: 35%;
@@ -125,25 +137,25 @@
 
       .region-transportation {
         top: 47%;
-        right: 49%;
+        left: 51%;
         animation-delay: 0.4s;
       }
 
       .region-inventory {
         top: 51%;
-        right: 30%;
+        left: 70%;
         animation-delay: 0.8s;
       }
 
       .region-labor {
         top: 53%;
-        right: 24%;
+        left: 76%;
         animation-delay: 1.2s;
       }
 
       .region-other {
         top: 55%;
-        right: 18%;
+        left: 82%;
         animation-delay: 1.6s;
       }
 
@@ -157,10 +169,30 @@
       }
 
       /* ================================
+         FULLSCREEN COMPATIBILITY
+         ================================ */
+
+      /* Maintain consistent positioning in fullscreen */
+      .video-container:-webkit-full-screen .video-region,
+      .video-container:-moz-full-screen .video-region,
+      .video-container:fullscreen .video-region {
+        /* Ensure regions maintain their relative positions */
+        position: absolute;
+      }
+
+      /* Prevent positioning drift in fullscreen */
+      .video-container:-webkit-full-screen .regions-container,
+      .video-container:-moz-full-screen .regions-container,
+      .video-container:fullscreen .regions-container {
+        transform: none;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* ================================
          CONTROL BUTTONS
          ================================ */
 
-      /* Shared button styling */
       .control-button {
         position: absolute;
         bottom: 15px;
@@ -188,7 +220,6 @@
         border-color: rgba(255, 255, 255, 0.2);
       }
 
-      /* Individual button positions */
       .fullscreen-button {
         right: 15px;
       }
@@ -205,7 +236,6 @@
          OVERLAY MENU STYLES
          ================================ */
 
-      /* Menu Toggle Button */
       .menu-toggle {
         position: absolute;
         top: 15px;
@@ -234,15 +264,6 @@
         border-color: rgba(255, 255, 255, 0.2);
       }
 
-      .menu-toggle:focus {
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
-      }
-
-      .menu-toggle:active {
-        transform: scale(0.95);
-      }
-
-      /* Overlay Menu Container */
       .overlay-menu {
         position: absolute;
         top: 15px;
@@ -268,7 +289,6 @@
         visibility: visible;
       }
 
-      /* Menu Header */
       .menu-header {
         display: flex;
         justify-content: space-between;
@@ -279,8 +299,6 @@
         margin-bottom: 16px;
         padding-bottom: 12px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        text-transform: none;
-        letter-spacing: 0.5px;
       }
 
       .menu-title {
@@ -305,18 +323,12 @@
         transform: scale(1.1);
       }
 
-      .menu-close:focus {
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-      }
-
-      /* Menu Buttons Container */
       .menu-buttons {
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
 
-      /* Individual Menu Buttons */
       .menu-button {
         padding: 12px 16px;
         background: rgba(255, 255, 255, 0.03);
@@ -329,33 +341,12 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
-        text-transform: none;
         outline: none;
         backdrop-filter: blur(10px);
         text-align: left;
         display: flex;
         align-items: center;
         justify-content: flex-start;
-      }
-
-      .menu-button::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.08),
-          transparent
-        );
-        transition: left 0.6s ease;
-      }
-
-      .menu-button:hover::before {
-        left: 100%;
       }
 
       .menu-button:hover {
@@ -366,96 +357,10 @@
         color: white;
       }
 
-      .menu-button:active {
-        transform: translateY(0);
-        background: rgba(255, 255, 255, 0.12);
-      }
-
-      .menu-button:focus {
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
-      }
-
-      /* ================================
-         EXISTING CONTROL BUTTONS
-         ================================ */
-      /* Shared button styling */
-      .control-button {
-        position: absolute;
-        bottom: 15px;
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 8px;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 999;
-        outline: none;
-        backdrop-filter: blur(10px);
-      }
-
-      .control-button:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: scale(1.05);
-        color: white;
-        border-color: rgba(255, 255, 255, 0.2);
-      }
-
-      /* Individual button positions */
-      .fullscreen-button {
-        right: 15px;
-      }
-
-      .mute-button {
-        right: 53px;
-      }
-
-      .replay-button {
-        right: 91px;
-      }
-
-      /* Legacy button styles for compatibility */
-      .fullscreen-button,
-      .mute-button,
-      .replay-button {
-        position: absolute;
-        bottom: 15px;
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 8px;
-        width: 32px;
-        height: 32px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 999;
-        outline: none;
-        backdrop-filter: blur(10px);
-      }
-
-      .fullscreen-button:hover,
-      .mute-button:hover,
-      .replay-button:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: scale(1.05);
-        color: white;
-        border-color: rgba(255, 255, 255, 0.2);
-      }
-
       /* ================================
          UI OVERLAYS & INDICATORS
          ================================ */
 
-      /* Play/pause visual feedback */
       .play-pause-overlay {
         position: absolute;
         top: 50%;
@@ -477,7 +382,6 @@
         transform: translate(-50%, -50%) scale(1.2);
       }
 
-      /* Loading spinner animation */
       .loading-spinner {
         position: absolute;
         top: 50%;
@@ -499,117 +403,7 @@
         opacity: 1;
         visibility: visible;
       }
-      @keyframes spin {
-        0% {
-          transform: translate(-50%, -50%) rotate(0deg);
-        }
-        100% {
-          transform: translate(-50%, -50%) rotate(360deg);
-        }
-      } /* ================================
-         REGION ICON ANIMATIONS
-         ================================ */
 
-      /* 
-        Animation for Enhanced User Experience:
-        1. Gentle breathing + pulsing ring - constant subtle motion to catch attention
-        2. Icon bounce - draws attention to clickable elements
-        3. Staggered entrance - regions appear in sequence for visual appeal
-        4. Hover effects - clear feedback on interaction readiness
-        5. Click ripple - satisfying visual confirmation of clicks
-        6. Glow effects - enhance visibility against video background
-      */
-
-      /* Gentle breathing effect for region containers */
-      @keyframes breathe {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.05);
-        }
-      }
-
-      /* Pulsing ring effect around regions */
-      @keyframes pulseRing {
-        0% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-        }
-        50% {
-          box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-        }
-      }
-
-      /* Subtle bounce animation for icons */
-      @keyframes iconBounce {
-        0%,
-        20%,
-        50%,
-        80%,
-        100% {
-          transform: translateY(0);
-        }
-        40% {
-          transform: translateY(-3px);
-        }
-        60% {
-          transform: translateY(-2px);
-        }
-      }
-
-      /* Spin animation for icons on hover */
-      @keyframes iconSpin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      /* Click ripple effect */
-      @keyframes clickRipple {
-        0% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
-        }
-        50% {
-          box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-        100% {
-          box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
-        }
-      } /* Glow effect for enhanced visibility */
-      @keyframes glow {
-        0%,
-        100% {
-          filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
-        }
-        50% {
-          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-        }
-      }
-
-      /* Entrance animation when regions first appear */
-      @keyframes entrancePulse {
-        0% {
-          transform: scale(0.8);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 0.9;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 0.7;
-        }
-      }
-
-      /* Status message notifications */
       .status-message {
         position: absolute;
         top: 20px;
@@ -634,9 +428,7 @@
         transform: translateX(-50%) translateY(10px);
       }
 
-      /* ================================
-         PROGRESS BAR & CONTROLS
-         ================================ */
+      /* Progress Bar */
       .progress-container {
         position: absolute;
         bottom: 0;
@@ -656,7 +448,6 @@
         position: relative;
       }
 
-      /* Progress scrubber handle */
       .progress-scrubber {
         position: absolute;
         right: -6px;
@@ -675,7 +466,6 @@
         opacity: 1;
       }
 
-      /* Progress time tooltip */
       .progress-tooltip {
         position: absolute;
         bottom: 8px;
@@ -691,7 +481,6 @@
         white-space: nowrap;
       }
 
-      /* Time display indicator */
       .time-indicator {
         position: absolute;
         bottom: 10px;
@@ -703,233 +492,110 @@
         font-size: 12px;
         font-family: monospace;
         z-index: 200;
-      } /* ================================
-         RESPONSIVE DESIGN
+      }
+
+      /* ================================
+         ANIMATIONS
          ================================ */
 
-      /* Base/Mobile First Styles (320px+) */
-      @media (min-width: 320px) {
-        body {
-          padding: 5px;
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
         }
-
-        .video-container {
-          max-width: 100%;
-          border-radius: 4px;
-        }
-
-        .video-region {
-          width: 28px;
-          height: 28px;
-          font-size: 14px;
-        }
-
-        .menu-toggle {
-          width: 36px;
-          height: 36px;
-          font-size: 14px;
-        }
-
-        .overlay-menu {
-          min-width: 160px;
-          max-width: 200px;
-          padding: 12px;
-        }
-
-        .menu-button {
-          padding: 8px 12px;
-          font-size: 12px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 28px;
-          height: 28px;
-          font-size: 12px;
-          bottom: 10px;
-        }
-
-        .mute-button {
-          right: 36px;
-        }
-
-        .replay-button {
-          right: 72px;
-        }
-
-        .time-indicator {
-          font-size: 10px;
-          padding: 2px 6px;
-          bottom: 8px;
-        }
-
-        .status-message {
-          font-size: 12px;
-          padding: 6px 12px;
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
         }
       }
 
-      /* Small Mobile (375px+) */
-      @media (min-width: 375px) {
-        .video-region {
-          width: 32px;
-          height: 32px;
-          font-size: 16px;
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
         }
-
-        .menu-toggle {
-          width: 40px;
-          height: 40px;
-          font-size: 15px;
-        }
-
-        .overlay-menu {
-          min-width: 180px;
-          max-width: 220px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 30px;
-          height: 30px;
-          font-size: 13px;
-        }
-
-        .mute-button {
-          right: 38px;
-        }
-
-        .replay-button {
-          right: 76px;
+        50% {
+          transform: scale(1.05);
         }
       }
 
-      /* Large Mobile (425px+) */
-      @media (min-width: 425px) {
-        body {
-          padding: 8px;
+      @keyframes pulseRing {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
         }
-
-        .video-region {
-          width: 35px;
-          height: 35px;
-          font-size: 18px;
+        50% {
+          box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
         }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 32px;
-          height: 32px;
-          font-size: 14px;
-        }
-
-        .mute-button {
-          right: 40px;
-        }
-
-        .replay-button {
-          right: 80px;
-        }
-
-        .time-indicator {
-          font-size: 11px;
-          padding: 3px 7px;
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
         }
       }
 
-      /* Mobile Landscape & Small Tablets (600px+) */
-      @media (min-width: 600px) {
-        body {
-          padding: 10px;
+      @keyframes iconBounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
         }
-
-        .video-container {
-          border-radius: 6px;
+        40% {
+          transform: translateY(-3px);
         }
+        60% {
+          transform: translateY(-2px);
+        }
+      }
 
+      @keyframes iconSpin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes clickRipple {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        100% {
+          box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+        }
+      }
+
+      @keyframes entrancePulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+      }
+
+      /* ================================
+         RESPONSIVE DESIGN - IMPROVED
+         ================================ */
+
+      /* Tablet and medium screens */
+      @media (max-width: 768px) {
         .video-region {
           width: 40px;
           height: 40px;
           font-size: 20px;
         }
 
-        .menu-toggle {
-          width: 42px;
-          height: 42px;
-          font-size: 16px;
-        }
-
-        .overlay-menu {
-          min-width: 200px;
-          max-width: 260px;
-          padding: 14px;
-        }
-
-        .menu-button {
-          padding: 10px 14px;
-          font-size: 13px;
-        }
-
-        /* Reposition regions for landscape/tablet layout */
-        .region-rent {
-          top: 40%;
-          left: 25%;
-        }
-
-        .region-transportation {
-          top: 42%;
-          right: 35%;
-        }
-
-        .region-inventory {
-          top: 48%;
-          right: 25%;
-        }
-
-        .region-labor {
-          top: 52%;
-          right: 20%;
-        }
-
-        .region-other {
-          top: 56%;
-          right: 15%;
-        }
-      }
-
-      /* Tablets Portrait (768px+) */
-      @media (min-width: 768px) {
-        .video-region {
-          width: 45px;
-          height: 45px;
-          font-size: 22px;
-        }
-
-        .menu-toggle {
-          width: 44px;
-          height: 44px;
-          font-size: 16px;
-        }
-
-        .overlay-menu {
-          min-width: 220px;
-          max-width: 280px;
-          padding: 16px;
-        }
-
-        .menu-button {
-          padding: 12px 16px;
-          font-size: 13px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 34px;
-          height: 34px;
+        .control-button {
+          width: 36px;
+          height: 36px;
           font-size: 14px;
         }
 
@@ -940,431 +606,97 @@
         .replay-button {
           right: 84px;
         }
-
-        .time-indicator {
-          font-size: 12px;
-          padding: 4px 8px;
-        }
-
-        .status-message {
-          font-size: 14px;
-          padding: 8px 16px;
-        }
       }
 
-      /* Tablets Landscape & Small Desktop (1024px+) */
-      @media (min-width: 1024px) {
-        .video-region {
-          width: 50px;
-          height: 50px;
-          font-size: 24px;
-        }
-
-        .overlay-menu {
-          min-width: 240px;
-          max-width: 300px;
-        }
-
-        /* Enhanced positioning for larger screens */
-        .region-rent {
-          top: 46%;
-          left: 35%;
-        }
-
-        .region-transportation {
-          top: 47%;
-          right: 49%;
-        }
-
-        .region-inventory {
-          top: 51%;
-          right: 30%;
-        }
-
-        .region-labor {
-          top: 53%;
-          right: 24%;
-        }
-
-        .region-other {
-          top: 55%;
-          right: 18%;
-        }
-
-        /* Reduce animation intensity for better performance */
-        .video-region.visible {
-          animation: breathe 2s ease-in-out infinite,
-            pulseRing 2s ease-in-out infinite;
-        }
-
-        .region-icon {
-          animation: iconBounce 2s ease-in-out infinite;
-        }
-      }
-
-      /* Desktop (1200px+) */
-      @media (min-width: 1200px) {
-        body {
-          padding: 15px;
-        }
-
-        .video-container {
-          border-radius: 8px;
-          max-width: 1200px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 36px;
-          height: 36px;
-          font-size: 15px;
-        }
-
-        .mute-button {
-          right: 45px;
-        }
-
-        .replay-button {
-          right: 90px;
-        }
-      }
-
-      /* Large Desktop (1440px+) */
-      @media (min-width: 1440px) {
-        .video-container {
-          max-width: 1400px;
-        }
-
-        .overlay-menu {
-          min-width: 260px;
-          max-width: 320px;
-        }
-
-        .menu-button {
-          padding: 14px 18px;
-          font-size: 14px;
-        }
-      }
-
-      /* Ultra-wide & 4K Displays (1920px+) */
-      @media (min-width: 1920px) {
-        body {
-          padding: 20px;
-        }
-
-        .video-container {
-          max-width: 1600px;
-        }
-
-        .video-region {
-          width: 55px;
-          height: 55px;
-          font-size: 26px;
-        }
-
-        .overlay-menu {
-          min-width: 280px;
-          max-width: 350px;
-          padding: 18px;
-        }
-
-        .menu-button {
-          padding: 16px 20px;
-          font-size: 15px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          width: 38px;
-          height: 38px;
-          font-size: 16px;
-        }
-
-        .mute-button {
-          right: 48px;
-        }
-
-        .replay-button {
-          right: 96px;
-        }
-      }
-
-      /* Ultra-wide Monitors (2560px+) */
-      @media (min-width: 2560px) {
-        .video-container {
-          max-width: 2000px;
-        }
-
-        .overlay-menu {
-          min-width: 300px;
-          max-width: 380px;
-        }
-      }
-
-      /* Height-based responsive adjustments */
-      @media (max-height: 600px) {
+      /* Mobile phones and small screens */
+      @media (max-width: 480px) {
         .video-region {
           width: 35px;
           height: 35px;
           font-size: 18px;
         }
 
-        .overlay-menu {
-          max-height: 400px;
-          overflow-y: auto;
+        /* Adjust positioning for mobile while maintaining relative positions */
+        .region-rent {
+          top: 40%;
+          left: 25%;
         }
 
-        .menu-button {
-          padding: 8px 12px;
-          font-size: 12px;
+        .region-transportation {
+          top: 42%;
+          left: 45%;
         }
 
-        .status-message {
-          top: 10px;
-          font-size: 12px;
+        .region-inventory {
+          top: 50%;
+          left: 65%;
+        }
+
+        .region-labor {
+          top: 52%;
+          left: 70%;
+        }
+
+        .region-other {
+          top: 60%;
+          left: 50%;
+        }
+
+        .video-region.visible {
+          animation: breathe 3s ease-in-out infinite;
+        }
+
+        .region-icon {
+          animation: iconBounce 3s ease-in-out infinite;
         }
       }
 
-      @media (max-height: 480px) {
+      /* Ultra-wide screens */
+      @media screen and (min-aspect-ratio: 21/9) {
+        .region-rent {
+          left: 40%;
+        }
+        .region-transportation {
+          left: 56%;
+        }
+        .region-inventory {
+          left: 74%;
+        }
+        .region-labor {
+          left: 80%;
+        }
+        .region-other {
+          left: 86%;
+        }
+      }
+
+      /* Very tall/narrow screens */
+      @media screen and (max-aspect-ratio: 9/16) {
         .video-region {
           width: 30px;
           height: 30px;
           font-size: 16px;
         }
 
-        .overlay-menu {
-          max-height: 300px;
-          padding: 10px;
-        }
-
-        .menu-button {
-          padding: 6px 10px;
-          font-size: 11px;
-        }
-
-        .time-indicator {
-          font-size: 10px;
-          padding: 2px 6px;
-        }
-      }
-
-      /* Orientation-specific styles */
-      @media (orientation: landscape) and (max-height: 600px) {
-        .overlay-menu {
-          max-height: 80vh;
-          overflow-y: auto;
-        }
-
-        /* Compact layout for landscape mode */
         .region-rent {
-          top: 25%;
-          left: 15%;
+          left: 30%;
+          top: 42%;
         }
         .region-transportation {
-          top: 25%;
-          right: 25%;
+          left: 46%;
+          top: 43%;
         }
         .region-inventory {
-          bottom: 25%;
-          left: 15%;
+          left: 66%;
+          top: 47%;
         }
         .region-labor {
-          bottom: 25%;
-          right: 25%;
+          left: 72%;
+          top: 49%;
         }
         .region-other {
-          bottom: 15%;
-          left: 50%;
-          transform: translateX(-50%);
-        }
-      }
-
-      @media (orientation: portrait) and (min-width: 768px) {
-        /* Portrait tablet specific adjustments */
-        .region-rent {
-          top: 20%;
-          left: 15%;
-        }
-        .region-transportation {
-          top: 20%;
-          right: 15%;
-        }
-        .region-inventory {
-          top: 40%;
-          left: 15%;
-        }
-        .region-labor {
-          top: 40%;
-          right: 15%;
-        }
-        .region-other {
-          bottom: 20%;
-          left: 50%;
-          transform: translateX(-50%);
-        }
-      }
-
-      /* High-DPI displays */
-      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-        .video-region {
-          border-width: 1px;
-        }
-
-        .progress-scrubber {
-          width: 10px;
-          height: 10px;
-        }
-
-        .overlay-menu {
-          border-width: 1px;
-        }
-      }
-
-      /* Reduced motion preferences */
-      @media (prefers-reduced-motion: reduce) {
-        .video-region.visible {
-          animation: none;
-          transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .region-icon {
-          animation: none;
-        }
-
-        .menu-button::before {
-          transition: none;
-        }
-
-        .overlay-menu {
-          transition: opacity 0.2s ease, visibility 0.2s ease;
-          transform: none;
-        }
-
-        .overlay-menu.visible {
-          transform: none;
-        }
-      }
-
-      /* High contrast mode */
-      @media (prefers-contrast: high) {
-        .video-region {
-          border-color: white;
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
-        }
-
-        .overlay-menu {
-          background: rgba(0, 0, 0, 0.9);
-          border-color: white;
-        }
-
-        .menu-button {
-          border-color: white;
-          background: rgba(255, 255, 255, 0.1);
-        }
-
-        .menu-button:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: white;
-        }
-      }
-
-      /* Dark mode preference */
-      @media (prefers-color-scheme: dark) {
-        .overlay-menu {
-          background: rgba(20, 20, 20, 0.95);
-          backdrop-filter: blur(25px);
-        }
-
-        .menu-button {
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.1);
-        }
-      }
-
-      /* Touch device optimizations */
-      @media (pointer: coarse) {
-        .video-region {
-          min-width: 44px;
-          min-height: 44px;
-        }
-
-        .menu-toggle {
-          min-width: 44px;
-          min-height: 44px;
-        }
-
-        .menu-button {
-          min-height: 44px;
-          padding: 12px 16px;
-        }
-
-        .fullscreen-button,
-        .mute-button,
-        .replay-button {
-          min-width: 44px;
-          min-height: 44px;
-        }
-      }
-
-      /* Hover-capable devices */
-      @media (hover: hover) {
-        .video-region:hover {
-          transform: scale(1.15);
-        }
-
-        .menu-button:hover {
-          transform: translateY(-2px);
-        }
-      }
-
-      /* Non-hover devices (touch) */
-      @media (hover: none) {
-        .video-region:hover {
-          transform: scale(1.05);
-        }
-
-        .menu-button:hover {
-          transform: none;
-        }
-
-        .video-region:active {
-          transform: scale(0.95);
-        }
-      }
-
-      /* Foldable devices */
-      @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-        .video-container {
-          max-width: 90vw;
-        }
-
-        .overlay-menu {
-          max-width: 250px;
-        }
-      }
-
-      /* Print styles */
-      @media print {
-        .video-region,
-        .overlay-menu,
-        .menu-toggle,
-        .fullscreen-button,
-        .mute-button,
-        .replay-button,
-        .progress-container,
-        .time-indicator,
-        .status-message,
-        .play-pause-overlay,
-        .loading-spinner {
-          display: none !important;
-        }
-
-        .video-container {
-          box-shadow: none;
-          border: 1px solid #000;
+          left: 78%;
+          top: 51%;
         }
       }
     </style>
@@ -1373,12 +705,12 @@
     <div class="video-container" id="videoContainer">
       <video id="video" preload="metadata" autoplay muted playsinline>
         <source
-          src="video\Colliers-Presentation-FullVideo.mp4"
+          src="video/Colliers-Presentation-FullVideo.mp4"
           type="video/mp4"
         />
         <p>
           Your browser doesn't support HTML5 video. Here is a
-          <a href="video\Colliers-Presentation-FullVideo.mp4"
+          <a href="video/Colliers-Presentation-FullVideo.mp4"
             >link to the video</a
           >
           instead.
@@ -1459,21 +791,22 @@
         </div>
         <div class="progress-tooltip" id="progressTooltip">00:00</div>
       </div>
+
       <!-- Time Indicator -->
       <div class="time-indicator" id="timeIndicator">00:00 / 00:00</div>
 
-      <!-- Fullscreen Button -->
+      <!-- Control Buttons -->
       <button
-        class="fullscreen-button"
+        class="control-button fullscreen-button"
         id="fullscreenButton"
         aria-label="Toggle fullscreen"
         title="Fullscreen"
       >
         ⛶
       </button>
-      <!-- Mute/Unmute Button -->
+
       <button
-        class="mute-button"
+        class="control-button mute-button"
         id="muteButton"
         aria-label="Mute video"
         title="Mute"
@@ -1481,9 +814,8 @@
         🔊
       </button>
 
-      <!-- Replay Button -->
       <button
-        class="replay-button"
+        class="control-button replay-button"
         id="replayButton"
         aria-label="Replay video"
         title="Replay from beginning"
@@ -1517,7 +849,7 @@
         <div class="menu-buttons">
           <button
             class="menu-button"
-            onclick="playPeriod(4.5, 15, 'Rent')"
+            onclick="playPeriod(4.5, 15, 'Rent Services')"
             role="menuitem"
             aria-label="Play Rent Services section from 4.5 to 15 seconds"
           >
@@ -1558,10 +890,12 @@
         </div>
       </div>
     </div>
+
     <script>
       /**
-       * Interactive Video Player with Clickable Regions
+       * Interactive Video Player with Fixed Positioning
        * Handles video playback, region interactions, and UI controls
+       * with consistent positioning across screen sizes and fullscreen
        */
       class InteractiveVideoPlayer {
         constructor() {
@@ -1585,14 +919,14 @@
           this.menuClose = document.getElementById("menuClose");
 
           // Player state variables
-          this.stopTime = null; // End time for current period playback
-          this.isFullscreen = false; // Fullscreen state
-          this.isDragging = false; // Progress bar dragging state
-          this.isInitialAutoplay = true; // First-time autoplay flag
-          this.isPlayingPeriod = false; // Currently playing a specific period
-          this.isMenuOpen = false; // Menu open/close state
+          this.stopTime = null;
+          this.isFullscreen = false;
+          this.isDragging = false;
+          this.isInitialAutoplay = true;
+          this.isPlayingPeriod = false;
+          this.isMenuOpen = false;
 
-          // Video section definitions with timestamps and region mappings
+          // Video section definitions
           this.videoPeriods = [
             {
               start: 4.5,
@@ -1631,13 +965,15 @@
           this.setupKeyboardControls();
           this.setupFullscreenSupport();
           this.updateMuteButton();
+          this.initializeMobileSupport();
         }
 
         /**
          * ========================================
          * EVENT LISTENER SETUP
          * ========================================
-         */ initializeEventListeners() {
+         */
+        initializeEventListeners() {
           // Control button event listeners
           this.fullscreenButton.addEventListener("click", () =>
             this.toggleFullscreen()
@@ -1683,7 +1019,6 @@
             }
           });
           this.video.addEventListener("pause", () => {
-            // Only update region visibility if not currently playing a period
             if (!this.isPlayingPeriod) {
               this.updateRegionVisibility();
             }
@@ -1691,7 +1026,7 @@
           this.video.addEventListener("ended", () => this.handleVideoEnd());
           this.video.addEventListener("error", () => this.handleVideoError());
 
-          // Video click handling (play/pause toggle)
+          // Video click handling
           this.video.addEventListener("click", (e) => {
             if (!e.target.closest(".video-region")) {
               this.togglePlayPause();
@@ -1719,65 +1054,55 @@
               this.closeMenu();
             }
           });
-
-          // Initialize mobile support
-          this.initializeMobileSupport();
         }
 
         /**
          * Setup keyboard shortcuts for player control
-         */ setupKeyboardControls() {
+         */
+        setupKeyboardControls() {
           document.addEventListener("keydown", (e) => {
             switch (e.key) {
-              case " ": // Space-bar: Play/Pause
+              case " ":
                 this.togglePlayPause();
                 e.preventDefault();
                 break;
               case "f":
-              case "F": // F: Toggle fullscreen
+              case "F":
                 this.toggleFullscreen();
                 e.preventDefault();
                 break;
               case "m":
-              case "M": // M: Toggle mute
+              case "M":
                 this.toggleMute();
                 e.preventDefault();
                 break;
               case "r":
-              case "R": // R: Replay video
+              case "R":
                 this.replayVideo();
                 e.preventDefault();
                 break;
-              case "ArrowLeft": // Left arrow: Skip back 10s
+              case "ArrowLeft":
                 this.seekRelative(-10);
                 e.preventDefault();
                 break;
-              case "ArrowRight": // Right arrow: Skip forward 10s
+              case "ArrowRight":
                 this.seekRelative(10);
                 e.preventDefault();
                 break;
-              case "ArrowUp": // Up arrow: Skip forward 30s
+              case "ArrowUp":
                 this.seekRelative(30);
                 e.preventDefault();
                 break;
-              case "ArrowDown": // Down arrow: Skip back 30s
+              case "ArrowDown":
                 this.seekRelative(-30);
                 e.preventDefault();
                 break;
-              case ",": // Comma: Frame back
-                this.seekRelative(-0.1);
-                e.preventDefault();
-                break;
-              case ".": // Period: Frame forward
-                this.seekRelative(0.1);
-                e.preventDefault();
-                break;
-              case "Tab": // Tab: Toggle menu
-                if (e.shiftKey) break; // Allow normal tab behavior with Shift
+              case "Tab":
+                if (e.shiftKey) break;
                 this.toggleMenu();
                 e.preventDefault();
                 break;
-              case "Escape": // Escape: Close menu
+              case "Escape":
                 if (this.isMenuOpen) {
                   this.closeMenu();
                   e.preventDefault();
@@ -1788,7 +1113,7 @@
         }
 
         /**
-         * Setup fullscreen support (double-click)
+         * Setup fullscreen support
          */
         setupFullscreenSupport() {
           this.video.addEventListener("dblclick", () => {
@@ -1802,9 +1127,7 @@
          * ========================================
          */
 
-        /**
-         * Toggle video play/pause state
-         */ togglePlayPause() {
+        togglePlayPause() {
           if (this.video.paused) {
             this.video
               .play()
@@ -1820,9 +1143,6 @@
           }
         }
 
-        /**
-         * Display play/pause visual feedback
-         */
         showPlayPauseIndicator(icon) {
           this.playPauseOverlay.textContent = icon;
           this.playPauseOverlay.classList.add("show");
@@ -1832,12 +1152,8 @@
           }, 500);
         }
 
-        /**
-         * Toggle fullscreen mode
-         */
         toggleFullscreen() {
           if (!this.isFullscreen) {
-            // Enter fullscreen
             if (this.videoContainer.requestFullscreen) {
               this.videoContainer.requestFullscreen();
             } else if (this.videoContainer.webkitRequestFullscreen) {
@@ -1846,7 +1162,6 @@
               this.videoContainer.mozRequestFullScreen();
             }
           } else {
-            // Exit fullscreen
             if (document.exitFullscreen) {
               document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {
@@ -1858,16 +1173,54 @@
         }
 
         /**
-         * Toggle audio mute state
+         * Handle fullscreen state changes - IMPROVED VERSION
          */
+        handleFullscreenChange() {
+          this.isFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement
+          );
+
+          if (this.isFullscreen) {
+            this.fullscreenButton.textContent = "⛶";
+            this.fullscreenButton.title = "Exit fullscreen";
+            // Ensure regions maintain their positioning in fullscreen
+            this.ensureRegionPositioning();
+            if (!this.isInitialAutoplay) {
+              this.showStatus("Press R to replay, F to exit fullscreen");
+            }
+          } else {
+            this.fullscreenButton.textContent = "⛶";
+            this.fullscreenButton.title = "Fullscreen";
+            // Reset any positioning adjustments
+            this.ensureRegionPositioning();
+          }
+        }
+
+        /**
+         * Ensure region positioning remains consistent across screen changes
+         */
+        ensureRegionPositioning() {
+          const regions = document.querySelectorAll(".video-region");
+
+          regions.forEach((region) => {
+            // Force repositioning by triggering a reflow
+            region.style.transform = "translateZ(0)";
+
+            // Use requestAnimationFrame to ensure smooth positioning
+            requestAnimationFrame(() => {
+              region.style.transform = "";
+            });
+          });
+        }
+
         toggleMute() {
           this.video.muted = !this.video.muted;
           this.updateMuteButton();
         }
 
-        /**
-         * Update mute button appearance based on audio state
-         */ updateMuteButton() {
+        updateMuteButton() {
           if (this.video.muted) {
             this.muteButton.textContent = "🔇";
             this.muteButton.setAttribute("aria-label", "Unmute video");
@@ -1879,22 +1232,13 @@
           }
         }
 
-        /**
-         * Restart video from beginning
-         */
         replayVideo() {
-          // Reset all playback states
           this.isPlayingPeriod = false;
           this.stopTime = null;
-
-          // Reset to beginning
           this.video.currentTime = 0;
           this.progressBar.style.width = "0%";
-
-          // Hide all region icons initially
           this.hideAllRegions();
 
-          // Start playback
           this.video
             .play()
             .then(() => {
@@ -1912,9 +1256,6 @@
          * ========================================
          */
 
-        /**
-         * Toggle overlay menu visibility
-         */
         toggleMenu() {
           this.isMenuOpen = !this.isMenuOpen;
 
@@ -1925,61 +1266,24 @@
           }
         }
 
-        /**
-         * Open overlay menu
-         */
         openMenu() {
           this.isMenuOpen = true;
           this.overlayMenu.classList.add("visible");
           this.menuToggle.style.opacity = "0";
           this.menuToggle.style.pointerEvents = "none";
 
-          // Focus on first menu button for accessibility
           const firstButton = this.overlayMenu.querySelector(".menu-button");
           if (firstButton) {
             firstButton.focus();
           }
         }
 
-        /**
-         * Close overlay menu
-         */
         closeMenu() {
           this.isMenuOpen = false;
           this.overlayMenu.classList.remove("visible");
           this.menuToggle.style.opacity = "1";
           this.menuToggle.style.pointerEvents = "all";
-
-          // Return focus to toggle button
           this.menuToggle.focus();
-        }
-
-        /**
-         * ========================================
-         * EXISTING FULLSCREEN HANDLING
-         * ========================================
-         */
-
-        /**
-         * Handle fullscreen state changes
-         */
-        handleFullscreenChange() {
-          this.isFullscreen = !!(
-            document.fullscreenElement ||
-            document.webkitFullscreenElement ||
-            document.mozFullScreenElement
-          );
-
-          if (this.isFullscreen) {
-            this.fullscreenButton.textContent = "⛶";
-            this.fullscreenButton.title = "Exit fullscreen";
-            if (!this.isInitialAutoplay) {
-              this.showStatus("Press R to replay, F to exit fullscreen");
-            }
-          } else {
-            this.fullscreenButton.textContent = "⛶";
-            this.fullscreenButton.title = "Fullscreen";
-          }
         }
 
         /**
@@ -1988,69 +1292,51 @@
          * ========================================
          */
 
-        /**
-         * Handle video time updates and region visibility
-         */ handleTimeUpdate() {
-          // Update progress bar display
+        handleTimeUpdate() {
           if (this.video.duration) {
             const progress =
               (this.video.currentTime / this.video.duration) * 100;
             this.progressBar.style.width = progress + "%";
           }
 
-          // Update time display
           const current = this.formatTime(this.video.currentTime);
           const duration = this.formatTime(this.video.duration || 0);
           this.timeIndicator.textContent = `${current} / ${duration}`;
 
-          // Update region icon visibility
           this.updateRegionVisibility();
 
-          // Handle period end time
           if (this.stopTime && this.video.currentTime >= this.stopTime) {
             this.video.pause();
             this.stopTime = null;
             this.isPlayingPeriod = false;
-            this.updateRegionVisibility(); // Show icons again
+            this.updateRegionVisibility();
             this.showStatus("Section completed");
           }
         }
 
-        /**
-         * Control region icon visibility based on video time and state
-         */
         updateRegionVisibility() {
           const currentTime = this.video.currentTime;
-
-          // Show regions 1.2 seconds before first period (at 3.3s)
           const firstPeriodStart = 4.5;
           const showAllRegionsTime = firstPeriodStart - 1.2;
-
-          // Hide regions after last period ends
           const lastPeriodEnd = 59;
 
-          // Define time intervals where icons should be hidden
           const hideIntervals = [
-            { start: 25.5, end: 31.5 }, // 26s - 31s interval
-            { start: 46.5, end: 52.5 }, // 46.5s - 52.5s interval
-            { start: 56, end: 59 }, // 56s - end interval
+            { start: 25.5, end: 31.5 },
+            { start: 46.5, end: 52.5 },
+            { start: 56, end: 59 },
           ];
 
-          // Check if current time falls within any hide interval
           const isInHideInterval = hideIntervals.some(
             (interval) =>
               currentTime >= interval.start && currentTime < interval.end
           );
 
-          // Show regions only when:
-          // 1. Time is after show time and before end time
-          // 2. Not currently playing a period
-          // 3. Not in a hide interval
           const shouldShowRegions =
             currentTime >= showAllRegionsTime &&
             currentTime < lastPeriodEnd &&
             !this.isPlayingPeriod &&
-            !isInHideInterval; // Apply visibility to all region elements
+            !isInHideInterval;
+
           this.videoPeriods.forEach((period, index) => {
             const regionElement = document.querySelector(
               `.${period.regionClass}`
@@ -2058,10 +1344,8 @@
             if (regionElement) {
               if (shouldShowRegions) {
                 if (!regionElement.classList.contains("visible")) {
-                  // Add a small delay for staggered entrance effect
                   setTimeout(() => {
                     regionElement.classList.add("visible");
-                    // Add entrance pulse effect
                     regionElement.style.animation =
                       "breathe 2s ease-in-out infinite, pulseRing 2s ease-in-out infinite, entrancePulse 0.6s ease-out";
                   }, index * 100);
@@ -2069,7 +1353,6 @@
               } else {
                 if (regionElement.classList.contains("visible")) {
                   regionElement.classList.remove("visible");
-                  // Reset animation
                   regionElement.style.animation = "";
                 }
               }
@@ -2083,9 +1366,7 @@
          * ========================================
          */
 
-        /**
-         * Format seconds to MM:SS display
-         */ formatTime(seconds) {
+        formatTime(seconds) {
           const mins = Math.floor(seconds / 60);
           const secs = Math.floor(seconds % 60);
           return `${mins.toString().padStart(2, "0")}:${secs
@@ -2093,23 +1374,14 @@
             .padStart(2, "0")}`;
         }
 
-        /**
-         * Show loading spinner
-         */
         showLoading() {
           this.loadingSpinner.classList.add("visible");
         }
 
-        /**
-         * Hide loading spinner
-         */
         hideLoading() {
           this.loadingSpinner.classList.remove("visible");
         }
 
-        /**
-         * Display status message with auto-hide
-         */
         showStatus(message, duration = 3000) {
           this.statusMessage.textContent = message;
           this.statusMessage.classList.add("visible");
@@ -2119,23 +1391,11 @@
           }, duration);
         }
 
-        /**
-         * ========================================
-         * VIDEO EVENT HANDLERS
-         * ========================================
-         */
-
-        /**
-         * Handle video end event
-         */
         handleVideoEnd() {
           this.showStatus("Video ended");
           this.stopTime = null;
         }
 
-        /**
-         * Handle video loading errors
-         */
         handleVideoError() {
           this.hideLoading();
           this.showStatus("Error loading video", 5000);
@@ -2147,10 +1407,7 @@
          * ========================================
          */
 
-        /**
-         * Play a specific video period/section
-         */ playPeriod(start, end, sectionName) {
-          // Close menu if open
+        playPeriod(start, end, sectionName) {
           if (this.isMenuOpen) {
             this.closeMenu();
           }
@@ -2158,8 +1415,6 @@
           this.video.currentTime = start;
           this.stopTime = end;
           this.isPlayingPeriod = true;
-
-          // Hide all region icons during period playback
           this.hideAllRegions();
 
           this.video
@@ -2172,9 +1427,6 @@
             });
         }
 
-        /**
-         * Hide all region icons
-         */
         hideAllRegions() {
           this.videoPeriods.forEach((period) => {
             const regionElement = document.querySelector(
@@ -2192,9 +1444,7 @@
          * ========================================
          */
 
-        /**
-         * Handle progress bar click for seeking
-         */ handleProgressClick(e) {
+        handleProgressClick(e) {
           const rect = this.progressContainer.getBoundingClientRect();
           const clickX = e.clientX - rect.left;
           const width = rect.width;
@@ -2202,9 +1452,6 @@
           this.seekToPercentage(percentage);
         }
 
-        /**
-         * Handle progress bar hover for time preview
-         */
         handleProgressHover(e) {
           const rect = this.progressContainer.getBoundingClientRect();
           const hoverX = e.clientX - rect.left;
@@ -2219,9 +1466,6 @@
           }
         }
 
-        /**
-         * Hide progress time tooltip
-         */
         hideProgressTooltip() {
           this.progressTooltip.style.opacity = "0";
         }
@@ -2232,9 +1476,6 @@
          * ========================================
          */
 
-        /**
-         * Handle touch start on progress bar
-         */
         handleProgressTouchStart(e) {
           e.preventDefault();
           this.isDragging = true;
@@ -2242,9 +1483,6 @@
           this.handleProgressTouch(e);
         }
 
-        /**
-         * Handle touch move on progress bar
-         */
         handleProgressTouchMove(e) {
           e.preventDefault();
           if (this.isDragging) {
@@ -2252,9 +1490,6 @@
           }
         }
 
-        /**
-         * Handle touch end on progress bar
-         */
         handleProgressTouchEnd(e) {
           e.preventDefault();
           this.isDragging = false;
@@ -2262,9 +1497,6 @@
           this.hideProgressTooltip();
         }
 
-        /**
-         * Process touch events for progress seeking
-         */
         handleProgressTouch(e) {
           const rect = this.progressContainer.getBoundingClientRect();
           const touch = e.touches[0] || e.changedTouches[0];
@@ -2281,284 +1513,52 @@
             this.progressTooltip.style.opacity = "1";
           }
         }
-        /**
-         * Initialize mobile device support
-         */
-        initializeMobileSupport() {
-          // Detect device type and capabilities
-          this.isTouchDevice =
-            "ontouchstart" in window || navigator.maxTouchPoints > 0;
-          this.isSmallScreen = window.innerWidth < 768;
-          this.isHighDPI = window.devicePixelRatio > 1.5;
 
-          // Handle screen orientation changes
+        initializeMobileSupport() {
           window.addEventListener("orientationchange", () => {
             setTimeout(() => {
               this.handleOrientationChange();
             }, 100);
           });
 
-          // Handle window resize with debouncing
-          let resizeTimeout;
           window.addEventListener("resize", () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-              this.handleResize();
-            }, 150);
+            this.handleResize();
           });
 
-          // Prevent multi-touch gestures on video
           this.video.addEventListener("touchstart", (e) => {
             if (e.touches.length > 1) {
               e.preventDefault();
             }
           });
 
-          // Enhanced double-tap handling for mobile
           let lastTouchEnd = 0;
-          let tapCount = 0;
           this.video.addEventListener(
             "touchend",
             (e) => {
               const now = new Date().getTime();
-              const timeSinceLastTap = now - lastTouchEnd;
-
-              if (timeSinceLastTap < 300 && timeSinceLastTap > 0) {
-                tapCount++;
-                if (tapCount === 2) {
-                  e.preventDefault();
-                  this.toggleFullscreen();
-                  tapCount = 0;
-                }
-              } else {
-                tapCount = 1;
+              if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+                this.toggleFullscreen();
               }
               lastTouchEnd = now;
             },
             false
           );
-
-          // Optimize for different screen sizes
-          this.optimizeForScreenSize();
-
-          // Handle device-specific optimizations
-          this.handleDeviceOptimizations();
         }
 
-        /**
-         * Optimize performance and UI for current screen size
-         */
-        optimizeForScreenSize() {
-          const screenWidth = window.innerWidth;
-          const screenHeight = window.innerHeight;
-
-          // Ultra-small screens (< 375px)
-          if (screenWidth < 375) {
-            this.reduceAnimations();
-            this.optimizeForSmallScreen();
-          }
-
-          // Medium screens (375px - 768px)
-          else if (screenWidth < 768) {
-            this.optimizeForMobile();
-          }
-
-          // Large screens (768px - 1440px)
-          else if (screenWidth < 1440) {
-            this.optimizeForTabletDesktop();
-          }
-
-          // Ultra-wide screens (> 1440px)
-          else {
-            this.optimizeForLargeScreen();
-          }
-
-          // Height-based optimizations
-          if (screenHeight < 600) {
-            this.optimizeForShortScreen();
-          }
-        }
-
-        /**
-         * Reduce animations for small/slow devices
-         */
-        reduceAnimations() {
-          const style = document.createElement("style");
-          style.textContent = `
-            .video-region.visible {
-              animation: none !important;
-              transition: opacity 0.2s ease, transform 0.2s ease !important;
-            }
-            .region-icon {
-              animation: none !important;
-            }
-            .overlay-menu {
-              transition: opacity 0.2s ease, visibility 0.2s ease !important;
-            }
-          `;
-          document.head.appendChild(style);
-        }
-
-        /**
-         * Optimize for very small screens
-         */
-        optimizeForSmallScreen() {
-          // Reduce overlay menu size
-          this.overlayMenu.style.minWidth = "140px";
-          this.overlayMenu.style.maxWidth = "180px";
-
-          // Simplify status messages
-          this.showStatus = (message, duration = 2000) => {
-            this.statusMessage.textContent =
-              message.length > 30 ? message.substring(0, 27) + "..." : message;
-            this.statusMessage.classList.add("visible");
-            setTimeout(() => {
-              this.statusMessage.classList.remove("visible");
-            }, duration);
-          };
-        }
-
-        /**
-         * Mobile-specific optimizations
-         */
-        optimizeForMobile() {
-          // Add touch-friendly padding
-          document.body.style.padding = "8px";
-
-          // Optimize menu for mobile
-          this.overlayMenu.style.maxHeight = "70vh";
-          this.overlayMenu.style.overflowY = "auto";
-        }
-
-        /**
-         * Tablet/Desktop optimizations
-         */
-        optimizeForTabletDesktop() {
-          // Standard optimizations for mid-range devices
-          document.body.style.padding = "12px";
-        }
-
-        /**
-         * Large screen optimizations
-         */
-        optimizeForLargeScreen() {
-          // Enhanced spacing for large screens
-          document.body.style.padding = "20px";
-
-          // Larger overlay menu
-          this.overlayMenu.style.minWidth = "280px";
-          this.overlayMenu.style.maxWidth = "350px";
-        }
-
-        /**
-         * Short screen optimizations
-         */
-        optimizeForShortScreen() {
-          // Compact overlay menu
-          this.overlayMenu.style.maxHeight = "80vh";
-          this.overlayMenu.style.overflowY = "auto";
-
-          // Smaller regions
-          const regions = document.querySelectorAll(".video-region");
-          regions.forEach((region) => {
-            region.style.width = "30px";
-            region.style.height = "30px";
-            region.style.fontSize = "16px";
-          });
-        }
-
-        /**
-         * Handle device-specific optimizations
-         */
-        handleDeviceOptimizations() {
-          // iOS-specific fixes
-          if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            this.handleiOSOptimizations();
-          }
-
-          // Android-specific fixes
-          if (/Android/.test(navigator.userAgent)) {
-            this.handleAndroidOptimizations();
-          }
-
-          // High-DPI display optimizations
-          if (this.isHighDPI) {
-            this.handleHighDPIOptimizations();
-          }
-        }
-
-        /**
-         * iOS-specific optimizations
-         */
-        handleiOSOptimizations() {
-          // Fix iOS video playback issues
-          this.video.playsInline = true;
-          this.video.webkitPlaysInline = true;
-
-          // Handle iOS safe areas
-          if (window.screen.height === 812 || window.screen.height === 896) {
-            document.body.style.paddingTop = "env(safe-area-inset-top, 20px)";
-            document.body.style.paddingBottom =
-              "env(safe-area-inset-bottom, 20px)";
-          }
-        }
-
-        /**
-         * Android-specific optimizations
-         */
-        handleAndroidOptimizations() {
-          // Android Chrome specific fixes
-          this.video.style.outline = "none";
-
-          // Handle Android back button for menu
-          if (history.pushState) {
-            window.addEventListener("popstate", () => {
-              if (this.isMenuOpen) {
-                this.closeMenu();
-                history.pushState(null, null, window.location.href);
-              }
-            });
-          }
-        }
-
-        /**
-         * High-DPI display optimizations
-         */
-        handleHighDPIOptimizations() {
-          // Sharper borders and elements
-          const style = document.createElement("style");
-          style.textContent = `
-            .video-region {
-              border-width: 0.5px !important;
-            }
-            .overlay-menu {
-              border-width: 0.5px !important;
-            }
-            .progress-scrubber {
-              width: 10px !important;
-              height: 10px !important;
-            }
-          `;
-          document.head.appendChild(style);
-        }
-        /**
-         * Handle device orientation changes
-         */
         handleOrientationChange() {
           this.video.style.height = "auto";
           this.updateProgressBar();
+          // Ensure region positioning after orientation change
+          this.ensureRegionPositioning();
         }
 
-        /**
-         * Handle window resize events
-         */
         handleResize() {
           this.updateProgressBar();
+          // Ensure region positioning after resize
+          this.ensureRegionPositioning();
         }
 
-        /**
-         * Update progress bar on resize
-         */
         updateProgressBar() {
           if (this.video.duration) {
             const progress =
@@ -2573,9 +1573,6 @@
          * ========================================
          */
 
-        /**
-         * Seek video by relative time amount
-         */
         seekRelative(seconds) {
           if (this.video.duration) {
             const newTime = Math.max(
@@ -2586,10 +1583,8 @@
             const progress = (newTime / this.video.duration) * 100;
             this.progressBar.style.width = progress + "%";
 
-            // Reset period state if seeking outside current period
             this.checkAndResetPeriodState(newTime);
 
-            // Show seek feedback message
             const direction = seconds > 0 ? "forward" : "backward";
             const absSeconds = Math.abs(seconds);
             if (absSeconds >= 1) {
@@ -2602,35 +1597,24 @@
           }
         }
 
-        /**
-         * Seek to specific percentage of video
-         */
         seekToPercentage(percentage) {
           if (this.video.duration) {
             const newTime = percentage * this.video.duration;
             this.video.currentTime = newTime;
             this.progressBar.style.width = percentage * 100 + "%";
 
-            // Reset period state if seeking outside current period
             this.checkAndResetPeriodState(newTime);
-
             this.showStatus(`Seeked to ${this.formatTime(newTime)}`);
           }
         }
 
-        /**
-         * Check and reset period state when seeking
-         */
         checkAndResetPeriodState(newTime) {
-          // If currently playing a period and user seeks outside that period
           if (this.isPlayingPeriod && this.stopTime) {
-            // Find the current period by matching end time
             const currentPeriod = this.videoPeriods.find(
               (period) => period.end === this.stopTime
             );
 
             if (currentPeriod) {
-              // If seeking outside current period range, reset period state
               if (
                 newTime < currentPeriod.start ||
                 newTime >= currentPeriod.end
@@ -2643,48 +1627,6 @@
             }
           }
         }
-
-        /**
-         * Toggle menu visibility
-         */
-        toggleMenu() {
-          this.isMenuOpen = !this.isMenuOpen;
-
-          if (this.isMenuOpen) {
-            this.openMenu();
-          } else {
-            this.closeMenu();
-          }
-        }
-
-        /**
-         * Open overlay menu
-         */
-        openMenu() {
-          this.isMenuOpen = true;
-          this.overlayMenu.classList.add("visible");
-          this.menuToggle.style.opacity = "0";
-          this.menuToggle.style.pointerEvents = "none";
-
-          // Focus on first menu button for accessibility
-          const firstButton = this.overlayMenu.querySelector(".menu-button");
-          if (firstButton) {
-            firstButton.focus();
-          }
-        }
-
-        /**
-         * Close overlay menu
-         */
-        closeMenu() {
-          this.isMenuOpen = false;
-          this.overlayMenu.classList.remove("visible");
-          this.menuToggle.style.opacity = "1";
-          this.menuToggle.style.pointerEvents = "all";
-
-          // Return focus to toggle button
-          this.menuToggle.focus();
-        }
       }
 
       /**
@@ -2693,15 +1635,10 @@
        * ========================================
        */
 
-      /**
-       * Global function for region click handling
-       */
       function playPeriod(start, end, sectionName) {
         window.videoPlayer.playPeriod(start, end, sectionName);
       }
-      /**
-       * Initialize video player when DOM is ready
-       */
+
       document.addEventListener("DOMContentLoaded", () => {
         window.videoPlayer = new InteractiveVideoPlayer();
       });
