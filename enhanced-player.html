@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interactive Video Player with Clickable Regions</title>
+    <style>
+      /* ================================
+         GLOBAL STYLES & RESET
+         ================================ */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+      }
+
+      /* ================================
+         VIDEO CONTAINER & PLAYER
+         ================================ */
+      .video-container {
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        background: #000;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      #video {
+        width: 100%;
+        height: auto;
+        display: block;
+        outline: none;
+      }
+
+      /* ================================
+         CLICKABLE REGIONS
+         ================================ */
+
+      /* Container for all clickable regions */
+      .regions-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 100;
+      } /* Individual region buttons with icons */
+      .video-region {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        cursor: pointer;
+        pointer-events: all;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.9);
+        opacity: 0;
+        visibility: hidden;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        transform: scale(0.5);
+        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+      } /* Region visibility states */
+      .video-region.visible {
+        opacity: 0.7;
+        visibility: visible;
+        transform: scale(1);
+        animation: breathe 2s ease-in-out infinite,
+          pulseRing 2s ease-in-out infinite;
+      }
+
+      .video-region.visible:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: scale(1.15);
+        opacity: 1;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+          0 0 0 10px rgba(255, 255, 255, 0.1);
+        color: white;
+        animation: none; /* Stop animations on hover for better UX */
+      }
+
+      .video-region.visible:active {
+        transform: scale(1.05);
+        background: rgba(255, 255, 255, 0.25);
+        animation: clickRipple 0.6s ease-out;
+      } /* Region content styling */
+      .region-icon {
+        font-size: inherit;
+        display: block;
+        animation: iconBounce 2s ease-in-out infinite;
+      }
+
+      .video-region:hover .region-icon {
+        animation: iconSpin 0.8s ease-in-out;
+      }
+
+      .region-title,
+      .region-duration {
+        display: none; /* Hidden in this implementation */
+      } /* Specific positioning for each region with staggered animations */
+      .region-rent {
+        top: 46%;
+        left: 35%;
+        animation-delay: 0s;
+      }
+
+      .region-transportation {
+        top: 47%;
+        right: 49%;
+        animation-delay: 0.4s;
+      }
+
+      .region-inventory {
+        top: 51%;
+        right: 30%;
+        animation-delay: 0.8s;
+      }
+
+      .region-labor {
+        top: 53%;
+        right: 24%;
+        animation-delay: 1.2s;
+      }
+
+      .region-other {
+        top: 55%;
+        right: 18%;
+        animation-delay: 1.6s;
+      }
+
+      /* Enhanced visibility with glow effect */
+      .video-region.visible {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
+      }
+
+      .video-region.visible:hover {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+      }
+
+      /* ================================
+         CONTROL BUTTONS
+         ================================ */
+
+      /* Shared button styling */
+      .control-button {
+        position: absolute;
+        bottom: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        outline: none;
+        backdrop-filter: blur(10px);
+      }
+
+      .control-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* Individual button positions */
+      .fullscreen-button {
+        right: 15px;
+      }
+
+      .mute-button {
+        right: 53px;
+      }
+
+      .replay-button {
+        right: 91px;
+      }
+
+      /* Legacy button styles for compatibility */
+      .fullscreen-button,
+      .mute-button,
+      .replay-button {
+        position: absolute;
+        bottom: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        outline: none;
+        backdrop-filter: blur(10px);
+      }
+
+      .fullscreen-button:hover,
+      .mute-button:hover,
+      .replay-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: scale(1.05);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      /* ================================
+         UI OVERLAYS & INDICATORS
+         ================================ */
+
+      /* Play/pause visual feedback */
+      .play-pause-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 48px;
+        color: white;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 200;
+        pointer-events: none;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .play-pause-overlay.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      /* Loading spinner animation */
+      .loading-spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.2);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 200;
+      }
+
+      .loading-spinner.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      } /* ================================
+         REGION ICON ANIMATIONS
+         ================================ */
+
+      /* 
+        Animation Strategy for Enhanced User Experience:
+        1. Gentle breathing + pulsing ring - constant subtle motion to catch attention
+        2. Icon bounce - draws attention to clickable elements
+        3. Staggered entrance - regions appear in sequence for visual appeal
+        4. Hover effects - clear feedback on interaction readiness
+        5. Click ripple - satisfying visual confirmation of clicks
+        6. Glow effects - enhance visibility against video background
+      */
+
+      /* Gentle breathing effect for region containers */
+      @keyframes breathe {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Pulsing ring effect around regions */
+      @keyframes pulseRing {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+      }
+
+      /* Subtle bounce animation for icons */
+      @keyframes iconBounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-3px);
+        }
+        60% {
+          transform: translateY(-2px);
+        }
+      }
+
+      /* Spin animation for icons on hover */
+      @keyframes iconSpin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Click ripple effect */
+      @keyframes clickRipple {
+        0% {
+          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        100% {
+          box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
+        }
+      } /* Glow effect for enhanced visibility */
+      @keyframes glow {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3));
+        }
+        50% {
+          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+        }
+      }
+
+      /* Entrance animation when regions first appear */
+      @keyframes entrancePulse {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 0.9;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+      }
+
+      /* Status message notifications */
+      .status-message {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 200;
+        max-width: 80%;
+        text-align: center;
+      }
+
+      .status-message.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(10px);
+      }
+
+      /* ================================
+         PROGRESS BAR & CONTROLS
+         ================================ */
+      .progress-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        z-index: 150;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        width: 0%;
+        transition: width 0.1s ease;
+        position: relative;
+      }
+
+      /* Progress scrubber handle */
+      .progress-scrubber {
+        position: absolute;
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .progress-container:hover .progress-scrubber {
+        opacity: 1;
+      }
+
+      /* Progress time tooltip */
+      .progress-tooltip {
+        position: absolute;
+        bottom: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        transform: translateX(-50%);
+        white-space: nowrap;
+      }
+
+      /* Time display indicator */
+      .time-indicator {
+        position: absolute;
+        bottom: 10px;
+        left: 15px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: monospace;
+        z-index: 200;
+      }
+
+      /* ================================
+         RESPONSIVE DESIGN
+         ================================ */ /* Tablet and medium screens */
+      @media (max-width: 768px) {
+        .video-region {
+          width: 40px;
+          height: 40px;
+          font-size: 20px;
+        }
+
+        .fullscreen-button,
+        .mute-button,
+        .replay-button {
+          width: 36px;
+          height: 36px;
+          font-size: 14px;
+        }
+
+        .mute-button {
+          right: 42px;
+        }
+
+        .replay-button {
+          right: 84px;
+        }
+      } /* Mobile phones and small screens */
+      @media (max-width: 480px) {
+        .video-region {
+          width: 35px;
+          height: 35px;
+          font-size: 18px;
+        }
+
+        /* Reposition regions for mobile layout with maintained animations */
+        .region-rent {
+          top: 15%;
+          left: 10%;
+          animation-delay: 0s;
+        }
+
+        .region-transportation {
+          top: 15%;
+          right: 10%;
+          animation-delay: 0.4s;
+        }
+
+        .region-inventory {
+          bottom: 35%;
+          left: 10%;
+          animation-delay: 0.8s;
+        }
+
+        .region-labor {
+          bottom: 35%;
+          right: 10%;
+          animation-delay: 1.2s;
+        }
+
+        .region-other {
+          bottom: 12%;
+          left: 50%;
+          animation-delay: 1.6s;
+        }
+
+        /* Reduce animation intensity on mobile for performance */
+        .video-region.visible {
+          animation: breathe 3s ease-in-out infinite;
+        }
+
+        .region-icon {
+          animation: iconBounce 3s ease-in-out infinite;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="video-container" id="videoContainer">
+      <video id="video" preload="metadata" autoplay muted playsinline>
+        <source
+          src="video\Colliers-Presentation-FullVideo.mp4"
+          type="video/mp4"
+        />
+        <p>
+          Your browser doesn't support HTML5 video. Here is a
+          <a href="video\Colliers-Presentation-FullVideo.mp4"
+            >link to the video</a
+          >
+          instead.
+        </p>
+      </video>
+
+      <!-- Clickable Regions Container -->
+      <div class="regions-container" id="regionsContainer">
+        <!-- Rent Services Region -->
+        <div
+          class="video-region region-rent"
+          onclick="playPeriod(4.5, 15, 'Rent')"
+          title="Click to play Rent section"
+        >
+          <span class="region-icon">💰</span>
+          <span class="region-title">Rent</span>
+          <span class="region-duration">4.5s - 15s</span>
+        </div>
+
+        <!-- Transportation Region -->
+        <div
+          class="video-region region-transportation"
+          onclick="playPeriod(15, 22.6, 'Transportation')"
+          title="Click to play Transportation section"
+        >
+          <span class="region-icon">🚚</span>
+          <span class="region-title">Transportation</span>
+          <span class="region-duration">15s - 22.6s</span>
+        </div>
+
+        <!-- Inventory Carry Region -->
+        <div
+          class="video-region region-inventory"
+          onclick="playPeriod(23.1, 32.8, 'Inventory Carry')"
+          title="Click to play Inventory Carry section"
+        >
+          <span class="region-icon">📦</span>
+          <span class="region-title">Inventory Carry</span>
+          <span class="region-duration">23.1s - 32.8s</span>
+        </div>
+
+        <!-- Labor Solutions Region -->
+        <div
+          class="video-region region-labor"
+          onclick="playPeriod(32.9, 43.4, 'Labor')"
+          title="Click to play Labor section"
+        >
+          <span class="region-icon">👥</span>
+          <span class="region-title">Labor</span>
+          <span class="region-duration">32.9s - 45s</span>
+        </div>
+
+        <!-- Other Services Region -->
+        <div
+          class="video-region region-other"
+          onclick="playPeriod(43.5, 56.4, 'Other Services')"
+          title="Click to play Other Services section"
+        >
+          <span class="region-icon">🛠️</span>
+          <span class="region-title">Other Services</span>
+          <span class="region-duration">50s - 59s</span>
+        </div>
+      </div>
+
+      <!-- Play/Pause Overlay -->
+      <div class="play-pause-overlay" id="playPauseOverlay">▶</div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner" id="loadingSpinner"></div>
+
+      <!-- Status Message -->
+      <div class="status-message" id="statusMessage"></div>
+
+      <!-- Progress Bar -->
+      <div class="progress-container" id="progressContainer">
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-scrubber" id="progressScrubber"></div>
+        </div>
+        <div class="progress-tooltip" id="progressTooltip">00:00</div>
+      </div>
+      <!-- Time Indicator -->
+      <div class="time-indicator" id="timeIndicator">00:00 / 00:00</div>
+
+      <!-- Fullscreen Button -->
+      <button
+        class="fullscreen-button"
+        id="fullscreenButton"
+        aria-label="Toggle fullscreen"
+        title="Fullscreen"
+      >
+        ⛶
+      </button>
+      <!-- Mute/Unmute Button -->
+      <button
+        class="mute-button"
+        id="muteButton"
+        aria-label="Mute video"
+        title="Mute"
+      >
+        🔊
+      </button>
+
+      <!-- Replay Button -->
+      <button
+        class="replay-button"
+        id="replayButton"
+        aria-label="Replay video"
+        title="Replay from beginning"
+      >
+        🔄
+      </button>
+    </div>
+    <script>
+      /**
+       * Interactive Video Player with Clickable Regions
+       * Handles video playback, region interactions, and UI controls
+       */
+      class InteractiveVideoPlayer {
+        constructor() {
+          // DOM element references
+          this.video = document.getElementById("video");
+          this.videoContainer = document.getElementById("videoContainer");
+          this.regionsContainer = document.getElementById("regionsContainer");
+          this.fullscreenButton = document.getElementById("fullscreenButton");
+          this.muteButton = document.getElementById("muteButton");
+          this.replayButton = document.getElementById("replayButton");
+          this.playPauseOverlay = document.getElementById("playPauseOverlay");
+          this.progressContainer = document.getElementById("progressContainer");
+          this.progressBar = document.getElementById("progressBar");
+          this.progressScrubber = document.getElementById("progressScrubber");
+          this.progressTooltip = document.getElementById("progressTooltip");
+          this.timeIndicator = document.getElementById("timeIndicator");
+          this.loadingSpinner = document.getElementById("loadingSpinner");
+          this.statusMessage = document.getElementById("statusMessage");
+
+          // Player state variables
+          this.stopTime = null; // End time for current period playback
+          this.isFullscreen = false; // Fullscreen state
+          this.isDragging = false; // Progress bar dragging state
+          this.isInitialAutoplay = true; // First-time autoplay flag
+          this.isPlayingPeriod = false; // Currently playing a specific period
+
+          // Video section definitions with timestamps and region mappings
+          this.videoPeriods = [
+            {
+              start: 4.5,
+              end: 15,
+              name: "Rent Services",
+              regionClass: "region-rent",
+            },
+            {
+              start: 15,
+              end: 22.6,
+              name: "Transportation",
+              regionClass: "region-transportation",
+            },
+            {
+              start: 23.1,
+              end: 32.8,
+              name: "Inventory Management",
+              regionClass: "region-inventory",
+            },
+            {
+              start: 32.9,
+              end: 50,
+              name: "Labor Solutions",
+              regionClass: "region-labor",
+            },
+            {
+              start: 50,
+              end: 59,
+              name: "Other Services",
+              regionClass: "region-other",
+            },
+          ];
+
+          // Initialize player components
+          this.initializeEventListeners();
+          this.setupKeyboardControls();
+          this.setupFullscreenSupport();
+          this.updateMuteButton();
+        }
+
+        /**
+         * ========================================
+         * EVENT LISTENER SETUP
+         * ========================================
+         */ initializeEventListeners() {
+          // Control button event listeners
+          this.fullscreenButton.addEventListener("click", () =>
+            this.toggleFullscreen()
+          );
+          this.muteButton.addEventListener("click", () => this.toggleMute());
+          this.replayButton.addEventListener("click", () => this.replayVideo());
+
+          // Progress bar interaction events
+          this.progressContainer.addEventListener("click", (e) =>
+            this.handleProgressClick(e)
+          );
+          this.progressContainer.addEventListener("mousemove", (e) =>
+            this.handleProgressHover(e)
+          );
+          this.progressContainer.addEventListener("mouseleave", () =>
+            this.hideProgressTooltip()
+          );
+
+          // Touch/mobile progress bar support
+          this.progressContainer.addEventListener("touchstart", (e) =>
+            this.handleProgressTouchStart(e)
+          );
+          this.progressContainer.addEventListener("touchmove", (e) =>
+            this.handleProgressTouchMove(e)
+          );
+          this.progressContainer.addEventListener("touchend", (e) =>
+            this.handleProgressTouchEnd(e)
+          );
+
+          // Video playback event listeners
+          this.video.addEventListener("timeupdate", () =>
+            this.handleTimeUpdate()
+          );
+          this.video.addEventListener("loadstart", () => this.showLoading());
+          this.video.addEventListener("canplay", () => this.hideLoading());
+          this.video.addEventListener("waiting", () => this.showLoading());
+          this.video.addEventListener("playing", () => {
+            this.hideLoading();
+            if (this.isInitialAutoplay) {
+              this.isInitialAutoplay = false;
+            }
+          });
+          this.video.addEventListener("pause", () => {
+            // Only update region visibility if not currently playing a period
+            if (!this.isPlayingPeriod) {
+              this.updateRegionVisibility();
+            }
+          });
+          this.video.addEventListener("ended", () => this.handleVideoEnd());
+          this.video.addEventListener("error", () => this.handleVideoError());
+
+          // Video click handling (play/pause toggle)
+          this.video.addEventListener("click", (e) => {
+            if (!e.target.closest(".video-region")) {
+              this.togglePlayPause();
+            }
+          });
+
+          // Fullscreen change detection
+          document.addEventListener("fullscreenchange", () =>
+            this.handleFullscreenChange()
+          );
+          document.addEventListener("webkitfullscreenchange", () =>
+            this.handleFullscreenChange()
+          );
+          document.addEventListener("mozfullscreenchange", () =>
+            this.handleFullscreenChange()
+          );
+
+          // Initialize mobile support
+          this.initializeMobileSupport();
+        }
+
+        /**
+         * Setup keyboard shortcuts for player control
+         */ setupKeyboardControls() {
+          document.addEventListener("keydown", (e) => {
+            switch (e.key) {
+              case " ": // Spacebar: Play/Pause
+                this.togglePlayPause();
+                e.preventDefault();
+                break;
+              case "f":
+              case "F": // F: Toggle fullscreen
+                this.toggleFullscreen();
+                e.preventDefault();
+                break;
+              case "m":
+              case "M": // M: Toggle mute
+                this.toggleMute();
+                e.preventDefault();
+                break;
+              case "r":
+              case "R": // R: Replay video
+                this.replayVideo();
+                e.preventDefault();
+                break;
+              case "ArrowLeft": // Left arrow: Skip back 10s
+                this.seekRelative(-10);
+                e.preventDefault();
+                break;
+              case "ArrowRight": // Right arrow: Skip forward 10s
+                this.seekRelative(10);
+                e.preventDefault();
+                break;
+              case "ArrowUp": // Up arrow: Skip forward 30s
+                this.seekRelative(30);
+                e.preventDefault();
+                break;
+              case "ArrowDown": // Down arrow: Skip back 30s
+                this.seekRelative(-30);
+                e.preventDefault();
+                break;
+              case ",": // Comma: Frame back
+                this.seekRelative(-0.1);
+                e.preventDefault();
+                break;
+              case ".": // Period: Frame forward
+                this.seekRelative(0.1);
+                e.preventDefault();
+                break;
+            }
+          });
+        }
+
+        /**
+         * Setup fullscreen support (double-click)
+         */
+        setupFullscreenSupport() {
+          this.video.addEventListener("dblclick", () => {
+            this.toggleFullscreen();
+          });
+        }
+
+        /**
+         * ========================================
+         * PLAYBACK CONTROLS
+         * ========================================
+         */
+
+        /**
+         * Toggle video play/pause state
+         */ togglePlayPause() {
+          if (this.video.paused) {
+            this.video
+              .play()
+              .then(() => {
+                this.showPlayPauseIndicator("▶");
+              })
+              .catch(() => {
+                this.showStatus("Error playing video");
+              });
+          } else {
+            this.video.pause();
+            this.showPlayPauseIndicator("⏸");
+          }
+        }
+
+        /**
+         * Display play/pause visual feedback
+         */
+        showPlayPauseIndicator(icon) {
+          this.playPauseOverlay.textContent = icon;
+          this.playPauseOverlay.classList.add("show");
+
+          setTimeout(() => {
+            this.playPauseOverlay.classList.remove("show");
+          }, 500);
+        }
+
+        /**
+         * Toggle fullscreen mode
+         */
+        toggleFullscreen() {
+          if (!this.isFullscreen) {
+            // Enter fullscreen
+            if (this.videoContainer.requestFullscreen) {
+              this.videoContainer.requestFullscreen();
+            } else if (this.videoContainer.webkitRequestFullscreen) {
+              this.videoContainer.webkitRequestFullscreen();
+            } else if (this.videoContainer.mozRequestFullScreen) {
+              this.videoContainer.mozRequestFullScreen();
+            }
+          } else {
+            // Exit fullscreen
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+              document.mozCancelFullScreen();
+            }
+          }
+        }
+
+        /**
+         * Toggle audio mute state
+         */
+        toggleMute() {
+          this.video.muted = !this.video.muted;
+          this.updateMuteButton();
+        }
+
+        /**
+         * Update mute button appearance based on audio state
+         */ updateMuteButton() {
+          if (this.video.muted) {
+            this.muteButton.textContent = "🔇";
+            this.muteButton.setAttribute("aria-label", "Unmute video");
+            this.muteButton.setAttribute("title", "Unmute");
+          } else {
+            this.muteButton.textContent = "🔊";
+            this.muteButton.setAttribute("aria-label", "Mute video");
+            this.muteButton.setAttribute("title", "Mute");
+          }
+        }
+
+        /**
+         * Restart video from beginning
+         */
+        replayVideo() {
+          // Reset all playback states
+          this.isPlayingPeriod = false;
+          this.stopTime = null;
+
+          // Reset to beginning
+          this.video.currentTime = 0;
+          this.progressBar.style.width = "0%";
+
+          // Hide all region icons initially
+          this.hideAllRegions();
+
+          // Start playback
+          this.video
+            .play()
+            .then(() => {
+              this.showStatus("Replaying video from beginning");
+              this.showPlayPauseIndicator("🔄");
+            })
+            .catch(() => {
+              this.showStatus("Error replaying video");
+            });
+        }
+
+        /**
+         * ========================================
+         * FULLSCREEN HANDLING
+         * ========================================
+         */
+
+        /**
+         * Handle fullscreen state changes
+         */
+        handleFullscreenChange() {
+          this.isFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement
+          );
+
+          if (this.isFullscreen) {
+            this.fullscreenButton.textContent = "⛶";
+            this.fullscreenButton.title = "Exit fullscreen";
+            if (!this.isInitialAutoplay) {
+              this.showStatus("Press R to replay, F to exit fullscreen");
+            }
+          } else {
+            this.fullscreenButton.textContent = "⛶";
+            this.fullscreenButton.title = "Fullscreen";
+          }
+        }
+
+        /**
+         * ========================================
+         * VIDEO TIME & PROGRESS HANDLING
+         * ========================================
+         */
+
+        /**
+         * Handle video time updates and region visibility
+         */ handleTimeUpdate() {
+          // Update progress bar display
+          if (this.video.duration) {
+            const progress =
+              (this.video.currentTime / this.video.duration) * 100;
+            this.progressBar.style.width = progress + "%";
+          }
+
+          // Update time display
+          const current = this.formatTime(this.video.currentTime);
+          const duration = this.formatTime(this.video.duration || 0);
+          this.timeIndicator.textContent = `${current} / ${duration}`;
+
+          // Update region icon visibility
+          this.updateRegionVisibility();
+
+          // Handle period end time
+          if (this.stopTime && this.video.currentTime >= this.stopTime) {
+            this.video.pause();
+            this.stopTime = null;
+            this.isPlayingPeriod = false;
+            this.updateRegionVisibility(); // Show icons again
+            this.showStatus("Section completed");
+          }
+        }
+
+        /**
+         * Control region icon visibility based on video time and state
+         */
+        updateRegionVisibility() {
+          const currentTime = this.video.currentTime;
+
+          // Show regions 1.2 seconds before first period (at 3.3s)
+          const firstPeriodStart = 4.5;
+          const showAllRegionsTime = firstPeriodStart - 1.2;
+
+          // Hide regions after last period ends
+          const lastPeriodEnd = 59;
+
+          // Define time intervals where icons should be hidden
+          const hideIntervals = [
+            { start: 25.5, end: 31.5 }, // 26s - 31s interval
+            { start: 46.5, end: 52.5 }, // 46.5s - 52.5s interval
+            { start: 56, end: 59 }, // 56s - end interval
+          ];
+
+          // Check if current time falls within any hide interval
+          const isInHideInterval = hideIntervals.some(
+            (interval) =>
+              currentTime >= interval.start && currentTime < interval.end
+          );
+
+          // Show regions only when:
+          // 1. Time is after show time and before end time
+          // 2. Not currently playing a period
+          // 3. Not in a hide interval
+          const shouldShowRegions =
+            currentTime >= showAllRegionsTime &&
+            currentTime < lastPeriodEnd &&
+            !this.isPlayingPeriod &&
+            !isInHideInterval; // Apply visibility to all region elements
+          this.videoPeriods.forEach((period, index) => {
+            const regionElement = document.querySelector(
+              `.${period.regionClass}`
+            );
+            if (regionElement) {
+              if (shouldShowRegions) {
+                if (!regionElement.classList.contains("visible")) {
+                  // Add a small delay for staggered entrance effect
+                  setTimeout(() => {
+                    regionElement.classList.add("visible");
+                    // Add entrance pulse effect
+                    regionElement.style.animation =
+                      "breathe 2s ease-in-out infinite, pulseRing 2s ease-in-out infinite, entrancePulse 0.6s ease-out";
+                  }, index * 100);
+                }
+              } else {
+                if (regionElement.classList.contains("visible")) {
+                  regionElement.classList.remove("visible");
+                  // Reset animation
+                  regionElement.style.animation = "";
+                }
+              }
+            }
+          });
+        }
+
+        /**
+         * ========================================
+         * UTILITY FUNCTIONS
+         * ========================================
+         */
+
+        /**
+         * Format seconds to MM:SS display
+         */ formatTime(seconds) {
+          const mins = Math.floor(seconds / 60);
+          const secs = Math.floor(seconds % 60);
+          return `${mins.toString().padStart(2, "0")}:${secs
+            .toString()
+            .padStart(2, "0")}`;
+        }
+
+        /**
+         * Show loading spinner
+         */
+        showLoading() {
+          this.loadingSpinner.classList.add("visible");
+        }
+
+        /**
+         * Hide loading spinner
+         */
+        hideLoading() {
+          this.loadingSpinner.classList.remove("visible");
+        }
+
+        /**
+         * Display status message with auto-hide
+         */
+        showStatus(message, duration = 3000) {
+          this.statusMessage.textContent = message;
+          this.statusMessage.classList.add("visible");
+
+          setTimeout(() => {
+            this.statusMessage.classList.remove("visible");
+          }, duration);
+        }
+
+        /**
+         * ========================================
+         * VIDEO EVENT HANDLERS
+         * ========================================
+         */
+
+        /**
+         * Handle video end event
+         */
+        handleVideoEnd() {
+          this.showStatus("Video ended");
+          this.stopTime = null;
+        }
+
+        /**
+         * Handle video loading errors
+         */
+        handleVideoError() {
+          this.hideLoading();
+          this.showStatus("Error loading video", 5000);
+        }
+
+        /**
+         * ========================================
+         * REGION PERIOD PLAYBACK
+         * ========================================
+         */
+
+        /**
+         * Play a specific video period/section
+         */
+        playPeriod(start, end, sectionName) {
+          this.video.currentTime = start;
+          this.stopTime = end;
+          this.isPlayingPeriod = true;
+
+          // Hide all region icons during period playback
+          this.hideAllRegions();
+
+          this.video
+            .play()
+            .then(() => {
+              this.showStatus(`Playing: ${sectionName}`);
+            })
+            .catch(() => {
+              this.showStatus("Error playing video");
+            });
+        }
+
+        /**
+         * Hide all region icons
+         */
+        hideAllRegions() {
+          this.videoPeriods.forEach((period) => {
+            const regionElement = document.querySelector(
+              `.${period.regionClass}`
+            );
+            if (regionElement) {
+              regionElement.classList.remove("visible");
+            }
+          });
+        }
+
+        /**
+         * ========================================
+         * PROGRESS BAR INTERACTION
+         * ========================================
+         */
+
+        /**
+         * Handle progress bar click for seeking
+         */ handleProgressClick(e) {
+          const rect = this.progressContainer.getBoundingClientRect();
+          const clickX = e.clientX - rect.left;
+          const width = rect.width;
+          const percentage = Math.max(0, Math.min(1, clickX / width));
+          this.seekToPercentage(percentage);
+        }
+
+        /**
+         * Handle progress bar hover for time preview
+         */
+        handleProgressHover(e) {
+          const rect = this.progressContainer.getBoundingClientRect();
+          const hoverX = e.clientX - rect.left;
+          const width = rect.width;
+          const percentage = hoverX / width;
+
+          if (this.video.duration) {
+            const hoverTime = percentage * this.video.duration;
+            this.progressTooltip.textContent = this.formatTime(hoverTime);
+            this.progressTooltip.style.left = hoverX + "px";
+            this.progressTooltip.style.opacity = "1";
+          }
+        }
+
+        /**
+         * Hide progress time tooltip
+         */
+        hideProgressTooltip() {
+          this.progressTooltip.style.opacity = "0";
+        }
+
+        /**
+         * ========================================
+         * MOBILE/TOUCH SUPPORT
+         * ========================================
+         */
+
+        /**
+         * Handle touch start on progress bar
+         */
+        handleProgressTouchStart(e) {
+          e.preventDefault();
+          this.isDragging = true;
+          this.progressContainer.classList.add("dragging");
+          this.handleProgressTouch(e);
+        }
+
+        /**
+         * Handle touch move on progress bar
+         */
+        handleProgressTouchMove(e) {
+          e.preventDefault();
+          if (this.isDragging) {
+            this.handleProgressTouch(e);
+          }
+        }
+
+        /**
+         * Handle touch end on progress bar
+         */
+        handleProgressTouchEnd(e) {
+          e.preventDefault();
+          this.isDragging = false;
+          this.progressContainer.classList.remove("dragging");
+          this.hideProgressTooltip();
+        }
+
+        /**
+         * Process touch events for progress seeking
+         */
+        handleProgressTouch(e) {
+          const rect = this.progressContainer.getBoundingClientRect();
+          const touch = e.touches[0] || e.changedTouches[0];
+          const touchX = touch.clientX - rect.left;
+          const width = rect.width;
+          const percentage = Math.max(0, Math.min(1, touchX / width));
+
+          if (this.video.duration) {
+            const newTime = percentage * this.video.duration;
+            this.video.currentTime = newTime;
+            this.progressBar.style.width = percentage * 100 + "%";
+            this.progressTooltip.textContent = this.formatTime(newTime);
+            this.progressTooltip.style.left = touchX + "px";
+            this.progressTooltip.style.opacity = "1";
+          }
+        }
+
+        /**
+         * Initialize mobile device support
+         */
+        initializeMobileSupport() {
+          // Handle screen orientation changes
+          window.addEventListener("orientationchange", () => {
+            setTimeout(() => {
+              this.handleOrientationChange();
+            }, 100);
+          });
+
+          // Handle window resize
+          window.addEventListener("resize", () => {
+            this.handleResize();
+          });
+
+          // Prevent multi-touch gestures on video
+          this.video.addEventListener("touchstart", (e) => {
+            if (e.touches.length > 1) {
+              e.preventDefault();
+            }
+          });
+
+          // Double-tap to fullscreen on mobile
+          let lastTouchEnd = 0;
+          this.video.addEventListener(
+            "touchend",
+            (e) => {
+              const now = new Date().getTime();
+              if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+                this.toggleFullscreen();
+              }
+              lastTouchEnd = now;
+            },
+            false
+          );
+        }
+        /**
+         * Handle device orientation changes
+         */
+        handleOrientationChange() {
+          this.video.style.height = "auto";
+          this.updateProgressBar();
+        }
+
+        /**
+         * Handle window resize events
+         */
+        handleResize() {
+          this.updateProgressBar();
+        }
+
+        /**
+         * Update progress bar on resize
+         */
+        updateProgressBar() {
+          if (this.video.duration) {
+            const progress =
+              (this.video.currentTime / this.video.duration) * 100;
+            this.progressBar.style.width = progress + "%";
+          }
+        }
+
+        /**
+         * ========================================
+         * VIDEO SEEKING FUNCTIONS
+         * ========================================
+         */
+
+        /**
+         * Seek video by relative time amount
+         */
+        seekRelative(seconds) {
+          if (this.video.duration) {
+            const newTime = Math.max(
+              0,
+              Math.min(this.video.duration, this.video.currentTime + seconds)
+            );
+            this.video.currentTime = newTime;
+            const progress = (newTime / this.video.duration) * 100;
+            this.progressBar.style.width = progress + "%";
+
+            // Reset period state if seeking outside current period
+            this.checkAndResetPeriodState(newTime);
+
+            // Show seek feedback message
+            const direction = seconds > 0 ? "forward" : "backward";
+            const absSeconds = Math.abs(seconds);
+            if (absSeconds >= 1) {
+              this.showStatus(`Seeked ${direction} ${absSeconds}s`);
+            } else {
+              this.showStatus(
+                `Seeked ${direction} ${(absSeconds * 1000).toFixed(0)}ms`
+              );
+            }
+          }
+        }
+
+        /**
+         * Seek to specific percentage of video
+         */
+        seekToPercentage(percentage) {
+          if (this.video.duration) {
+            const newTime = percentage * this.video.duration;
+            this.video.currentTime = newTime;
+            this.progressBar.style.width = percentage * 100 + "%";
+
+            // Reset period state if seeking outside current period
+            this.checkAndResetPeriodState(newTime);
+
+            this.showStatus(`Seeked to ${this.formatTime(newTime)}`);
+          }
+        }
+
+        /**
+         * Check and reset period state when seeking
+         */
+        checkAndResetPeriodState(newTime) {
+          // If currently playing a period and user seeks outside that period
+          if (this.isPlayingPeriod && this.stopTime) {
+            // Find the current period by matching end time
+            const currentPeriod = this.videoPeriods.find(
+              (period) => period.end === this.stopTime
+            );
+
+            if (currentPeriod) {
+              // If seeking outside current period range, reset period state
+              if (
+                newTime < currentPeriod.start ||
+                newTime >= currentPeriod.end
+              ) {
+                this.isPlayingPeriod = false;
+                this.stopTime = null;
+                this.updateRegionVisibility();
+                this.showStatus("Period interrupted - regions available");
+              }
+            }
+          }
+        }
+      }
+
+      /**
+       * ========================================
+       * GLOBAL FUNCTIONS & INITIALIZATION
+       * ========================================
+       */
+
+      /**
+       * Global function for region click handling
+       */
+      function playPeriod(start, end, sectionName) {
+        window.videoPlayer.playPeriod(start, end, sectionName);
+      }
+      /**
+       * Initialize video player when DOM is ready
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        window.videoPlayer = new InteractiveVideoPlayer();
+      });
+    </script>
+  </body>
+</html>
