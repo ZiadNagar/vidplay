@@ -271,12 +271,3 @@ Modify CSS positioning for region classes:
 3. Test on multiple devices and browsers
 4. Follow accessibility best practices
 5. Optimize for performance
-
-### Future Enhancements
-
-- [ ] Subtitle/caption support
-- [ ] Multiple video quality options
-- [ ] Analytics integration
-- [ ] Custom theme support
-- [ ] Video playlist functionality
-- [ ] Advanced seeking with thumbnail previews
