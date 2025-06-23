@@ -1,7 +1,3 @@
-# Interactive Video Player with Clickable Regions
-
-A modern, responsive HTML5 video player with interactive clickable regions that allow users to jump to specific sections of the video. Built with vanilla JavaScript, CSS3 animations, and mobile-first design principles.
-
 ## Project Overview
 
 This project provides an enhanced video viewing experience for presentation or educational content by overlaying clickable hotspots on the video that allow users to navigate directly to specific sections or topics within the video.
@@ -284,11 +280,3 @@ Modify CSS positioning for region classes:
 - [ ] Custom theme support
 - [ ] Video playlist functionality
 - [ ] Advanced seeking with thumbnail previews
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## Support
-
-For questions, issues, or suggestions, please create an issue in the project repository.
