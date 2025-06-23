@@ -136,26 +136,26 @@
       }
 
       .region-transportation {
-        top: 47%;
+        top: 48%;
         left: 51%;
         animation-delay: 0.4s;
       }
 
       .region-inventory {
         top: 51%;
-        left: 70%;
+        left: 65%;
         animation-delay: 0.8s;
       }
 
       .region-labor {
         top: 53%;
-        left: 76%;
+        left: 73%;
         animation-delay: 1.2s;
       }
 
       .region-other {
         top: 55%;
-        left: 82%;
+        left: 78%;
         animation-delay: 1.6s;
       }
 
@@ -166,9 +166,7 @@
 
       .video-region.visible:hover {
         filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-      }
-
-      /* ================================
+      } /* ================================
          FULLSCREEN COMPATIBILITY
          ================================ */
 
@@ -178,6 +176,7 @@
       .video-container:fullscreen .video-region {
         /* Ensure regions maintain their relative positions */
         position: absolute;
+        transform: none !important;
       }
 
       /* Prevent positioning drift in fullscreen */
@@ -187,6 +186,45 @@
         transform: none;
         width: 100%;
         height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      /* Lock region positions in fullscreen */
+      .video-container:-webkit-full-screen .region-rent,
+      .video-container:-moz-full-screen .region-rent,
+      .video-container:fullscreen .region-rent {
+        top: 46% !important;
+        left: 35% !important;
+      }
+
+      .video-container:-webkit-full-screen .region-transportation,
+      .video-container:-moz-full-screen .region-transportation,
+      .video-container:fullscreen .region-transportation {
+        top: 48% !important;
+        left: 51% !important;
+      }
+
+      .video-container:-webkit-full-screen .region-inventory,
+      .video-container:-moz-full-screen .region-inventory,
+      .video-container:fullscreen .region-inventory {
+        top: 51% !important;
+        left: 65% !important;
+      }
+
+      .video-container:-webkit-full-screen .region-labor,
+      .video-container:-moz-full-screen .region-labor,
+      .video-container:fullscreen .region-labor {
+        top: 53% !important;
+        left: 85% !important;
+      }
+
+      .video-container:-webkit-full-screen .region-other,
+      .video-container:-moz-full-screen .region-other,
+      .video-container:fullscreen .region-other {
+        top: 55% !important;
+        left: 78% !important;
       }
 
       /* ================================
@@ -263,7 +301,6 @@
         color: white;
         border-color: rgba(255, 255, 255, 0.2);
       }
-
       .overlay-menu {
         position: absolute;
         top: 15px;
@@ -279,8 +316,11 @@
         z-index: 1000;
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        width: min(25vw, 280px);
+        max-width: 25%;
         min-width: 200px;
-        max-width: 280px;
+        max-height: 70%;
+        overflow-y: auto;
       }
 
       .overlay-menu.visible {
@@ -481,19 +521,6 @@
         white-space: nowrap;
       }
 
-      .time-indicator {
-        position: absolute;
-        bottom: 10px;
-        left: 15px;
-        background: rgba(0, 0, 0, 0.7);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-family: monospace;
-        z-index: 200;
-      }
-
       /* ================================
          ANIMATIONS
          ================================ */
@@ -583,9 +610,7 @@
 
       /* ================================
          RESPONSIVE DESIGN - IMPROVED
-         ================================ */
-
-      /* Tablet and medium screens */
+         ================================ */ /* Tablet and medium screens */
       @media (max-width: 768px) {
         .video-region {
           width: 40px;
@@ -606,9 +631,26 @@
         .replay-button {
           right: 84px;
         }
-      }
 
-      /* Mobile phones and small screens */
+        .overlay-menu {
+          width: min(35vw, 250px);
+          max-width: 35%;
+          min-width: 180px;
+          padding: 12px;
+          font-size: 12px;
+        }
+
+        .menu-button {
+          padding: 10px 12px;
+          font-size: 12px;
+        }
+
+        .menu-toggle {
+          width: 38px;
+          height: 38px;
+          font-size: 14px;
+        }
+      } /* Mobile phones and small screens */
       @media (max-width: 480px) {
         .video-region {
           width: 35px;
@@ -648,6 +690,90 @@
 
         .region-icon {
           animation: iconBounce 3s ease-in-out infinite;
+        }
+
+        .overlay-menu {
+          width: min(45vw, 200px);
+          max-width: 45%;
+          min-width: 160px;
+          padding: 10px;
+          font-size: 11px;
+          top: 10px;
+          left: 10px;
+        }
+
+        .menu-button {
+          padding: 8px 10px;
+          font-size: 11px;
+          gap: 6px;
+        }
+
+        .menu-toggle {
+          width: 36px;
+          height: 36px;
+          font-size: 13px;
+          top: 10px;
+          left: 10px;
+        }
+        .menu-header {
+          font-size: 12px;
+          margin-bottom: 12px;
+          padding-bottom: 8px;
+        }
+
+        .control-button {
+          width: 32px;
+          height: 32px;
+          font-size: 12px;
+          bottom: 10px;
+        }
+
+        .fullscreen-button {
+          right: 10px;
+        }
+
+        .mute-button {
+          right: 48px;
+        }
+
+        .replay-button {
+          right: 86px;
+        }
+      }
+
+      /* Very small mobile devices */
+      @media (max-width: 320px) {
+        .control-button {
+          width: 28px;
+          height: 28px;
+          font-size: 11px;
+          bottom: 8px;
+        }
+
+        .fullscreen-button {
+          right: 8px;
+        }
+
+        .mute-button {
+          right: 42px;
+        }
+
+        .replay-button {
+          right: 76px;
+        }
+
+        .video-region {
+          width: 30px;
+          height: 30px;
+          font-size: 16px;
+        }
+
+        .menu-toggle {
+          width: 32px;
+          height: 32px;
+          font-size: 12px;
+          top: 8px;
+          left: 8px;
         }
       }
 
@@ -783,7 +909,6 @@
 
       <!-- Status Message -->
       <div class="status-message" id="statusMessage"></div>
-
       <!-- Progress Bar -->
       <div class="progress-container" id="progressContainer">
         <div class="progress-bar" id="progressBar">
@@ -791,9 +916,6 @@
         </div>
         <div class="progress-tooltip" id="progressTooltip">00:00</div>
       </div>
-
-      <!-- Time Indicator -->
-      <div class="time-indicator" id="timeIndicator">00:00 / 00:00</div>
 
       <!-- Control Buttons -->
       <button
@@ -911,7 +1033,6 @@
           this.progressBar = document.getElementById("progressBar");
           this.progressScrubber = document.getElementById("progressScrubber");
           this.progressTooltip = document.getElementById("progressTooltip");
-          this.timeIndicator = document.getElementById("timeIndicator");
           this.loadingSpinner = document.getElementById("loadingSpinner");
           this.statusMessage = document.getElementById("statusMessage");
           this.menuToggle = document.getElementById("menuToggle");
@@ -1171,7 +1292,6 @@
             }
           }
         }
-
         /**
          * Handle fullscreen state changes - IMPROVED VERSION
          */
@@ -1185,36 +1305,14 @@
           if (this.isFullscreen) {
             this.fullscreenButton.textContent = "⛶";
             this.fullscreenButton.title = "Exit fullscreen";
-            // Ensure regions maintain their positioning in fullscreen
-            this.ensureRegionPositioning();
             if (!this.isInitialAutoplay) {
               this.showStatus("Press R to replay, F to exit fullscreen");
             }
           } else {
             this.fullscreenButton.textContent = "⛶";
             this.fullscreenButton.title = "Fullscreen";
-            // Reset any positioning adjustments
-            this.ensureRegionPositioning();
           }
         }
-
-        /**
-         * Ensure region positioning remains consistent across screen changes
-         */
-        ensureRegionPositioning() {
-          const regions = document.querySelectorAll(".video-region");
-
-          regions.forEach((region) => {
-            // Force repositioning by triggering a reflow
-            region.style.transform = "translateZ(0)";
-
-            // Use requestAnimationFrame to ensure smooth positioning
-            requestAnimationFrame(() => {
-              region.style.transform = "";
-            });
-          });
-        }
-
         toggleMute() {
           this.video.muted = !this.video.muted;
           this.updateMuteButton();
@@ -1298,10 +1396,8 @@
               (this.video.currentTime / this.video.duration) * 100;
             this.progressBar.style.width = progress + "%";
           }
-
           const current = this.formatTime(this.video.currentTime);
           const duration = this.formatTime(this.video.duration || 0);
-          this.timeIndicator.textContent = `${current} / ${duration}`;
 
           this.updateRegionVisibility();
 
@@ -1545,18 +1641,13 @@
             false
           );
         }
-
         handleOrientationChange() {
           this.video.style.height = "auto";
           this.updateProgressBar();
-          // Ensure region positioning after orientation change
-          this.ensureRegionPositioning();
         }
 
         handleResize() {
           this.updateProgressBar();
-          // Ensure region positioning after resize
-          this.ensureRegionPositioning();
         }
 
         updateProgressBar() {
