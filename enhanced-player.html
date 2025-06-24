@@ -273,7 +273,6 @@
       /* ================================
          OVERLAY MENU STYLES
          ================================ */
-
       .menu-toggle {
         position: absolute;
         top: 15px;
@@ -285,7 +284,7 @@
         width: 44px;
         height: 44px;
         cursor: pointer;
-        display: flex;
+        display: none; /* Initially hidden */
         align-items: center;
         justify-content: center;
         font-size: 16px;
@@ -293,6 +292,7 @@
         z-index: 999;
         outline: none;
         backdrop-filter: blur(10px);
+        visibility: hidden; /* Initially hidden */
       }
 
       .menu-toggle:hover {
@@ -1079,14 +1079,13 @@
               name: "Other Services",
               regionClass: "region-other",
             },
-          ];
-
-          // Initialize player components
+          ]; // Initialize player components
           this.initializeEventListeners();
           this.setupKeyboardControls();
           this.setupFullscreenSupport();
           this.updateMuteButton();
           this.initializeMobileSupport();
+          this.updateMenuAvailability(); // Initialize menu availability
         }
 
         /**
@@ -1138,11 +1137,20 @@
             if (this.isInitialAutoplay) {
               this.isInitialAutoplay = false;
             }
-          });
-          this.video.addEventListener("pause", () => {
+            // Hide regions when video starts playing (unless it's a period playback)
             if (!this.isPlayingPeriod) {
               this.updateRegionVisibility();
             }
+          });
+          this.video.addEventListener("play", () => {
+            // Update regions when play is triggered
+            if (!this.isPlayingPeriod) {
+              this.updateRegionVisibility();
+            }
+          });
+          this.video.addEventListener("pause", () => {
+            this.updateRegionVisibility();
+            this.hideLoading();
           });
           this.video.addEventListener("ended", () => this.handleVideoEnd());
           this.video.addEventListener("error", () => this.handleVideoError());
@@ -1388,7 +1396,29 @@
          * ========================================
          * VIDEO TIME & PROGRESS HANDLING
          * ========================================
+         */ /**
+         * Check if overlay menu should be available based on current time
          */
+        updateMenuAvailability() {
+          const currentTime = this.video.currentTime;
+          const firstPeriodStart = 4.5;
+          const menuAvailableTime = firstPeriodStart - 1.2; // Same as showAllRegionsTime
+
+          // Menu is available after the initial period, except during hide intervals when only menu should show
+          const shouldShowMenu = currentTime >= menuAvailableTime;
+
+          if (shouldShowMenu) {
+            this.menuToggle.style.display = "flex";
+            this.menuToggle.style.visibility = "visible";
+          } else {
+            this.menuToggle.style.display = "none";
+            this.menuToggle.style.visibility = "hidden";
+            // Close menu if it's open and we're before the available time
+            if (this.isMenuOpen) {
+              this.closeMenu();
+            }
+          }
+        }
 
         handleTimeUpdate() {
           if (this.video.duration) {
@@ -1400,6 +1430,7 @@
           const duration = this.formatTime(this.video.duration || 0);
 
           this.updateRegionVisibility();
+          this.updateMenuAvailability();
 
           if (this.stopTime && this.video.currentTime >= this.stopTime) {
             this.video.pause();
@@ -1409,7 +1440,6 @@
             this.showStatus("Section completed");
           }
         }
-
         updateRegionVisibility() {
           const currentTime = this.video.currentTime;
           const firstPeriodStart = 4.5;
@@ -1425,13 +1455,22 @@
           const isInHideInterval = hideIntervals.some(
             (interval) =>
               currentTime >= interval.start && currentTime < interval.end
-          );
-
+          ); // Check if current time is within any period time range
+          const isInPeriodTime = this.videoPeriods.some(
+            (period) => currentTime >= period.start && currentTime <= period.end
+          ); // Show regions if:
+          // 1. Video is paused AND we're in a period time range AND NOT in hide interval, OR
+          // 2. Video is paused AND we're playing a period (user clicked icon and then paused), OR
+          // 3. Normal conditions (after showAllRegionsTime, not playing period, not in hide interval)
+          // NEVER show regions during hide intervals, regardless of pause state
           const shouldShowRegions =
-            currentTime >= showAllRegionsTime &&
-            currentTime < lastPeriodEnd &&
-            !this.isPlayingPeriod &&
-            !isInHideInterval;
+            !isInHideInterval &&
+            ((this.video.paused && isInPeriodTime && !this.isPlayingPeriod) ||
+              (this.video.paused && this.isPlayingPeriod) ||
+              (currentTime >= showAllRegionsTime &&
+                currentTime < lastPeriodEnd &&
+                !this.isPlayingPeriod &&
+                !this.video.paused));
 
           this.videoPeriods.forEach((period, index) => {
             const regionElement = document.querySelector(
