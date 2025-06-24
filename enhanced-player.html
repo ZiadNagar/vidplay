@@ -3,11 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Interactive Video Player with Clickable Regions</title>
+    <title>Interactive Video Player - Professional Clone</title>
     <style>
-      /* ================================
-         GLOBAL STYLES
-         ================================ */
+      /* Reset and Base Styles */
       * {
         margin: 0;
         padding: 0;
@@ -16,20 +14,17 @@
 
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Oxygen, Ubuntu, Cantarell, sans-serif;
+          "Helvetica Neue", Arial, sans-serif;
         background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
-        margin: 0;
         overflow: hidden;
       }
 
-      /* ================================
-         VIDEO CONTAINER STYLES
-         ================================ */
-      .video-container {
+      /* Video Container */
+      .video-wrapper {
         position: relative;
         width: 90vw;
         max-width: 1200px;
@@ -40,53 +35,51 @@
         aspect-ratio: 16 / 9;
       }
 
-      #video {
+      .video-player {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        outline: none;
+        display: block;
       }
 
-      /* ================================
-         CLICKABLE REGIONS - FIXED POSITIONING
-         ================================ */
-
-      /* Container for all clickable regions */
-      .regions-container {
+      /* Interactive Hotspots Container */
+      .hotspots-layer {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         pointer-events: none;
-        z-index: 100;
+        z-index: 10;
       }
 
-      /* Individual region buttons with icons */
-      .video-region {
+      /* Individual Hotspot Buttons */
+      .hotspot {
         position: absolute;
+        width: 50px;
+        height: 50px;
         background: rgba(255, 255, 255, 0.1);
         border: 2px solid rgba(255, 255, 255, 0.2);
         border-radius: 50%;
         cursor: pointer;
         pointer-events: all;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
         display: flex;
         align-items: center;
         justify-content: center;
+        font-size: 24px;
         color: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        transition: opacity 0.15s ease-out, visibility 0.15s ease-out,
+          transform 0.15s ease-out, background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         opacity: 0;
         visibility: hidden;
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
         transform: scale(0.5);
         box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
       }
 
-      /* Region visibility states */
-      .video-region.visible {
+      .hotspot.active {
         opacity: 0.7;
         visibility: visible;
         transform: scale(1);
@@ -94,214 +87,192 @@
           pulseRing 2s ease-in-out infinite;
       }
 
-      .video-region.visible:hover {
+      .hotspot.active:hover {
+        opacity: 1;
+        transform: scale(1.15);
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.4);
-        transform: scale(1.15);
-        opacity: 1;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
           0 0 0 10px rgba(255, 255, 255, 0.1);
-        color: white;
         animation: none;
       }
 
-      .video-region.visible:active {
+      .hotspot.active:active {
         transform: scale(1.05);
         background: rgba(255, 255, 255, 0.25);
         animation: clickRipple 0.6s ease-out;
       }
 
-      /* Region content styling */
-      .region-icon {
+      /* Faster hide transition when removing active class */
+      .hotspot:not(.active) {
+        transition: opacity 0.12s ease-out, visibility 0.12s ease-out,
+          transform 0.12s ease-out !important;
+        animation: none !important;
+      }
+
+      /* Hotspot Icon */
+      .hotspot-icon {
         font-size: inherit;
-        display: block;
         animation: iconBounce 2s ease-in-out infinite;
       }
 
-      .video-region:hover .region-icon {
+      .hotspot:hover .hotspot-icon {
         animation: iconSpin 0.8s ease-in-out;
       }
 
-      .region-title,
-      .region-duration {
-        display: none;
-      }
-
-      /* FIXED POSITIONING - Consistent across all screen sizes and fullscreen */
-      /* Using transform to position relative to container center for consistency */
-      .region-rent {
+      /* Hotspot Positions */
+      .hotspot-rent {
         top: 46%;
         left: 35%;
         animation-delay: 0s;
       }
 
-      .region-transportation {
+      .hotspot-transport {
         top: 48%;
         left: 51%;
         animation-delay: 0.4s;
       }
 
-      .region-inventory {
+      .hotspot-inventory {
         top: 51%;
         left: 65%;
         animation-delay: 0.8s;
       }
 
-      .region-labor {
+      .hotspot-labor {
         top: 53%;
         left: 73%;
         animation-delay: 1.2s;
       }
 
-      .region-other {
+      .hotspot-services {
         top: 55%;
         left: 78%;
         animation-delay: 1.6s;
       }
 
-      /* Enhanced visibility with glow effect */
-      .video-region.visible {
-        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
-      }
-
-      .video-region.visible:hover {
-        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-      } /* ================================
-         FULLSCREEN COMPATIBILITY
-         ================================ */
-
-      /* Maintain consistent positioning in fullscreen */
-      .video-container:-webkit-full-screen .video-region,
-      .video-container:-moz-full-screen .video-region,
-      .video-container:fullscreen .video-region {
-        /* Ensure regions maintain their relative positions */
+      /* Video Controls */
+      .video-controls {
         position: absolute;
-        transform: none !important;
-      }
-
-      /* Prevent positioning drift in fullscreen */
-      .video-container:-webkit-full-screen .regions-container,
-      .video-container:-moz-full-screen .regions-container,
-      .video-container:fullscreen .regions-container {
-        transform: none;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
+        bottom: 0;
         left: 0;
+        right: 0;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        z-index: 20;
       }
 
-      /* Lock region positions in fullscreen */
-      .video-container:-webkit-full-screen .region-rent,
-      .video-container:-moz-full-screen .region-rent,
-      .video-container:fullscreen .region-rent {
-        top: 46% !important;
-        left: 35% !important;
-      }
-
-      .video-container:-webkit-full-screen .region-transportation,
-      .video-container:-moz-full-screen .region-transportation,
-      .video-container:fullscreen .region-transportation {
-        top: 48% !important;
-        left: 51% !important;
-      }
-
-      .video-container:-webkit-full-screen .region-inventory,
-      .video-container:-moz-full-screen .region-inventory,
-      .video-container:fullscreen .region-inventory {
-        top: 51% !important;
-        left: 65% !important;
-      }
-
-      .video-container:-webkit-full-screen .region-labor,
-      .video-container:-moz-full-screen .region-labor,
-      .video-container:fullscreen .region-labor {
-        top: 53% !important;
-        left: 85% !important;
-      }
-
-      .video-container:-webkit-full-screen .region-other,
-      .video-container:-moz-full-screen .region-other,
-      .video-container:fullscreen .region-other {
-        top: 55% !important;
-        left: 78% !important;
-      }
-
-      /* ================================
-         CONTROL BUTTONS
-         ================================ */
-
-      .control-button {
-        position: absolute;
-        bottom: 15px;
+      .control-btn {
+        width: 32px;
+        height: 32px;
         background: rgba(255, 255, 255, 0.08);
         color: rgba(255, 255, 255, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 8px;
-        width: 32px;
-        height: 32px;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 999;
-        outline: none;
         backdrop-filter: blur(10px);
+        outline: none;
       }
 
-      .control-button:hover {
+      .control-btn:hover {
         background: rgba(255, 255, 255, 0.15);
         transform: scale(1.05);
         color: white;
         border-color: rgba(255, 255, 255, 0.2);
       }
 
-      .fullscreen-button {
-        right: 15px;
+      /* Progress Bar */
+      .progress-track {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        z-index: 15;
       }
 
-      .mute-button {
-        right: 53px;
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        width: 0%;
+        transition: width 0.1s ease;
+        position: relative;
       }
 
-      .replay-button {
-        right: 91px;
+      .progress-handle {
+        position: absolute;
+        right: -6px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       }
 
-      /* ================================
-         OVERLAY MENU STYLES
-         ================================ */
-      .menu-toggle {
+      .progress-track:hover .progress-handle {
+        opacity: 1;
+      }
+
+      .time-tooltip {
+        position: absolute;
+        bottom: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        pointer-events: none;
+        transform: translateX(-50%);
+        white-space: nowrap;
+      }
+
+      /* Menu System */
+      .menu-btn {
         position: absolute;
         top: 15px;
         left: 15px;
+        width: 44px;
+        height: 44px;
         background: rgba(255, 255, 255, 0.08);
         color: rgba(255, 255, 255, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 10px;
-        width: 44px;
-        height: 44px;
         cursor: pointer;
-        display: none; /* Initially hidden */
+        display: none;
         align-items: center;
         justify-content: center;
         font-size: 16px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 999;
-        outline: none;
+        z-index: 30;
         backdrop-filter: blur(10px);
-        visibility: hidden; /* Initially hidden */
+        visibility: hidden;
+        outline: none;
       }
 
-      .menu-toggle:hover {
+      .menu-btn:hover {
         background: rgba(255, 255, 255, 0.15);
         transform: scale(1.05);
         color: white;
         border-color: rgba(255, 255, 255, 0.2);
       }
-      .overlay-menu {
+
+      .sections-menu {
         position: absolute;
         top: 15px;
         left: 15px;
@@ -313,7 +284,7 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        z-index: 1000;
+        z-index: 40;
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         width: min(25vw, 280px);
@@ -323,7 +294,7 @@
         overflow-y: auto;
       }
 
-      .overlay-menu.visible {
+      .sections-menu.open {
         transform: translateX(0) scale(1);
         opacity: 1;
         visibility: visible;
@@ -341,11 +312,12 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       }
 
-      .menu-title {
+      .menu-header h3 {
         font-weight: 500;
+        font-size: 14px;
       }
 
-      .menu-close {
+      .close-menu {
         background: none;
         border: none;
         color: rgba(255, 255, 255, 0.7);
@@ -357,19 +329,19 @@
         outline: none;
       }
 
-      .menu-close:hover {
+      .close-menu:hover {
         color: white;
         background: rgba(255, 255, 255, 0.1);
         transform: scale(1.1);
       }
 
-      .menu-buttons {
+      .section-list {
         display: flex;
         flex-direction: column;
         gap: 8px;
       }
 
-      .menu-button {
+      .section-btn {
         padding: 12px 16px;
         background: rgba(255, 255, 255, 0.03);
         color: rgba(255, 255, 255, 0.9);
@@ -379,17 +351,15 @@
         font-size: 13px;
         font-weight: 400;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        outline: none;
         backdrop-filter: blur(10px);
         text-align: left;
         display: flex;
         align-items: center;
-        justify-content: flex-start;
+        gap: 8px;
+        outline: none;
       }
 
-      .menu-button:hover {
+      .section-btn:hover {
         transform: translateY(-1px);
         background: rgba(255, 255, 255, 0.08);
         border-color: rgba(255, 255, 255, 0.15);
@@ -397,11 +367,8 @@
         color: white;
       }
 
-      /* ================================
-         UI OVERLAYS & INDICATORS
-         ================================ */
-
-      .play-pause-overlay {
+      /* Overlays */
+      .play-indicator {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -411,18 +378,18 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 200;
+        z-index: 25;
         pointer-events: none;
         text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       }
 
-      .play-pause-overlay.show {
+      .play-indicator.show {
         opacity: 1;
         visibility: visible;
         transform: translate(-50%, -50%) scale(1.2);
       }
 
-      .loading-spinner {
+      .loader {
         position: absolute;
         top: 50%;
         left: 50%;
@@ -436,15 +403,15 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 200;
+        z-index: 25;
       }
 
-      .loading-spinner.visible {
+      .loader.show {
         opacity: 1;
         visibility: visible;
       }
 
-      .status-message {
+      .status-toast {
         position: absolute;
         top: 20px;
         left: 50%;
@@ -457,74 +424,18 @@
         opacity: 0;
         visibility: hidden;
         transition: all 0.3s ease;
-        z-index: 200;
+        z-index: 25;
         max-width: 80%;
         text-align: center;
       }
 
-      .status-message.visible {
+      .status-toast.show {
         opacity: 1;
         visibility: visible;
         transform: translateX(-50%) translateY(10px);
       }
 
-      /* Progress Bar */
-      .progress-container {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: rgba(255, 255, 255, 0.2);
-        cursor: pointer;
-        z-index: 150;
-      }
-
-      .progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #1e3c72, #2a5298);
-        width: 0%;
-        transition: width 0.1s ease;
-        position: relative;
-      }
-
-      .progress-scrubber {
-        position: absolute;
-        right: -6px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 12px;
-        height: 12px;
-        background: white;
-        border-radius: 50%;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .progress-container:hover .progress-scrubber {
-        opacity: 1;
-      }
-
-      .progress-tooltip {
-        position: absolute;
-        bottom: 8px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        pointer-events: none;
-        transform: translateX(-50%);
-        white-space: nowrap;
-      }
-
-      /* ================================
-         ANIMATIONS
-         ================================ */
-
+      /* Animations */
       @keyframes spin {
         0% {
           transform: translate(-50%, -50%) rotate(0deg);
@@ -593,419 +504,262 @@
         }
       }
 
-      @keyframes entrancePulse {
-        0% {
-          transform: scale(0.8);
-          opacity: 0;
-        }
-        50% {
-          transform: scale(1.1);
-          opacity: 0.9;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 0.7;
-        }
+      /* Fullscreen Adjustments */
+      .video-wrapper:-webkit-full-screen,
+      .video-wrapper:-moz-full-screen,
+      .video-wrapper:fullscreen {
+        max-width: 100%;
+        border-radius: 0;
       }
 
-      /* ================================
-         RESPONSIVE DESIGN - IMPROVED
-         ================================ */ /* Tablet and medium screens */
+      /* Responsive Design */
       @media (max-width: 768px) {
-        .video-region {
+        .hotspot {
           width: 40px;
           height: 40px;
           font-size: 20px;
         }
 
-        .control-button {
+        .control-btn {
           width: 36px;
           height: 36px;
           font-size: 14px;
         }
 
-        .mute-button {
-          right: 42px;
-        }
-
-        .replay-button {
-          right: 84px;
-        }
-
-        .overlay-menu {
+        .sections-menu {
           width: min(35vw, 250px);
           max-width: 35%;
           min-width: 180px;
           padding: 12px;
-          font-size: 12px;
         }
 
-        .menu-button {
+        .section-btn {
           padding: 10px 12px;
           font-size: 12px;
         }
 
-        .menu-toggle {
+        .menu-btn {
           width: 38px;
           height: 38px;
           font-size: 14px;
         }
-      } /* Mobile phones and small screens */
+      }
+
       @media (max-width: 480px) {
-        .video-region {
+        .hotspot {
           width: 35px;
           height: 35px;
           font-size: 18px;
         }
 
-        /* Adjust positioning for mobile while maintaining relative positions */
-        .region-rent {
+        .hotspot-rent {
           top: 40%;
           left: 25%;
         }
-
-        .region-transportation {
+        .hotspot-transport {
           top: 42%;
           left: 45%;
         }
-
-        .region-inventory {
+        .hotspot-inventory {
           top: 50%;
           left: 65%;
         }
-
-        .region-labor {
+        .hotspot-labor {
           top: 52%;
           left: 70%;
         }
-
-        .region-other {
+        .hotspot-services {
           top: 60%;
           left: 50%;
         }
 
-        .video-region.visible {
-          animation: breathe 3s ease-in-out infinite;
-        }
-
-        .region-icon {
-          animation: iconBounce 3s ease-in-out infinite;
-        }
-
-        .overlay-menu {
+        .sections-menu {
           width: min(45vw, 200px);
           max-width: 45%;
           min-width: 160px;
           padding: 10px;
-          font-size: 11px;
-          top: 10px;
-          left: 10px;
         }
 
-        .menu-button {
+        .section-btn {
           padding: 8px 10px;
           font-size: 11px;
-          gap: 6px;
         }
 
-        .menu-toggle {
+        .menu-btn {
           width: 36px;
           height: 36px;
           font-size: 13px;
-          top: 10px;
-          left: 10px;
-        }
-        .menu-header {
-          font-size: 12px;
-          margin-bottom: 12px;
-          padding-bottom: 8px;
         }
 
-        .control-button {
+        .control-btn {
           width: 32px;
           height: 32px;
           font-size: 12px;
-          bottom: 10px;
-        }
-
-        .fullscreen-button {
-          right: 10px;
-        }
-
-        .mute-button {
-          right: 48px;
-        }
-
-        .replay-button {
-          right: 86px;
         }
       }
 
-      /* Very small mobile devices */
       @media (max-width: 320px) {
-        .control-button {
+        .control-btn {
           width: 28px;
           height: 28px;
           font-size: 11px;
-          bottom: 8px;
         }
 
-        .fullscreen-button {
-          right: 8px;
-        }
-
-        .mute-button {
-          right: 42px;
-        }
-
-        .replay-button {
-          right: 76px;
-        }
-
-        .video-region {
+        .hotspot {
           width: 30px;
           height: 30px;
           font-size: 16px;
         }
 
-        .menu-toggle {
+        .menu-btn {
           width: 32px;
           height: 32px;
           font-size: 12px;
-          top: 8px;
-          left: 8px;
-        }
-      }
-
-      /* Ultra-wide screens */
-      @media screen and (min-aspect-ratio: 21/9) {
-        .region-rent {
-          left: 40%;
-        }
-        .region-transportation {
-          left: 56%;
-        }
-        .region-inventory {
-          left: 74%;
-        }
-        .region-labor {
-          left: 80%;
-        }
-        .region-other {
-          left: 86%;
-        }
-      }
-
-      /* Very tall/narrow screens */
-      @media screen and (max-aspect-ratio: 9/16) {
-        .video-region {
-          width: 30px;
-          height: 30px;
-          font-size: 16px;
-        }
-
-        .region-rent {
-          left: 30%;
-          top: 42%;
-        }
-        .region-transportation {
-          left: 46%;
-          top: 43%;
-        }
-        .region-inventory {
-          left: 66%;
-          top: 47%;
-        }
-        .region-labor {
-          left: 72%;
-          top: 49%;
-        }
-        .region-other {
-          left: 78%;
-          top: 51%;
         }
       }
     </style>
   </head>
   <body>
-    <div class="video-container" id="videoContainer">
-      <video id="video" preload="metadata" autoplay muted playsinline>
+    <div class="video-wrapper" id="videoWrapper">
+      <video
+        class="video-player"
+        id="mainVideo"
+        preload="metadata"
+        autoplay
+        muted
+        playsinline
+      >
         <source
           src="video/Colliers-Presentation-FullVideo.mp4"
           type="video/mp4"
         />
-        <p>
-          Your browser doesn't support HTML5 video. Here is a
-          <a href="video/Colliers-Presentation-FullVideo.mp4"
-            >link to the video</a
-          >
-          instead.
-        </p>
+        Your browser doesn't support HTML5 video.
       </video>
 
-      <!-- Clickable Regions Container -->
-      <div class="regions-container" id="regionsContainer">
-        <!-- Rent Services Region -->
-        <div
-          class="video-region region-rent"
-          onclick="playPeriod(4.5, 15, 'Rent')"
+      <!-- Interactive Hotspots -->
+      <div class="hotspots-layer">
+        <button
+          class="hotspot hotspot-rent"
+          data-start="4.5"
+          data-end="15"
+          data-name="Rent Services"
           title="Click to play Rent section"
         >
-          <span class="region-icon">💰</span>
-          <span class="region-title">Rent</span>
-          <span class="region-duration">4.5s - 15s</span>
-        </div>
-
-        <!-- Transportation Region -->
-        <div
-          class="video-region region-transportation"
-          onclick="playPeriod(15, 22.6, 'Transportation')"
+          <span class="hotspot-icon">💰</span>
+        </button>
+        <button
+          class="hotspot hotspot-transport"
+          data-start="15"
+          data-end="22.6"
+          data-name="Transportation"
           title="Click to play Transportation section"
         >
-          <span class="region-icon">🚚</span>
-          <span class="region-title">Transportation</span>
-          <span class="region-duration">15s - 22.6s</span>
-        </div>
-
-        <!-- Inventory Carry Region -->
-        <div
-          class="video-region region-inventory"
-          onclick="playPeriod(23.1, 32.8, 'Inventory Carry')"
+          <span class="hotspot-icon">🚚</span>
+        </button>
+        <button
+          class="hotspot hotspot-inventory"
+          data-start="23.1"
+          data-end="32.8"
+          data-name="Inventory Carry"
           title="Click to play Inventory Carry section"
         >
-          <span class="region-icon">📦</span>
-          <span class="region-title">Inventory Carry</span>
-          <span class="region-duration">23.1s - 32.8s</span>
-        </div>
-
-        <!-- Labor Solutions Region -->
-        <div
-          class="video-region region-labor"
-          onclick="playPeriod(32.9, 43.4, 'Labor')"
+          <span class="hotspot-icon">📦</span>
+        </button>
+        <button
+          class="hotspot hotspot-labor"
+          data-start="32.9"
+          data-end="43.4"
+          data-name="Labor Solutions"
           title="Click to play Labor section"
         >
-          <span class="region-icon">👷</span>
-          <span class="region-title">Labor</span>
-          <span class="region-duration">32.9s - 45s</span>
-        </div>
-
-        <!-- Other Services Region -->
-        <div
-          class="video-region region-other"
-          onclick="playPeriod(43.5, 56.4, 'Other Services')"
+          <span class="hotspot-icon">👷</span>
+        </button>
+        <button
+          class="hotspot hotspot-services"
+          data-start="43.5"
+          data-end="56.4"
+          data-name="Other Services"
           title="Click to play Other Services section"
         >
-          <span class="region-icon">🛠️</span>
-          <span class="region-title">Other Services</span>
-          <span class="region-duration">50s - 59s</span>
-        </div>
+          <span class="hotspot-icon">🛠️</span>
+        </button>
       </div>
 
-      <!-- Play/Pause Overlay -->
-      <div class="play-pause-overlay" id="playPauseOverlay">▶</div>
+      <!-- Play/Pause Indicator -->
+      <div class="play-indicator" id="playIndicator">▶</div>
 
       <!-- Loading Spinner -->
-      <div class="loading-spinner" id="loadingSpinner"></div>
+      <div class="loader" id="loader"></div>
 
-      <!-- Status Message -->
-      <div class="status-message" id="statusMessage"></div>
+      <!-- Status Messages -->
+      <div class="status-toast" id="statusToast"></div>
+
       <!-- Progress Bar -->
-      <div class="progress-container" id="progressContainer">
-        <div class="progress-bar" id="progressBar">
-          <div class="progress-scrubber" id="progressScrubber"></div>
+      <div class="progress-track" id="progressTrack">
+        <div class="progress-fill" id="progressFill">
+          <div class="progress-handle"></div>
         </div>
-        <div class="progress-tooltip" id="progressTooltip">00:00</div>
+        <div class="time-tooltip" id="timeTooltip">00:00</div>
       </div>
 
       <!-- Control Buttons -->
-      <button
-        class="control-button fullscreen-button"
-        id="fullscreenButton"
-        aria-label="Toggle fullscreen"
-        title="Fullscreen"
-      >
-        ⛶
-      </button>
+      <div class="video-controls">
+        <button class="control-btn" id="replayBtn" title="Replay">🔄</button>
+        <button class="control-btn" id="muteBtn" title="Mute">🔊</button>
+        <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
+          ⛶
+        </button>
+      </div>
 
-      <button
-        class="control-button mute-button"
-        id="muteButton"
-        aria-label="Mute video"
-        title="Mute"
-      >
-        🔊
-      </button>
-
-      <button
-        class="control-button replay-button"
-        id="replayButton"
-        aria-label="Replay video"
-        title="Replay from beginning"
-      >
-        🔄
-      </button>
-
-      <!-- Overlay Menu Toggle Button -->
-      <button
-        class="menu-toggle"
-        id="menuToggle"
-        aria-label="Open video sections menu"
-        title="Video Sections Menu"
-      >
+      <!-- Menu Toggle -->
+      <button class="menu-btn" id="menuToggle" title="Video Sections Menu">
         ☰
       </button>
 
-      <!-- Overlay Menu -->
-      <div class="overlay-menu" id="overlayMenu" role="menu">
+      <!-- Sections Menu -->
+      <div class="sections-menu" id="sectionsMenu">
         <div class="menu-header">
-          <span class="menu-title">Video Sections</span>
-          <button
-            class="menu-close"
-            id="menuClose"
-            aria-label="Close menu"
-            title="Close menu"
-          >
-            ✕
-          </button>
+          <h3>Video Sections</h3>
+          <button class="close-menu" id="closeMenu">✕</button>
         </div>
-        <div class="menu-buttons">
+        <div class="section-list">
           <button
-            class="menu-button"
-            onclick="playPeriod(4.5, 15, 'Rent Services')"
-            role="menuitem"
-            aria-label="Play Rent Services section from 4.5 to 15 seconds"
+            class="section-btn"
+            data-start="4.5"
+            data-end="15"
+            data-name="Rent Services"
           >
             💰 Rent
           </button>
           <button
-            class="menu-button"
-            onclick="playPeriod(15, 22.6, 'Transportation')"
-            role="menuitem"
-            aria-label="Play Transportation section from 15 to 22.6 seconds"
+            class="section-btn"
+            data-start="15"
+            data-end="22.6"
+            data-name="Transportation"
           >
             🚚 Transportation
           </button>
           <button
-            class="menu-button"
-            onclick="playPeriod(23.1, 32.8, 'Inventory Carry')"
-            role="menuitem"
-            aria-label="Play Inventory Carry section from 23.1 to 32.8 seconds"
+            class="section-btn"
+            data-start="23.1"
+            data-end="32.8"
+            data-name="Inventory Carry"
           >
             📦 Inventory Carry
           </button>
           <button
-            class="menu-button"
-            onclick="playPeriod(32.9, 43.4, 'Labor')"
-            role="menuitem"
-            aria-label="Play Labor Solutions section from 32.9 to 43.4 seconds"
+            class="section-btn"
+            data-start="32.9"
+            data-end="43.4"
+            data-name="Labor Solutions"
           >
             👷 Labor
           </button>
           <button
-            class="menu-button"
-            onclick="playPeriod(43.5, 56.4, 'Other Services')"
-            role="menuitem"
-            aria-label="Play Other Services section from 43.5 to 56.4 seconds"
+            class="section-btn"
+            data-start="43.5"
+            data-end="56.4"
+            data-name="Other Services"
           >
             🛠️ Other Services
           </button>
@@ -1014,398 +768,284 @@
     </div>
 
     <script>
-      /**
-       * Interactive Video Player with Fixed Positioning
-       * Handles video playback, region interactions, and UI controls
-       * with consistent positioning across screen sizes and fullscreen
-       */
-      class InteractiveVideoPlayer {
+      class VideoPlayerController {
         constructor() {
-          // DOM element references
-          this.video = document.getElementById("video");
-          this.videoContainer = document.getElementById("videoContainer");
-          this.regionsContainer = document.getElementById("regionsContainer");
-          this.fullscreenButton = document.getElementById("fullscreenButton");
-          this.muteButton = document.getElementById("muteButton");
-          this.replayButton = document.getElementById("replayButton");
-          this.playPauseOverlay = document.getElementById("playPauseOverlay");
-          this.progressContainer = document.getElementById("progressContainer");
-          this.progressBar = document.getElementById("progressBar");
-          this.progressScrubber = document.getElementById("progressScrubber");
-          this.progressTooltip = document.getElementById("progressTooltip");
-          this.loadingSpinner = document.getElementById("loadingSpinner");
-          this.statusMessage = document.getElementById("statusMessage");
+          // Core elements
+          this.video = document.getElementById("mainVideo");
+          this.wrapper = document.getElementById("videoWrapper");
+          this.progressTrack = document.getElementById("progressTrack");
+          this.progressFill = document.getElementById("progressFill");
+          this.timeTooltip = document.getElementById("timeTooltip");
+          this.playIndicator = document.getElementById("playIndicator");
+          this.loader = document.getElementById("loader");
+          this.statusToast = document.getElementById("statusToast");
+
+          // Controls
+          this.replayBtn = document.getElementById("replayBtn");
+          this.muteBtn = document.getElementById("muteBtn");
+          this.fullscreenBtn = document.getElementById("fullscreenBtn");
+
+          // Menu elements
           this.menuToggle = document.getElementById("menuToggle");
-          this.overlayMenu = document.getElementById("overlayMenu");
-          this.menuClose = document.getElementById("menuClose");
+          this.sectionsMenu = document.getElementById("sectionsMenu");
+          this.closeMenu = document.getElementById("closeMenu");
 
-          // Player state variables
-          this.stopTime = null;
-          this.isFullscreen = false;
-          this.isDragging = false;
+          // Hotspots
+          this.hotspots = document.querySelectorAll(".hotspot");
+          this.sectionButtons = document.querySelectorAll(".section-btn");
+
+          // State management
+          this.currentSection = null;
+          this.sectionEndTime = null;
           this.isInitialAutoplay = true;
-          this.isPlayingPeriod = false;
-          this.isMenuOpen = false;
+          this.isPlayingSection = false;
+          this.menuOpen = false;
+          this.isDraggingProgress = false;
 
-          // Video section definitions
-          this.videoPeriods = [
-            {
-              start: 4.5,
-              end: 15,
-              name: "Rent Services",
-              regionClass: "region-rent",
-            },
-            {
-              start: 15,
-              end: 22.6,
-              name: "Transportation",
-              regionClass: "region-transportation",
-            },
-            {
-              start: 23.1,
-              end: 32.8,
-              name: "Inventory Management",
-              regionClass: "region-inventory",
-            },
-            {
-              start: 32.9,
-              end: 50,
-              name: "Labor Solutions",
-              regionClass: "region-labor",
-            },
-            {
-              start: 50,
-              end: 59,
-              name: "Other Services",
-              regionClass: "region-other",
-            },
-          ]; // Initialize player components
-          this.initializeEventListeners();
-          this.setupKeyboardControls();
-          this.setupFullscreenSupport();
-          this.updateMuteButton();
-          this.initializeMobileSupport();
-          this.updateMenuAvailability(); // Initialize menu availability
+          // Configuration
+          this.hideIntervals = [
+            { start: 25.5, end: 31.5 },
+            { start: 46.5, end: 52.5 },
+            { start: 56, end: 59 },
+          ];
+
+          this.firstSectionStart = 4.5;
+          this.menuAvailableTime = this.firstSectionStart - 1.2;
+
+          this.init();
         }
 
-        /**
-         * ========================================
-         * EVENT LISTENER SETUP
-         * ========================================
-         */
-        initializeEventListeners() {
-          // Control button event listeners
-          this.fullscreenButton.addEventListener("click", () =>
-            this.toggleFullscreen()
-          );
-          this.muteButton.addEventListener("click", () => this.toggleMute());
-          this.replayButton.addEventListener("click", () => this.replayVideo());
-          this.menuToggle.addEventListener("click", () => this.toggleMenu());
-          this.menuClose.addEventListener("click", () => this.closeMenu());
+        init() {
+          this.setupEventListeners();
+          this.setupKeyboardShortcuts();
+          this.updateMuteButton();
+        }
 
-          // Progress bar interaction events
-          this.progressContainer.addEventListener("click", (e) =>
-            this.handleProgressClick(e)
-          );
-          this.progressContainer.addEventListener("mousemove", (e) =>
-            this.handleProgressHover(e)
-          );
-          this.progressContainer.addEventListener("mouseleave", () =>
-            this.hideProgressTooltip()
-          );
-
-          // Touch/mobile progress bar support
-          this.progressContainer.addEventListener("touchstart", (e) =>
-            this.handleProgressTouchStart(e)
-          );
-          this.progressContainer.addEventListener("touchmove", (e) =>
-            this.handleProgressTouchMove(e)
-          );
-          this.progressContainer.addEventListener("touchend", (e) =>
-            this.handleProgressTouchEnd(e)
-          );
-
-          // Video playback event listeners
-          this.video.addEventListener("timeupdate", () =>
-            this.handleTimeUpdate()
-          );
-          this.video.addEventListener("loadstart", () => this.showLoading());
-          this.video.addEventListener("canplay", () => this.hideLoading());
-          this.video.addEventListener("waiting", () => this.showLoading());
+        setupEventListeners() {
+          // Video events
+          this.video.addEventListener("timeupdate", () => this.onTimeUpdate());
+          this.video.addEventListener("loadstart", () => this.showLoader());
+          this.video.addEventListener("canplay", () => this.hideLoader());
+          this.video.addEventListener("waiting", () => this.showLoader());
           this.video.addEventListener("playing", () => {
-            this.hideLoading();
+            this.hideLoader();
             if (this.isInitialAutoplay) {
               this.isInitialAutoplay = false;
             }
-            // Hide regions when video starts playing (unless it's a period playback)
-            if (!this.isPlayingPeriod) {
-              this.updateRegionVisibility();
-            }
-          });
-          this.video.addEventListener("play", () => {
-            // Update regions when play is triggered
-            if (!this.isPlayingPeriod) {
-              this.updateRegionVisibility();
+            if (!this.isPlayingSection) {
+              this.updateHotspotVisibility();
             }
           });
           this.video.addEventListener("pause", () => {
-            this.updateRegionVisibility();
-            this.hideLoading();
+            this.updateHotspotVisibility();
+            this.hideLoader();
           });
-          this.video.addEventListener("ended", () => this.handleVideoEnd());
-          this.video.addEventListener("error", () => this.handleVideoError());
+          this.video.addEventListener("ended", () => this.onVideoEnd());
+          this.video.addEventListener("error", () => this.onVideoError());
 
-          // Video click handling
+          // Video click for play/pause
           this.video.addEventListener("click", (e) => {
-            if (!e.target.closest(".video-region")) {
+            if (!e.target.closest(".hotspot")) {
               this.togglePlayPause();
             }
           });
 
-          // Fullscreen change detection
+          // Control buttons
+          this.replayBtn.addEventListener("click", () => this.replay());
+          this.muteBtn.addEventListener("click", () => this.toggleMute());
+          this.fullscreenBtn.addEventListener("click", () =>
+            this.toggleFullscreen()
+          );
+
+          // Menu controls
+          this.menuToggle.addEventListener("click", () => this.toggleMenu());
+          this.closeMenu.addEventListener("click", () => this.closeMenuPanel());
+
+          // Progress bar
+          this.progressTrack.addEventListener("click", (e) => this.seekTo(e));
+          this.progressTrack.addEventListener("mousemove", (e) =>
+            this.showTimeTooltip(e)
+          );
+          this.progressTrack.addEventListener("mouseleave", () =>
+            this.hideTimeTooltip()
+          );
+
+          // Touch support for progress
+          this.progressTrack.addEventListener("touchstart", (e) =>
+            this.onTouchStart(e)
+          );
+          this.progressTrack.addEventListener("touchmove", (e) =>
+            this.onTouchMove(e)
+          );
+          this.progressTrack.addEventListener("touchend", () =>
+            this.onTouchEnd()
+          );
+
+          // Hotspots and section buttons
+          this.hotspots.forEach((hotspot) => {
+            hotspot.addEventListener("click", () => this.playSection(hotspot));
+          });
+
+          this.sectionButtons.forEach((button) => {
+            button.addEventListener("click", () => this.playSection(button));
+          });
+
+          // Fullscreen changes
           document.addEventListener("fullscreenchange", () =>
-            this.handleFullscreenChange()
+            this.onFullscreenChange()
           );
           document.addEventListener("webkitfullscreenchange", () =>
-            this.handleFullscreenChange()
+            this.onFullscreenChange()
           );
           document.addEventListener("mozfullscreenchange", () =>
-            this.handleFullscreenChange()
+            this.onFullscreenChange()
           );
 
           // Click outside menu to close
           document.addEventListener("click", (e) => {
             if (
-              this.isMenuOpen &&
-              !this.overlayMenu.contains(e.target) &&
+              this.menuOpen &&
+              !this.sectionsMenu.contains(e.target) &&
               !this.menuToggle.contains(e.target)
             ) {
-              this.closeMenu();
+              this.closeMenuPanel();
             }
           });
+
+          // Double click for fullscreen
+          this.video.addEventListener("dblclick", () =>
+            this.toggleFullscreen()
+          );
         }
 
-        /**
-         * Setup keyboard shortcuts for player control
-         */
-        setupKeyboardControls() {
+        setupKeyboardShortcuts() {
           document.addEventListener("keydown", (e) => {
             switch (e.key) {
               case " ":
-                this.togglePlayPause();
                 e.preventDefault();
+                this.togglePlayPause();
                 break;
               case "f":
               case "F":
-                this.toggleFullscreen();
                 e.preventDefault();
+                this.toggleFullscreen();
                 break;
               case "m":
               case "M":
-                this.toggleMute();
                 e.preventDefault();
+                this.toggleMute();
                 break;
               case "r":
               case "R":
-                this.replayVideo();
                 e.preventDefault();
+                this.replay();
                 break;
               case "ArrowLeft":
-                this.seekRelative(-10);
                 e.preventDefault();
+                this.seek(-10);
                 break;
               case "ArrowRight":
-                this.seekRelative(10);
                 e.preventDefault();
+                this.seek(10);
                 break;
               case "ArrowUp":
-                this.seekRelative(30);
                 e.preventDefault();
+                this.seek(30);
                 break;
               case "ArrowDown":
-                this.seekRelative(-30);
                 e.preventDefault();
+                this.seek(-30);
                 break;
               case "Tab":
-                if (e.shiftKey) break;
-                this.toggleMenu();
-                e.preventDefault();
+                if (!e.shiftKey) {
+                  e.preventDefault();
+                  this.toggleMenu();
+                }
                 break;
               case "Escape":
-                if (this.isMenuOpen) {
-                  this.closeMenu();
+                if (this.menuOpen) {
                   e.preventDefault();
+                  this.closeMenuPanel();
                 }
                 break;
             }
           });
         }
 
-        /**
-         * Setup fullscreen support
-         */
-        setupFullscreenSupport() {
-          this.video.addEventListener("dblclick", () => {
-            this.toggleFullscreen();
+        onTimeUpdate() {
+          // Update progress bar
+          if (this.video.duration) {
+            const progress =
+              (this.video.currentTime / this.video.duration) * 100;
+            this.progressFill.style.width = `${progress}%`;
+          }
+
+          // Update visibility
+          this.updateHotspotVisibility();
+          this.updateMenuVisibility();
+
+          // Check section end
+          if (
+            this.sectionEndTime &&
+            this.video.currentTime >= this.sectionEndTime
+          ) {
+            this.video.pause();
+            this.sectionEndTime = null;
+            this.isPlayingSection = false;
+            this.updateHotspotVisibility();
+            this.showStatus("Section completed");
+          }
+        }
+
+        updateHotspotVisibility() {
+          const currentTime = this.video.currentTime;
+          const showTime = this.menuAvailableTime;
+          const lastEnd = 59;
+
+          // Check if in hide interval
+          const inHideInterval = this.hideIntervals.some(
+            (interval) =>
+              currentTime >= interval.start && currentTime < interval.end
+          );
+
+          // Check if in any section time
+          const inSectionTime = Array.from(this.hotspots).some((hotspot) => {
+            const start = parseFloat(hotspot.dataset.start);
+            const end = parseFloat(hotspot.dataset.end);
+            return currentTime >= start && currentTime <= end;
+          });
+
+          // Visibility logic
+          const shouldShow =
+            !inHideInterval &&
+            ((this.video.paused && inSectionTime && !this.isPlayingSection) ||
+              (this.video.paused && this.isPlayingSection) ||
+              (currentTime >= showTime &&
+                currentTime < lastEnd &&
+                !this.isPlayingSection &&
+                !this.video.paused));
+
+          this.hotspots.forEach((hotspot, index) => {
+            if (shouldShow) {
+              setTimeout(() => {
+                hotspot.classList.add("active");
+              }, index * 100);
+            } else {
+              // Remove active class immediately without stagger to prevent flicker
+              hotspot.classList.remove("active");
+              // Force stop any running animations
+              hotspot.style.animation = "none";
+              // Reset animation after a frame to allow future animations
+              requestAnimationFrame(() => {
+                hotspot.style.animation = "";
+              });
+            }
           });
         }
 
-        /**
-         * ========================================
-         * PLAYBACK CONTROLS
-         * ========================================
-         */
-
-        togglePlayPause() {
-          if (this.video.paused) {
-            this.video
-              .play()
-              .then(() => {
-                this.showPlayPauseIndicator("▶");
-              })
-              .catch(() => {
-                this.showStatus("Error playing video");
-              });
-          } else {
-            this.video.pause();
-            this.showPlayPauseIndicator("⏸");
-          }
-        }
-
-        showPlayPauseIndicator(icon) {
-          this.playPauseOverlay.textContent = icon;
-          this.playPauseOverlay.classList.add("show");
-
-          setTimeout(() => {
-            this.playPauseOverlay.classList.remove("show");
-          }, 500);
-        }
-
-        toggleFullscreen() {
-          if (!this.isFullscreen) {
-            if (this.videoContainer.requestFullscreen) {
-              this.videoContainer.requestFullscreen();
-            } else if (this.videoContainer.webkitRequestFullscreen) {
-              this.videoContainer.webkitRequestFullscreen();
-            } else if (this.videoContainer.mozRequestFullScreen) {
-              this.videoContainer.mozRequestFullScreen();
-            }
-          } else {
-            if (document.exitFullscreen) {
-              document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-              document.webkitExitFullscreen();
-            } else if (document.mozCancelFullScreen) {
-              document.mozCancelFullScreen();
-            }
-          }
-        }
-        /**
-         * Handle fullscreen state changes - IMPROVED VERSION
-         */
-        handleFullscreenChange() {
-          this.isFullscreen = !!(
-            document.fullscreenElement ||
-            document.webkitFullscreenElement ||
-            document.mozFullScreenElement
-          );
-
-          if (this.isFullscreen) {
-            this.fullscreenButton.textContent = "⛶";
-            this.fullscreenButton.title = "Exit fullscreen";
-            if (!this.isInitialAutoplay) {
-              this.showStatus("Press R to replay, F to exit fullscreen");
-            }
-          } else {
-            this.fullscreenButton.textContent = "⛶";
-            this.fullscreenButton.title = "Fullscreen";
-          }
-        }
-        toggleMute() {
-          this.video.muted = !this.video.muted;
-          this.updateMuteButton();
-        }
-
-        updateMuteButton() {
-          if (this.video.muted) {
-            this.muteButton.textContent = "🔇";
-            this.muteButton.setAttribute("aria-label", "Unmute video");
-            this.muteButton.setAttribute("title", "Unmute");
-          } else {
-            this.muteButton.textContent = "🔊";
-            this.muteButton.setAttribute("aria-label", "Mute video");
-            this.muteButton.setAttribute("title", "Mute");
-          }
-        }
-
-        replayVideo() {
-          this.isPlayingPeriod = false;
-          this.stopTime = null;
-          this.video.currentTime = 0;
-          this.progressBar.style.width = "0%";
-          this.hideAllRegions();
-
-          this.video
-            .play()
-            .then(() => {
-              this.showStatus("Replaying video from beginning");
-              this.showPlayPauseIndicator("🔄");
-            })
-            .catch(() => {
-              this.showStatus("Error replaying video");
-            });
-        }
-
-        /**
-         * ========================================
-         * OVERLAY MENU HANDLING
-         * ========================================
-         */
-
-        toggleMenu() {
-          this.isMenuOpen = !this.isMenuOpen;
-
-          if (this.isMenuOpen) {
-            this.openMenu();
-          } else {
-            this.closeMenu();
-          }
-        }
-
-        openMenu() {
-          this.isMenuOpen = true;
-          this.overlayMenu.classList.add("visible");
-          this.menuToggle.style.opacity = "0";
-          this.menuToggle.style.pointerEvents = "none";
-
-          const firstButton = this.overlayMenu.querySelector(".menu-button");
-          if (firstButton) {
-            firstButton.focus();
-          }
-        }
-
-        closeMenu() {
-          this.isMenuOpen = false;
-          this.overlayMenu.classList.remove("visible");
-          this.menuToggle.style.opacity = "1";
-          this.menuToggle.style.pointerEvents = "all";
-          this.menuToggle.focus();
-        }
-
-        /**
-         * ========================================
-         * VIDEO TIME & PROGRESS HANDLING
-         * ========================================
-         */ /**
-         * Check if overlay menu should be available based on current time
-         */
-        updateMenuAvailability() {
+        updateMenuVisibility() {
           const currentTime = this.video.currentTime;
-          const firstPeriodStart = 4.5;
-          const menuAvailableTime = firstPeriodStart - 1.2; // Same as showAllRegionsTime
-
-          // Menu is available after the initial period, except during hide intervals when only menu should show
-          const shouldShowMenu = currentTime >= menuAvailableTime;
+          const shouldShowMenu = currentTime >= this.menuAvailableTime;
 
           if (shouldShowMenu) {
             this.menuToggle.style.display = "flex";
@@ -1413,93 +1053,268 @@
           } else {
             this.menuToggle.style.display = "none";
             this.menuToggle.style.visibility = "hidden";
-            // Close menu if it's open and we're before the available time
-            if (this.isMenuOpen) {
-              this.closeMenu();
+            if (this.menuOpen) {
+              this.closeMenuPanel();
             }
           }
         }
 
-        handleTimeUpdate() {
-          if (this.video.duration) {
-            const progress =
-              (this.video.currentTime / this.video.duration) * 100;
-            this.progressBar.style.width = progress + "%";
-          }
-          const current = this.formatTime(this.video.currentTime);
-          const duration = this.formatTime(this.video.duration || 0);
-
-          this.updateRegionVisibility();
-          this.updateMenuAvailability();
-
-          if (this.stopTime && this.video.currentTime >= this.stopTime) {
+        togglePlayPause() {
+          if (this.video.paused) {
+            this.video
+              .play()
+              .then(() => this.showPlayIndicator("▶"))
+              .catch(() => this.showStatus("Error playing video"));
+          } else {
             this.video.pause();
-            this.stopTime = null;
-            this.isPlayingPeriod = false;
-            this.updateRegionVisibility();
-            this.showStatus("Section completed");
+            this.showPlayIndicator("⏸");
           }
         }
-        updateRegionVisibility() {
-          const currentTime = this.video.currentTime;
-          const firstPeriodStart = 4.5;
-          const showAllRegionsTime = firstPeriodStart - 1.2;
-          const lastPeriodEnd = 59;
 
-          const hideIntervals = [
-            { start: 25.5, end: 31.5 },
-            { start: 46.5, end: 52.5 },
-            { start: 56, end: 59 },
-          ];
+        toggleMute() {
+          this.video.muted = !this.video.muted;
+          this.updateMuteButton();
+        }
 
-          const isInHideInterval = hideIntervals.some(
-            (interval) =>
-              currentTime >= interval.start && currentTime < interval.end
-          ); // Check if current time is within any period time range
-          const isInPeriodTime = this.videoPeriods.some(
-            (period) => currentTime >= period.start && currentTime <= period.end
-          ); // Show regions if:
-          // 1. Video is paused AND we're in a period time range AND NOT in hide interval, OR
-          // 2. Video is paused AND we're playing a period (user clicked icon and then paused), OR
-          // 3. Normal conditions (after showAllRegionsTime, not playing period, not in hide interval)
-          // NEVER show regions during hide intervals, regardless of pause state
-          const shouldShowRegions =
-            !isInHideInterval &&
-            ((this.video.paused && isInPeriodTime && !this.isPlayingPeriod) ||
-              (this.video.paused && this.isPlayingPeriod) ||
-              (currentTime >= showAllRegionsTime &&
-                currentTime < lastPeriodEnd &&
-                !this.isPlayingPeriod &&
-                !this.video.paused));
+        updateMuteButton() {
+          this.muteBtn.textContent = this.video.muted ? "🔇" : "🔊";
+          this.muteBtn.title = this.video.muted ? "Unmute" : "Mute";
+        }
 
-          this.videoPeriods.forEach((period, index) => {
-            const regionElement = document.querySelector(
-              `.${period.regionClass}`
-            );
-            if (regionElement) {
-              if (shouldShowRegions) {
-                if (!regionElement.classList.contains("visible")) {
-                  setTimeout(() => {
-                    regionElement.classList.add("visible");
-                    regionElement.style.animation =
-                      "breathe 2s ease-in-out infinite, pulseRing 2s ease-in-out infinite, entrancePulse 0.6s ease-out";
-                  }, index * 100);
-                }
-              } else {
-                if (regionElement.classList.contains("visible")) {
-                  regionElement.classList.remove("visible");
-                  regionElement.style.animation = "";
-                }
-              }
-            }
+        toggleFullscreen() {
+          if (!document.fullscreenElement) {
+            this.wrapper.requestFullscreen?.() ||
+              this.wrapper.webkitRequestFullscreen?.() ||
+              this.wrapper.mozRequestFullScreen?.();
+          } else {
+            document.exitFullscreen?.() ||
+              document.webkitExitFullscreen?.() ||
+              document.mozCancelFullScreen?.();
+          }
+        }
+
+        onFullscreenChange() {
+          const isFullscreen = !!(
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.mozFullScreenElement
+          );
+
+          this.fullscreenBtn.textContent = isFullscreen ? "⛶" : "⛶";
+          this.fullscreenBtn.title = isFullscreen
+            ? "Exit fullscreen"
+            : "Fullscreen";
+
+          if (isFullscreen && !this.isInitialAutoplay) {
+            this.showStatus("Press R to replay, F to exit fullscreen");
+          }
+        }
+
+        replay() {
+          this.isPlayingSection = false;
+          this.sectionEndTime = null;
+          this.video.currentTime = 0;
+          this.progressFill.style.width = "0%";
+          this.hideAllHotspots();
+
+          this.video
+            .play()
+            .then(() => {
+              this.showStatus("Replaying from beginning");
+              this.showPlayIndicator("🔄");
+            })
+            .catch(() => this.showStatus("Error replaying video"));
+        }
+
+        toggleMenu() {
+          this.menuOpen = !this.menuOpen;
+          if (this.menuOpen) {
+            this.openMenuPanel();
+          } else {
+            this.closeMenuPanel();
+          }
+        }
+
+        openMenuPanel() {
+          this.menuOpen = true;
+          this.sectionsMenu.classList.add("open");
+          this.menuToggle.style.opacity = "0";
+          this.menuToggle.style.pointerEvents = "none";
+
+          const firstButton = this.sectionsMenu.querySelector(".section-btn");
+          firstButton?.focus();
+        }
+
+        closeMenuPanel() {
+          this.menuOpen = false;
+          this.sectionsMenu.classList.remove("open");
+          this.menuToggle.style.opacity = "1";
+          this.menuToggle.style.pointerEvents = "all";
+          this.menuToggle.focus();
+        }
+
+        playSection(element) {
+          const start = parseFloat(element.dataset.start);
+          const end = parseFloat(element.dataset.end);
+          const name = element.dataset.name;
+
+          if (this.menuOpen) {
+            this.closeMenuPanel();
+          }
+
+          this.video.currentTime = start;
+          this.sectionEndTime = end;
+          this.isPlayingSection = true;
+          this.hideAllHotspots();
+
+          this.video
+            .play()
+            .then(() => this.showStatus(`Playing: ${name}`))
+            .catch(() => this.showStatus("Error playing section"));
+        }
+
+        hideAllHotspots() {
+          this.hotspots.forEach((hotspot) => {
+            hotspot.classList.remove("active");
+            // Force stop animations to prevent flicker
+            hotspot.style.animation = "none";
+            requestAnimationFrame(() => {
+              hotspot.style.animation = "";
+            });
           });
         }
 
-        /**
-         * ========================================
-         * UTILITY FUNCTIONS
-         * ========================================
-         */
+        seekTo(e) {
+          const rect = this.progressTrack.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const percentage = Math.max(0, Math.min(1, x / rect.width));
+          const time = percentage * this.video.duration;
+
+          this.video.currentTime = time;
+          this.checkSectionInterrupt(time);
+          this.showStatus(`Seeked to ${this.formatTime(time)}`);
+        }
+
+        seek(seconds) {
+          const newTime = Math.max(
+            0,
+            Math.min(this.video.duration, this.video.currentTime + seconds)
+          );
+          this.video.currentTime = newTime;
+          this.checkSectionInterrupt(newTime);
+
+          const direction = seconds > 0 ? "forward" : "backward";
+          this.showStatus(`Seeked ${direction} ${Math.abs(seconds)}s`);
+        }
+
+        checkSectionInterrupt(time) {
+          if (this.isPlayingSection && this.sectionEndTime) {
+            const currentSection = Array.from(this.hotspots).find(
+              (hotspot) =>
+                parseFloat(hotspot.dataset.end) === this.sectionEndTime
+            );
+
+            if (currentSection) {
+              const start = parseFloat(currentSection.dataset.start);
+              const end = parseFloat(currentSection.dataset.end);
+
+              if (time < start || time >= end) {
+                this.isPlayingSection = false;
+                this.sectionEndTime = null;
+                this.updateHotspotVisibility();
+                this.showStatus("Section interrupted");
+              }
+            }
+          }
+        }
+
+        showTimeTooltip(e) {
+          const rect = this.progressTrack.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const percentage = x / rect.width;
+
+          if (this.video.duration) {
+            const time = percentage * this.video.duration;
+            this.timeTooltip.textContent = this.formatTime(time);
+            this.timeTooltip.style.left = `${x}px`;
+            this.timeTooltip.style.opacity = "1";
+          }
+        }
+
+        hideTimeTooltip() {
+          this.timeTooltip.style.opacity = "0";
+        }
+
+        onTouchStart(e) {
+          e.preventDefault();
+          this.isDraggingProgress = true;
+          this.handleTouch(e);
+        }
+
+        onTouchMove(e) {
+          e.preventDefault();
+          if (this.isDraggingProgress) {
+            this.handleTouch(e);
+          }
+        }
+
+        onTouchEnd() {
+          this.isDraggingProgress = false;
+          this.hideTimeTooltip();
+        }
+
+        handleTouch(e) {
+          const rect = this.progressTrack.getBoundingClientRect();
+          const touch = e.touches[0] || e.changedTouches[0];
+          const x = touch.clientX - rect.left;
+          const percentage = Math.max(0, Math.min(1, x / rect.width));
+
+          if (this.video.duration) {
+            const time = percentage * this.video.duration;
+            this.video.currentTime = time;
+            this.progressFill.style.width = `${percentage * 100}%`;
+            this.timeTooltip.textContent = this.formatTime(time);
+            this.timeTooltip.style.left = `${x}px`;
+            this.timeTooltip.style.opacity = "1";
+          }
+        }
+
+        showPlayIndicator(icon) {
+          this.playIndicator.textContent = icon;
+          this.playIndicator.classList.add("show");
+
+          setTimeout(() => {
+            this.playIndicator.classList.remove("show");
+          }, 500);
+        }
+
+        showLoader() {
+          this.loader.classList.add("show");
+        }
+
+        hideLoader() {
+          this.loader.classList.remove("show");
+        }
+
+        showStatus(message, duration = 3000) {
+          this.statusToast.textContent = message;
+          this.statusToast.classList.add("show");
+
+          setTimeout(() => {
+            this.statusToast.classList.remove("show");
+          }, duration);
+        }
+
+        onVideoEnd() {
+          this.showStatus("Video ended");
+          this.sectionEndTime = null;
+          this.isPlayingSection = false;
+        }
+
+        onVideoError() {
+          this.hideLoader();
+          this.showStatus("Error loading video", 5000);
+        }
 
         formatTime(seconds) {
           const mins = Math.floor(seconds / 60);
@@ -1508,269 +1323,11 @@
             .toString()
             .padStart(2, "0")}`;
         }
-
-        showLoading() {
-          this.loadingSpinner.classList.add("visible");
-        }
-
-        hideLoading() {
-          this.loadingSpinner.classList.remove("visible");
-        }
-
-        showStatus(message, duration = 3000) {
-          this.statusMessage.textContent = message;
-          this.statusMessage.classList.add("visible");
-
-          setTimeout(() => {
-            this.statusMessage.classList.remove("visible");
-          }, duration);
-        }
-
-        handleVideoEnd() {
-          this.showStatus("Video ended");
-          this.stopTime = null;
-        }
-
-        handleVideoError() {
-          this.hideLoading();
-          this.showStatus("Error loading video", 5000);
-        }
-
-        /**
-         * ========================================
-         * REGION PERIOD PLAYBACK
-         * ========================================
-         */
-
-        playPeriod(start, end, sectionName) {
-          if (this.isMenuOpen) {
-            this.closeMenu();
-          }
-
-          this.video.currentTime = start;
-          this.stopTime = end;
-          this.isPlayingPeriod = true;
-          this.hideAllRegions();
-
-          this.video
-            .play()
-            .then(() => {
-              this.showStatus(`Playing: ${sectionName}`);
-            })
-            .catch(() => {
-              this.showStatus("Error playing video");
-            });
-        }
-
-        hideAllRegions() {
-          this.videoPeriods.forEach((period) => {
-            const regionElement = document.querySelector(
-              `.${period.regionClass}`
-            );
-            if (regionElement) {
-              regionElement.classList.remove("visible");
-            }
-          });
-        }
-
-        /**
-         * ========================================
-         * PROGRESS BAR INTERACTION
-         * ========================================
-         */
-
-        handleProgressClick(e) {
-          const rect = this.progressContainer.getBoundingClientRect();
-          const clickX = e.clientX - rect.left;
-          const width = rect.width;
-          const percentage = Math.max(0, Math.min(1, clickX / width));
-          this.seekToPercentage(percentage);
-        }
-
-        handleProgressHover(e) {
-          const rect = this.progressContainer.getBoundingClientRect();
-          const hoverX = e.clientX - rect.left;
-          const width = rect.width;
-          const percentage = hoverX / width;
-
-          if (this.video.duration) {
-            const hoverTime = percentage * this.video.duration;
-            this.progressTooltip.textContent = this.formatTime(hoverTime);
-            this.progressTooltip.style.left = hoverX + "px";
-            this.progressTooltip.style.opacity = "1";
-          }
-        }
-
-        hideProgressTooltip() {
-          this.progressTooltip.style.opacity = "0";
-        }
-
-        /**
-         * ========================================
-         * MOBILE/TOUCH SUPPORT
-         * ========================================
-         */
-
-        handleProgressTouchStart(e) {
-          e.preventDefault();
-          this.isDragging = true;
-          this.progressContainer.classList.add("dragging");
-          this.handleProgressTouch(e);
-        }
-
-        handleProgressTouchMove(e) {
-          e.preventDefault();
-          if (this.isDragging) {
-            this.handleProgressTouch(e);
-          }
-        }
-
-        handleProgressTouchEnd(e) {
-          e.preventDefault();
-          this.isDragging = false;
-          this.progressContainer.classList.remove("dragging");
-          this.hideProgressTooltip();
-        }
-
-        handleProgressTouch(e) {
-          const rect = this.progressContainer.getBoundingClientRect();
-          const touch = e.touches[0] || e.changedTouches[0];
-          const touchX = touch.clientX - rect.left;
-          const width = rect.width;
-          const percentage = Math.max(0, Math.min(1, touchX / width));
-
-          if (this.video.duration) {
-            const newTime = percentage * this.video.duration;
-            this.video.currentTime = newTime;
-            this.progressBar.style.width = percentage * 100 + "%";
-            this.progressTooltip.textContent = this.formatTime(newTime);
-            this.progressTooltip.style.left = touchX + "px";
-            this.progressTooltip.style.opacity = "1";
-          }
-        }
-
-        initializeMobileSupport() {
-          window.addEventListener("orientationchange", () => {
-            setTimeout(() => {
-              this.handleOrientationChange();
-            }, 100);
-          });
-
-          window.addEventListener("resize", () => {
-            this.handleResize();
-          });
-
-          this.video.addEventListener("touchstart", (e) => {
-            if (e.touches.length > 1) {
-              e.preventDefault();
-            }
-          });
-
-          let lastTouchEnd = 0;
-          this.video.addEventListener(
-            "touchend",
-            (e) => {
-              const now = new Date().getTime();
-              if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-                this.toggleFullscreen();
-              }
-              lastTouchEnd = now;
-            },
-            false
-          );
-        }
-        handleOrientationChange() {
-          this.video.style.height = "auto";
-          this.updateProgressBar();
-        }
-
-        handleResize() {
-          this.updateProgressBar();
-        }
-
-        updateProgressBar() {
-          if (this.video.duration) {
-            const progress =
-              (this.video.currentTime / this.video.duration) * 100;
-            this.progressBar.style.width = progress + "%";
-          }
-        }
-
-        /**
-         * ========================================
-         * VIDEO SEEKING FUNCTIONS
-         * ========================================
-         */
-
-        seekRelative(seconds) {
-          if (this.video.duration) {
-            const newTime = Math.max(
-              0,
-              Math.min(this.video.duration, this.video.currentTime + seconds)
-            );
-            this.video.currentTime = newTime;
-            const progress = (newTime / this.video.duration) * 100;
-            this.progressBar.style.width = progress + "%";
-
-            this.checkAndResetPeriodState(newTime);
-
-            const direction = seconds > 0 ? "forward" : "backward";
-            const absSeconds = Math.abs(seconds);
-            if (absSeconds >= 1) {
-              this.showStatus(`Seeked ${direction} ${absSeconds}s`);
-            } else {
-              this.showStatus(
-                `Seeked ${direction} ${(absSeconds * 1000).toFixed(0)}ms`
-              );
-            }
-          }
-        }
-
-        seekToPercentage(percentage) {
-          if (this.video.duration) {
-            const newTime = percentage * this.video.duration;
-            this.video.currentTime = newTime;
-            this.progressBar.style.width = percentage * 100 + "%";
-
-            this.checkAndResetPeriodState(newTime);
-            this.showStatus(`Seeked to ${this.formatTime(newTime)}`);
-          }
-        }
-
-        checkAndResetPeriodState(newTime) {
-          if (this.isPlayingPeriod && this.stopTime) {
-            const currentPeriod = this.videoPeriods.find(
-              (period) => period.end === this.stopTime
-            );
-
-            if (currentPeriod) {
-              if (
-                newTime < currentPeriod.start ||
-                newTime >= currentPeriod.end
-              ) {
-                this.isPlayingPeriod = false;
-                this.stopTime = null;
-                this.updateRegionVisibility();
-                this.showStatus("Period interrupted - regions available");
-              }
-            }
-          }
-        }
       }
 
-      /**
-       * ========================================
-       * GLOBAL FUNCTIONS & INITIALIZATION
-       * ========================================
-       */
-
-      function playPeriod(start, end, sectionName) {
-        window.videoPlayer.playPeriod(start, end, sectionName);
-      }
-
+      // Initialize player when DOM is ready
       document.addEventListener("DOMContentLoaded", () => {
-        window.videoPlayer = new InteractiveVideoPlayer();
+        window.videoPlayer = new VideoPlayerController();
       });
     </script>
   </body>
