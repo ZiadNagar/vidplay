@@ -632,7 +632,7 @@
         <button
           class="hotspot hotspot-labor"
           data-start="51"
-          data-end="83"
+          data-end="70.5"
           data-name="Labor Solutions"
           title="Click to play Labor section"
         >
@@ -717,7 +717,7 @@
           <button
             class="section-btn"
             data-start="51"
-            data-end="83"
+            data-end="70.5"
             data-name="Labor Solutions"
           >
             👷 Labor
@@ -781,15 +781,15 @@
             { name: "Rent Services", start: 4.5, end: 12 },
             { name: "Transportation", start: 12, end: 40 },
             { name: "Inventory Carry", start: 40, end: 51 },
-            { name: "Labor Solutions", start: 51, end: 70 },
+            { name: "Labor Solutions", start: 51, end: 70.5 },
             { name: "Other Services", start: 70.5, end: 83 },
           ];
           this.currentSectionIndex = -1;
 
           // Configuration
           this.hideIntervals = [
-            { start: 46.5, end: 52.5 },
-            { start: 56, end: 59 },
+            { start: 43.6, end: 49 },
+            { start: 74.4, end: 81 },
           ];
 
           this.firstSectionStart = 4.5;
@@ -1058,7 +1058,7 @@
         updateHotspotVisibility() {
           const currentTime = this.video.currentTime;
           const showTime = this.menuAvailableTime;
-          const lastEnd = 59;
+          const lastEnd = 83;
 
           // Check if in hide interval
           const inHideInterval = this.hideIntervals.some(
