@@ -33,6 +33,10 @@
         overflow: hidden;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         aspect-ratio: 16 / 9;
+        /* Performance optimizations */
+        transform: translateZ(0);
+        will-change: transform;
+        contain: layout style paint;
       }
 
       .video-player {
@@ -40,6 +44,9 @@
         height: 100%;
         object-fit: cover;
         display: block;
+        /* Performance optimizations */
+        will-change: auto;
+        transform: translateZ(0);
       }
 
       /* Interactive Hotspots Container */
@@ -69,61 +76,53 @@
         font-size: 24px;
         color: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(10px);
-        transition: opacity 0.15s ease-out, visibility 0.15s ease-out,
-          transform 0.15s ease-out, background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-          border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-          box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
         opacity: 0;
         visibility: hidden;
-        transform: scale(0.5);
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+        transform: scale(0.8);
+        will-change: transform, opacity;
       }
 
       .hotspot.active {
-        opacity: 0.7;
+        opacity: 0.8;
         visibility: visible;
         transform: scale(1);
-        animation: breathe 2s ease-in-out infinite,
-          pulseRing 2s ease-in-out infinite;
+        animation: subtlePulse 3s ease-in-out infinite;
       }
 
       .hotspot.active:hover {
         opacity: 1;
-        transform: scale(1.15);
+        transform: scale(1.1);
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.4);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
-          0 0 0 10px rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         animation: none;
       }
 
       .hotspot.active:active {
         transform: scale(1.05);
         background: rgba(255, 255, 255, 0.25);
-        animation: clickRipple 0.6s ease-out;
       }
 
-      /* Faster hide transition when removing active class */
+      /* Simplified transitions when removing active class */
       .hotspot:not(.active) {
-        transition: opacity 0.12s ease-out, visibility 0.12s ease-out,
-          transform 0.12s ease-out !important;
-        animation: none !important;
+        transition: opacity 0.15s ease, visibility 0.15s ease,
+          transform 0.15s ease;
       }
 
       /* Hotspot Icon */
       .hotspot-icon {
         font-size: inherit;
-        animation: iconBounce 2s ease-in-out infinite;
       }
 
       .hotspot:hover .hotspot-icon {
-        animation: iconSpin 0.8s ease-in-out;
+        animation: iconSpin 0.5s ease-in-out;
       }
 
       /* Hotspot Positions */
       .hotspot-rent {
-        top: 46%;
-        left: 35%;
+        top: 16%;
+        left: 30%;
         animation-delay: 0s;
       }
 
@@ -435,72 +434,32 @@
         transform: translateX(-50%) translateY(10px);
       }
 
-      /* Animations */
+      /* Simplified Animations for Better Performance */
       @keyframes spin {
-        0% {
+        from {
           transform: translate(-50%, -50%) rotate(0deg);
         }
-        100% {
+        to {
           transform: translate(-50%, -50%) rotate(360deg);
         }
       }
 
-      @keyframes breathe {
+      @keyframes subtlePulse {
         0%,
         100% {
-          transform: scale(1);
+          opacity: 0.8;
         }
         50% {
-          transform: scale(1.05);
-        }
-      }
-
-      @keyframes pulseRing {
-        0% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
-        }
-        50% {
-          box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-        }
-      }
-
-      @keyframes iconBounce {
-        0%,
-        20%,
-        50%,
-        80%,
-        100% {
-          transform: translateY(0);
-        }
-        40% {
-          transform: translateY(-3px);
-        }
-        60% {
-          transform: translateY(-2px);
+          opacity: 0.9;
         }
       }
 
       @keyframes iconSpin {
-        0% {
+        from {
           transform: rotate(0deg);
         }
-        100% {
+        to {
           transform: rotate(360deg);
-        }
-      }
-
-      @keyframes clickRipple {
-        0% {
-          box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6);
-        }
-        50% {
-          box-shadow: 0 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-        100% {
-          box-shadow: 0 0 0 25px rgba(255, 255, 255, 0);
         }
       }
 
@@ -624,13 +583,18 @@
       <video
         class="video-player"
         id="mainVideo"
-        preload="metadata"
+        preload="none"
         autoplay
         muted
         playsinline
+        crossorigin="anonymous"
       >
         <source
-          src="https://www.dropbox.com/scl/fi/2iq82jwh4du56mb8wavs1/Colliers-Presentation-Full-Video_Rev01-June-18th-2025.mp4?rlkey=ww1r393h4m0xnoeobm5zhi2yq&e=1&st=3593ncqu&dl=1"
+          src="./video/Colliers-Presentation-FullVideo.mp4"
+          type="video/mp4"
+        />
+        <source
+          src="https://www.dropbox.com/scl/fi/of29jsj4u7iep0k7jeygc/Colliers-Presentation-Full-Video_Rev06-July-13th-2025.mp4?rlkey=rdz5495wd3xrqhp30t6hzq7hp&e=1&dl=1"
           type="video/mp4"
         />
         Your browser doesn't support HTML5 video.
@@ -802,9 +766,14 @@
           this.menuOpen = false;
           this.isDraggingProgress = false;
 
+          // Performance optimization
+          this.lastUpdateTime = 0;
+          this.updateThrottle = 100; // ms
+          this.lastHotspotState = null;
+          this.lastMenuState = null;
+
           // Configuration
           this.hideIntervals = [
-            { start: 25.5, end: 31.5 },
             { start: 46.5, end: 52.5 },
             { start: 56, end: 59 },
           ];
@@ -819,6 +788,48 @@
           this.setupEventListeners();
           this.setupKeyboardShortcuts();
           this.updateMuteButton();
+          this.optimizeVideoLoading();
+        }
+
+        optimizeVideoLoading() {
+          // Start loading video metadata when user interacts
+          const startLoading = () => {
+            if (this.video.readyState < 1) {
+              this.video.preload = "metadata";
+              this.video.load();
+            }
+            document.removeEventListener("click", startLoading, { once: true });
+            document.removeEventListener("touchstart", startLoading, {
+              once: true,
+            });
+          };
+
+          // Optimize for mobile
+          if ("connection" in navigator) {
+            const connection = navigator.connection;
+            if (
+              connection.effectiveType === "slow-2g" ||
+              connection.effectiveType === "2g"
+            ) {
+              this.video.preload = "none";
+              this.showStatus("Slow connection detected - click to load video");
+              document.addEventListener("click", startLoading, { once: true });
+              document.addEventListener("touchstart", startLoading, {
+                once: true,
+              });
+            }
+          }
+
+          // Lazy load full video after metadata
+          this.video.addEventListener(
+            "loadedmetadata",
+            () => {
+              setTimeout(() => {
+                this.video.preload = "auto";
+              }, 1000);
+            },
+            { once: true }
+          );
         }
 
         setupEventListeners() {
@@ -841,7 +852,24 @@
             this.hideLoader();
           });
           this.video.addEventListener("ended", () => this.onVideoEnd());
-          this.video.addEventListener("error", () => this.onVideoError());
+          this.video.addEventListener("error", (e) => this.onVideoError(e));
+
+          // Add stalled event for better loading feedback
+          this.video.addEventListener("stalled", () => {
+            this.showStatus("Video buffering...");
+          });
+
+          // Add progress event for loading feedback
+          this.video.addEventListener("progress", () => {
+            if (this.video.buffered.length > 0) {
+              const buffered =
+                (this.video.buffered.end(0) / this.video.duration) * 100;
+              if (buffered > 10) {
+                // Hide loader when 10% is buffered
+                this.hideLoader();
+              }
+            }
+          });
 
           // Video click for play/pause
           this.video.addEventListener("click", (e) => {
@@ -973,6 +1001,13 @@
         }
 
         onTimeUpdate() {
+          // Throttle updates for performance
+          const now = performance.now();
+          if (now - this.lastUpdateTime < this.updateThrottle) {
+            return;
+          }
+          this.lastUpdateTime = now;
+
           // Update progress bar
           if (this.video.duration) {
             const progress =
@@ -980,7 +1015,7 @@
             this.progressFill.style.width = `${progress}%`;
           }
 
-          // Update visibility
+          // Update visibility with throttling
           this.updateHotspotVisibility();
           this.updateMenuVisibility();
 
@@ -1008,12 +1043,14 @@
               currentTime >= interval.start && currentTime < interval.end
           );
 
-          // Check if in any section time
-          const inSectionTime = Array.from(this.hotspots).some((hotspot) => {
-            const start = parseFloat(hotspot.dataset.start);
-            const end = parseFloat(hotspot.dataset.end);
-            return currentTime >= start && currentTime <= end;
-          });
+          // Check if in any section time (optimized)
+          const inSectionTime =
+            this.hotspots.length > 0 &&
+            Array.prototype.some.call(this.hotspots, (hotspot) => {
+              const start = parseFloat(hotspot.dataset.start);
+              const end = parseFloat(hotspot.dataset.end);
+              return currentTime >= start && currentTime <= end;
+            });
 
           // Visibility logic
           const shouldShow =
@@ -1025,27 +1062,39 @@
                 !this.isPlayingSection &&
                 !this.video.paused));
 
-          this.hotspots.forEach((hotspot, index) => {
-            if (shouldShow) {
-              setTimeout(() => {
-                hotspot.classList.add("active");
-              }, index * 100);
-            } else {
-              // Remove active class immediately without stagger to prevent flicker
-              hotspot.classList.remove("active");
-              // Force stop any running animations
-              hotspot.style.animation = "none";
-              // Reset animation after a frame to allow future animations
-              requestAnimationFrame(() => {
-                hotspot.style.animation = "";
+          // Only update if state changed
+          if (this.lastHotspotState === shouldShow) {
+            return;
+          }
+          this.lastHotspotState = shouldShow;
+
+          // Batch DOM updates
+          if (shouldShow) {
+            // Use requestAnimationFrame for smoother animation
+            requestAnimationFrame(() => {
+              this.hotspots.forEach((hotspot, index) => {
+                setTimeout(() => {
+                  hotspot.classList.add("active");
+                }, index * 50); // Reduced delay for faster response
               });
-            }
-          });
+            });
+          } else {
+            // Immediate hide for better responsiveness
+            this.hotspots.forEach((hotspot) => {
+              hotspot.classList.remove("active");
+            });
+          }
         }
 
         updateMenuVisibility() {
           const currentTime = this.video.currentTime;
           const shouldShowMenu = currentTime >= this.menuAvailableTime;
+
+          // Only update if state changed
+          if (this.lastMenuState === shouldShowMenu) {
+            return;
+          }
+          this.lastMenuState = shouldShowMenu;
 
           if (shouldShowMenu) {
             this.menuToggle.style.display = "flex";
@@ -1174,14 +1223,13 @@
         }
 
         hideAllHotspots() {
-          this.hotspots.forEach((hotspot) => {
-            hotspot.classList.remove("active");
-            // Force stop animations to prevent flicker
-            hotspot.style.animation = "none";
-            requestAnimationFrame(() => {
-              hotspot.style.animation = "";
+          // Batch DOM updates for better performance
+          requestAnimationFrame(() => {
+            this.hotspots.forEach((hotspot) => {
+              hotspot.classList.remove("active");
             });
           });
+          this.lastHotspotState = false;
         }
 
         seekTo(e) {
@@ -1311,9 +1359,33 @@
           this.isPlayingSection = false;
         }
 
-        onVideoError() {
+        onVideoError(e) {
           this.hideLoader();
-          this.showStatus("Error loading video", 5000);
+          console.error("Video error:", e);
+
+          // Try to switch to backup source
+          const sources = this.video.querySelectorAll("source");
+          const currentSrc = this.video.currentSrc;
+
+          // Find next source to try
+          let nextSource = null;
+          for (let i = 0; i < sources.length; i++) {
+            if (sources[i].src !== currentSrc) {
+              nextSource = sources[i].src;
+              break;
+            }
+          }
+
+          if (nextSource) {
+            this.showStatus("Switching to backup video source...", 3000);
+            this.video.src = nextSource;
+            this.video.load();
+          } else {
+            this.showStatus(
+              "Error loading video - please refresh the page",
+              8000
+            );
+          }
         }
 
         formatTime(seconds) {
