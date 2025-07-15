@@ -121,31 +121,31 @@
 
       /* Hotspot Positions */
       .hotspot-rent {
-        top: 16%;
-        left: 30%;
+        top: 38%;
+        left: 23%;
         animation-delay: 0s;
       }
 
       .hotspot-transport {
-        top: 48%;
-        left: 51%;
+        top: 35%;
+        left: 45%;
         animation-delay: 0.4s;
       }
 
       .hotspot-inventory {
-        top: 51%;
-        left: 65%;
+        top: 35%;
+        left: 63%;
         animation-delay: 0.8s;
       }
 
       .hotspot-labor {
-        top: 53%;
-        left: 73%;
+        top: 49%;
+        left: 68%;
         animation-delay: 1.2s;
       }
 
       .hotspot-services {
-        top: 55%;
+        top: 57%;
         left: 78%;
         animation-delay: 1.6s;
       }
@@ -605,7 +605,7 @@
         <button
           class="hotspot hotspot-rent"
           data-start="4.5"
-          data-end="15"
+          data-end="12"
           data-name="Rent Services"
           title="Click to play Rent section"
         >
@@ -613,8 +613,8 @@
         </button>
         <button
           class="hotspot hotspot-transport"
-          data-start="15"
-          data-end="22.6"
+          data-start="12"
+          data-end="40"
           data-name="Transportation"
           title="Click to play Transportation section"
         >
@@ -622,8 +622,8 @@
         </button>
         <button
           class="hotspot hotspot-inventory"
-          data-start="23.1"
-          data-end="32.8"
+          data-start="40"
+          data-end="51"
           data-name="Inventory Carry"
           title="Click to play Inventory Carry section"
         >
@@ -631,8 +631,8 @@
         </button>
         <button
           class="hotspot hotspot-labor"
-          data-start="32.9"
-          data-end="43.4"
+          data-start="51"
+          data-end="83"
           data-name="Labor Solutions"
           title="Click to play Labor section"
         >
@@ -640,8 +640,8 @@
         </button>
         <button
           class="hotspot hotspot-services"
-          data-start="43.5"
-          data-end="56.4"
+          data-start="70.5"
+          data-end="83"
           data-name="Other Services"
           title="Click to play Other Services section"
         >
@@ -668,6 +668,9 @@
 
       <!-- Control Buttons -->
       <div class="video-controls">
+        <button class="control-btn" id="nextSectionBtn" title="Next Section">
+          ⏭️
+        </button>
         <button class="control-btn" id="replayBtn" title="Replay">🔄</button>
         <button class="control-btn" id="muteBtn" title="Mute">🔊</button>
         <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
@@ -690,39 +693,39 @@
           <button
             class="section-btn"
             data-start="4.5"
-            data-end="15"
+            data-end="12"
             data-name="Rent Services"
           >
             💰 Rent
           </button>
           <button
             class="section-btn"
-            data-start="15"
-            data-end="22.6"
+            data-start="12"
+            data-end="40"
             data-name="Transportation"
           >
             🚚 Transportation
           </button>
           <button
             class="section-btn"
-            data-start="23.1"
-            data-end="32.8"
+            data-start="40"
+            data-end="51"
             data-name="Inventory Carry"
           >
             📦 Inventory Carry
           </button>
           <button
             class="section-btn"
-            data-start="32.9"
-            data-end="43.4"
+            data-start="51"
+            data-end="83"
             data-name="Labor Solutions"
           >
             👷 Labor
           </button>
           <button
             class="section-btn"
-            data-start="43.5"
-            data-end="56.4"
+            data-start="70.5"
+            data-end="83"
             data-name="Other Services"
           >
             🛠️ Other Services
@@ -748,6 +751,7 @@
           this.replayBtn = document.getElementById("replayBtn");
           this.muteBtn = document.getElementById("muteBtn");
           this.fullscreenBtn = document.getElementById("fullscreenBtn");
+          this.nextSectionBtn = document.getElementById("nextSectionBtn");
 
           // Menu elements
           this.menuToggle = document.getElementById("menuToggle");
@@ -771,6 +775,16 @@
           this.updateThrottle = 100; // ms
           this.lastHotspotState = null;
           this.lastMenuState = null;
+
+          // Section navigation
+          this.sections = [
+            { name: "Rent Services", start: 4.5, end: 12 },
+            { name: "Transportation", start: 12, end: 40 },
+            { name: "Inventory Carry", start: 40, end: 51 },
+            { name: "Labor Solutions", start: 51, end: 70 },
+            { name: "Other Services", start: 70.5, end: 83 },
+          ];
+          this.currentSectionIndex = -1;
 
           // Configuration
           this.hideIntervals = [
@@ -884,6 +898,9 @@
           this.fullscreenBtn.addEventListener("click", () =>
             this.toggleFullscreen()
           );
+          this.nextSectionBtn.addEventListener("click", () =>
+            this.nextSection()
+          );
 
           // Menu controls
           this.menuToggle.addEventListener("click", () => this.toggleMenu());
@@ -984,6 +1001,11 @@
                 e.preventDefault();
                 this.seek(-30);
                 break;
+              case "n":
+              case "N":
+                e.preventDefault();
+                this.nextSection();
+                break;
               case "Tab":
                 if (!e.shiftKey) {
                   e.preventDefault();
@@ -1027,8 +1049,9 @@
             this.video.pause();
             this.sectionEndTime = null;
             this.isPlayingSection = false;
+            // Keep current section index for next section navigation
             this.updateHotspotVisibility();
-            this.showStatus("Section completed");
+            this.showStatus("Section completed - Press N for next section");
           }
         }
 
@@ -1162,6 +1185,7 @@
         replay() {
           this.isPlayingSection = false;
           this.sectionEndTime = null;
+          this.currentSectionIndex = -1;
           this.video.currentTime = 0;
           this.progressFill.style.width = "0%";
           this.hideAllHotspots();
@@ -1206,6 +1230,11 @@
           const start = parseFloat(element.dataset.start);
           const end = parseFloat(element.dataset.end);
           const name = element.dataset.name;
+
+          // Find the section index
+          this.currentSectionIndex = this.sections.findIndex(
+            (section) => section.start === start && section.end === end
+          );
 
           if (this.menuOpen) {
             this.closeMenuPanel();
@@ -1394,6 +1423,50 @@
           return `${mins.toString().padStart(2, "0")}:${secs
             .toString()
             .padStart(2, "0")}`;
+        }
+
+        nextSection() {
+          // Determine current section or find next one
+          const currentTime = this.video.currentTime;
+          let nextSectionIndex = -1;
+
+          // If we're currently playing a section, get the next one
+          if (this.isPlayingSection && this.currentSectionIndex >= 0) {
+            nextSectionIndex = this.currentSectionIndex + 1;
+          } else {
+            // Find the next section based on current time
+            for (let i = 0; i < this.sections.length; i++) {
+              if (currentTime < this.sections[i].start) {
+                nextSectionIndex = i;
+                break;
+              }
+            }
+          }
+
+          // If no next section found, start from first section
+          if (
+            nextSectionIndex === -1 ||
+            nextSectionIndex >= this.sections.length
+          ) {
+            nextSectionIndex = 0;
+          }
+
+          // Play the next section
+          const nextSection = this.sections[nextSectionIndex];
+          this.currentSectionIndex = nextSectionIndex;
+
+          this.video.currentTime = nextSection.start;
+          this.sectionEndTime = nextSection.end;
+          this.isPlayingSection = true;
+          this.hideAllHotspots();
+
+          this.video
+            .play()
+            .then(() => {
+              this.showStatus(`Playing: ${nextSection.name}`);
+              this.showPlayIndicator("⏭️");
+            })
+            .catch(() => this.showStatus("Error playing next section"));
         }
       }
 
