@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Interactive Video Player</title>
+    <link
+      rel="shortcut icon"
+      href="https://www.colliers.com/-/media/images/colliers/unitedstates/national/icons/faviconpng.ashx?bid=601ac88ad40f42dab8d759360ada768d"
+      type="image/x-icon"
+    />
     <style>
       /* Reset and Base Styles */
       * {
@@ -79,20 +84,20 @@
         transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
         opacity: 0;
         visibility: hidden;
-        transform: scale(0.8);
+        transform: translate(-50%, -50%) scale(0.8);
         will-change: transform, opacity;
       }
 
       .hotspot.active {
         opacity: 0.8;
         visibility: visible;
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
         animation: subtlePulse 3s ease-in-out infinite;
       }
 
       .hotspot.active:hover {
         opacity: 1;
-        transform: scale(1.1);
+        transform: translate(-50%, -50%) scale(1.1);
         background: rgba(255, 255, 255, 0.2);
         border-color: rgba(255, 255, 255, 0.4);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -100,7 +105,7 @@
       }
 
       .hotspot.active:active {
-        transform: scale(1.05);
+        transform: translate(-50%, -50%) scale(1.05);
         background: rgba(255, 255, 255, 0.25);
       }
 
@@ -122,16 +127,17 @@
       /* CSS Custom Properties for Hotspot Positions */
       :root {
         /* Desktop/Tablet positions - Aligned with the arrow line across the warehouse */
+        /* These positions remain constant across all screen sizes */
         --hotspot-1-top: 30%;
-        --hotspot-1-left: 26%;
+        --hotspot-1-left: 29%;
         --hotspot-2-top: 34%;
-        --hotspot-2-left: 45%;
-        --hotspot-3-top: 37%;
-        --hotspot-3-left: 59%;
+        --hotspot-2-left: 46%;
+        --hotspot-3-top: 38%;
+        --hotspot-3-left: 64%;
         --hotspot-4-top: 39%;
-        --hotspot-4-left: 68%;
+        --hotspot-4-left: 70%;
         --hotspot-5-top: 40%;
-        --hotspot-5-left: 75%;
+        --hotspot-5-left: 77%;
         --hotspot-6-top: 52%;
         --hotspot-6-left: 88%;
         --hotspot-7-top: 52%;
@@ -139,9 +145,9 @@
         --hotspot-8-top: 52%;
         --hotspot-8-left: 67%;
 
-        /* Icon sizing variables */
-        --hotspot-size: 50px;
-        --hotspot-icon-size: 24px;
+        /* Responsive icon sizing using clamp() for smooth scaling */
+        --hotspot-size: clamp(28px, 4vw, 50px);
+        --hotspot-icon-size: clamp(14px, 2vw, 24px);
       }
 
       /* Hotspot Positions - Using CSS Custom Properties */
@@ -516,12 +522,6 @@
 
       /* Responsive Design */
       @media (max-width: 768px) {
-        :root {
-          /* Tablet sizing - moderate reduction */
-          --hotspot-size: 42px;
-          --hotspot-icon-size: 20px;
-        }
-
         .control-btn {
           width: 36px;
           height: 36px;
@@ -548,30 +548,6 @@
       }
 
       @media (max-width: 480px) {
-        :root {
-          /* Mobile positioning - move hotspots to a consistent horizontal line */
-          --hotspot-1-top: 52%;
-          --hotspot-1-left: 20%;
-          --hotspot-2-top: 52%;
-          --hotspot-2-left: 34%;
-          --hotspot-3-top: 52%;
-          --hotspot-3-left: 48%;
-          --hotspot-4-top: 52%;
-          --hotspot-4-left: 62%;
-          --hotspot-5-top: 52%;
-          --hotspot-5-left: 76%;
-          --hotspot-6-top: 52%;
-          --hotspot-6-left: 85%;
-          --hotspot-7-top: 52%;
-          --hotspot-7-left: 27%;
-          --hotspot-8-top: 52%;
-          --hotspot-8-left: 69%;
-
-          /* Mobile sizing - significant reduction for better mobile UX */
-          --hotspot-size: 32px;
-          --hotspot-icon-size: 16px;
-        }
-
         .sections-menu {
           width: min(45vw, 200px);
           max-width: 45%;
@@ -598,12 +574,6 @@
       }
 
       @media (max-width: 320px) {
-        :root {
-          /* Extra small mobile - much smaller hotspots and icons */
-          --hotspot-size: 28px;
-          --hotspot-icon-size: 14px;
-        }
-
         .control-btn {
           width: 28px;
           height: 28px;
@@ -619,12 +589,6 @@
 
       /* Ultra small screens (very small phones) */
       @media (max-width: 280px) {
-        :root {
-          /* Ultra compact sizing for very small devices */
-          --hotspot-size: 24px;
-          --hotspot-icon-size: 12px;
-        }
-
         .control-btn {
           width: 24px;
           height: 24px;
@@ -664,10 +628,6 @@
       >
         <source
           src="./video/Colliers-Presentation-FullVideo.mp4"
-          type="video/mp4"
-        />
-        <source
-          src="https://www.dropbox.com/scl/fi/prkph6jcegnfcr2frepcg/Colliers-Presentation-Full-Video_Rev07-July-15th-2025.mp4?rlkey=4cor5w76269mbyhi87z0eiltw&e=1&dl=1"
           type="video/mp4"
         />
         Your browser doesn't support HTML5 video.
@@ -743,7 +703,7 @@
           { name: "Transportation", start: 12.3, end: 27, icon: "🚚" },
           { name: "Inventory Carry", start: 27, end: 38, icon: "📦" },
           { name: "Labor Solutions", start: 38.5, end: 58, icon: "👷" },
-          { name: "Other Services", start: 58.5, end: 83, icon: "🛠️" },
+          { name: "Other Services", start: 58.5, end: 72, icon: "🛠️" },
         ],
 
         // Time intervals where hotspots should be hidden (in seconds)
