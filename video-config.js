@@ -27,7 +27,6 @@ const VIDEO_CONFIG = {
   menuAvailableOffset: 1.2,
 };
 
-Available icons: 💰 🚚 📦 👷 🛠️ 🎬 ⭐ 💡 📞 🏠 🔧 📊 📈 💼 🎯 ⚡ 🚀 🎨 📱 💻 🌟 🔥 ✨ 🎪 🎭
 */
 
 const VIDEO_CONFIG = {
@@ -50,8 +49,3 @@ const VIDEO_CONFIG = {
   // Menu will be available this many seconds before the first section starts
   menuAvailableOffset: 1.2,
 };
-
-// Export for use in main player
-if (typeof module !== "undefined" && module.exports) {
-  module.exports = VIDEO_CONFIG;
-}
