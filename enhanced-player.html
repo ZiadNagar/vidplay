@@ -243,10 +243,24 @@
         bottom: 0;
         left: 0;
         width: 100%;
-        height: 4px;
+        height: 6px;
         background: rgba(255, 255, 255, 0.2);
         cursor: pointer;
         z-index: 15;
+        transition: height 0.2s ease;
+      }
+
+      .progress-track:hover {
+        height: 8px;
+      }
+
+      .progress-track.dragging {
+        height: 8px;
+      }
+
+      .progress-track.dragging .progress-fill {
+        background: linear-gradient(90deg, #2a5298, #1e3c72);
+        box-shadow: 0 0 10px rgba(42, 82, 152, 0.5);
       }
 
       .progress-fill {
@@ -259,20 +273,50 @@
 
       .progress-handle {
         position: absolute;
-        right: -6px;
+        right: -8px;
         top: 50%;
         transform: translateY(-50%);
-        width: 12px;
-        height: 12px;
+        width: 16px;
+        height: 16px;
         background: white;
         border-radius: 50%;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        opacity: 1;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        cursor: grab;
+        z-index: 30;
+        border: 2px solid #1e3c72;
+        /* Ensure it's always visible */
+        visibility: visible;
+        display: block;
+      }
+
+      /* Alternative handle positioning when progress is 0 */
+      .progress-fill[style*="width: 0%"] .progress-handle,
+      .progress-fill:not([style*="width"]) .progress-handle {
+        right: auto;
+        left: -8px;
       }
 
       .progress-track:hover .progress-handle {
         opacity: 1;
+        transform: translateY(-50%) scale(1.15);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      }
+
+      .progress-handle:hover {
+        transform: translateY(-50%) scale(1.25);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        border-color: #2a5298;
+      }
+
+      .progress-handle:active,
+      .progress-handle.dragging {
+        cursor: grabbing;
+        transform: translateY(-50%) scale(1.3);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+        transition: none;
+        border-color: #2a5298;
       }
 
       .time-tooltip {
@@ -429,6 +473,60 @@
         z-index: 25;
         pointer-events: none;
         text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Play Button Overlay */
+      .play-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 30;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(2px);
+      }
+
+      .play-overlay.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      .play-button {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        outline: none;
+      }
+
+      .play-button:hover {
+        transform: scale(1.1);
+        background: white;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      .play-button:active {
+        transform: scale(1.05);
+      }
+
+      .play-button-icon {
+        font-size: 32px;
+        color: #1e3c72;
+        margin-left: 4px; /* Slight offset to center the triangle visually */
       }
 
       .play-indicator.show {
@@ -620,8 +718,7 @@
       <video
         class="video-player"
         id="mainVideo"
-        preload="none"
-        autoplay
+        preload="metadata"
         muted
         playsinline
         crossorigin="anonymous"
@@ -636,6 +733,13 @@
       <!-- Interactive Hotspots -->
       <div class="hotspots-layer">
         <!-- Hotspots will be dynamically generated based on VIDEO_CONFIG -->
+      </div>
+
+      <!-- Play Button Overlay -->
+      <div class="play-overlay" id="playOverlay">
+        <button class="play-button" id="playButton">
+          <span class="play-button-icon">▶</span>
+        </button>
       </div>
 
       <!-- Play/Pause Indicator -->
@@ -699,7 +803,7 @@
       const VIDEO_CONFIG = {
         // Video sections with start and end times in seconds
         sections: [
-          { name: "Rent Services", start: 4.5, end: 12, icon: "💰" },
+          { name: "Rent Services", start: 4.5, end: 11, icon: "💰" },
           { name: "Transportation", start: 12.3, end: 27, icon: "🚚" },
           { name: "Inventory Carry", start: 27, end: 38, icon: "📦" },
           { name: "Labor Solutions", start: 38.5, end: 58, icon: "👷" },
@@ -790,8 +894,12 @@
           this.wrapper = document.getElementById("videoWrapper");
           this.progressTrack = document.getElementById("progressTrack");
           this.progressFill = document.getElementById("progressFill");
+          this.progressHandle =
+            this.progressFill.querySelector(".progress-handle");
           this.timeTooltip = document.getElementById("timeTooltip");
           this.playIndicator = document.getElementById("playIndicator");
+          this.playOverlay = document.getElementById("playOverlay");
+          this.playButton = document.getElementById("playButton");
           this.loader = document.getElementById("loader");
           this.statusToast = document.getElementById("statusToast");
 
@@ -809,10 +917,11 @@
           // State management
           this.currentSection = null;
           this.sectionEndTime = null;
-          this.isInitialAutoplay = true;
           this.isPlayingSection = false;
           this.menuOpen = false;
           this.isDraggingProgress = false;
+          this.isDraggingHandle = false;
+          this.hasStartedPlaying = false;
 
           // Performance optimization
           this.lastUpdateTime = 0;
@@ -901,17 +1010,11 @@
         }
 
         optimizeVideoLoading() {
-          // Start loading video metadata when user interacts
-          const startLoading = () => {
-            if (this.video.readyState < 1) {
-              this.video.preload = "metadata";
-              this.video.load();
-            }
-            document.removeEventListener("click", startLoading, { once: true });
-            document.removeEventListener("touchstart", startLoading, {
-              once: true,
-            });
-          };
+          // Show play overlay initially
+          this.showPlayOverlay();
+
+          // Load video metadata immediately for thumbnail
+          this.video.load();
 
           // Optimize for mobile
           if ("connection" in navigator) {
@@ -920,22 +1023,18 @@
               connection.effectiveType === "slow-2g" ||
               connection.effectiveType === "2g"
             ) {
-              this.video.preload = "none";
-              this.showStatus("Slow connection detected - click to load video");
-              document.addEventListener("click", startLoading, { once: true });
-              document.addEventListener("touchstart", startLoading, {
-                once: true,
-              });
+              this.showStatus(
+                "Slow connection detected - click play to start video"
+              );
             }
           }
 
-          // Lazy load full video after metadata
+          // Keep metadata preload for thumbnail
           this.video.addEventListener(
             "loadedmetadata",
             () => {
-              setTimeout(() => {
-                this.video.preload = "auto";
-              }, 1000);
+              this.hideLoader();
+              // Don't auto-upgrade to full preload
             },
             { once: true }
           );
@@ -949,9 +1048,8 @@
           this.video.addEventListener("waiting", () => this.showLoader());
           this.video.addEventListener("playing", () => {
             this.hideLoader();
-            if (this.isInitialAutoplay) {
-              this.isInitialAutoplay = false;
-            }
+            this.hidePlayOverlay();
+            this.hasStartedPlaying = true;
             if (!this.isPlayingSection) {
               this.updateHotspotVisibility();
             }
@@ -959,6 +1057,7 @@
           this.video.addEventListener("pause", () => {
             this.updateHotspotVisibility();
             this.hideLoader();
+            // Don't show play overlay again if user manually paused
           });
           this.video.addEventListener("ended", () => this.onVideoEnd());
           this.video.addEventListener("error", (e) => this.onVideoError(e));
@@ -987,6 +1086,14 @@
             }
           });
 
+          // Play button overlay
+          this.playButton.addEventListener("click", () => this.startVideo());
+          this.playOverlay.addEventListener("click", (e) => {
+            if (e.target === this.playOverlay) {
+              this.startVideo();
+            }
+          });
+
           // Control buttons
           this.replayBtn.addEventListener("click", () => this.replay());
           this.muteBtn.addEventListener("click", () => this.toggleMute());
@@ -1010,7 +1117,42 @@
             this.hideTimeTooltip()
           );
 
-          // Touch support for progress
+          // Progress handle dragging
+          if (this.progressHandle) {
+            this.progressHandle.addEventListener("mousedown", (e) => {
+              e.preventDefault();
+              this.startDragging(e);
+            });
+          }
+          
+          document.addEventListener("mousemove", (e) => {
+            this.handleDrag(e);
+          });
+          document.addEventListener("mouseup", () => {
+            this.stopDragging();
+          });
+
+          // Touch support for progress handle
+          if (this.progressHandle) {
+            this.progressHandle.addEventListener("touchstart", (e) => {
+              e.preventDefault();
+              this.startDragging(e);
+            });
+          }
+          
+          document.addEventListener(
+            "touchmove",
+            (e) => {
+              if (this.isDraggingHandle) {
+                e.preventDefault();
+                this.handleDrag(e);
+              }
+            },
+            { passive: false }
+          );
+          document.addEventListener("touchend", () => this.stopDragging());
+
+          // Touch support for progress track
           this.progressTrack.addEventListener("touchstart", (e) =>
             this.onTouchStart(e)
           );
@@ -1276,7 +1418,7 @@
             ? "Exit fullscreen"
             : "Fullscreen";
 
-          if (isFullscreen && !this.isInitialAutoplay) {
+          if (isFullscreen) {
             this.showStatus("Press R to replay, F to exit fullscreen");
           }
         }
@@ -1288,14 +1430,11 @@
           this.video.currentTime = 0;
           this.progressFill.style.width = "0%";
           this.hideAllHotspots();
+          this.hasStartedPlaying = false;
+          this.showPlayOverlay();
 
-          this.video
-            .play()
-            .then(() => {
-              this.showStatus("Replaying from beginning");
-              this.showPlayIndicator("🔄");
-            })
-            .catch(() => this.showStatus("Error replaying video"));
+          // Don't auto-play on replay, show overlay instead
+          this.showStatus("Ready to replay from beginning");
         }
 
         toggleMenu() {
@@ -1361,6 +1500,9 @@
         }
 
         seekTo(e) {
+          // Don't seek if we're dragging the handle
+          if (this.isDraggingHandle) return;
+
           const rect = this.progressTrack.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const percentage = Math.max(0, Math.min(1, x / rect.width));
@@ -1405,8 +1547,19 @@
         }
 
         showTimeTooltip(e) {
+          // Don't show tooltip on track hover if dragging handle
+          if (this.isDraggingHandle && e.target === this.progressTrack) return;
+
           const rect = this.progressTrack.getBoundingClientRect();
-          const x = e.clientX - rect.left;
+          let x;
+
+          if (e.type === "mousemove" || e.type === "mousedown") {
+            x = e.clientX - rect.left;
+          } else if (e.type === "touchstart" || e.type === "touchmove") {
+            const touch = e.touches[0];
+            x = touch.clientX - rect.left;
+          }
+
           const percentage = x / rect.width;
 
           if (this.video.duration) {
@@ -1422,12 +1575,18 @@
         }
 
         onTouchStart(e) {
+          // Don't handle track touch if touching the handle
+          if (e.target === this.progressHandle) return;
+
           e.preventDefault();
           this.isDraggingProgress = true;
           this.handleTouch(e);
         }
 
         onTouchMove(e) {
+          // Don't handle track touch if dragging handle
+          if (this.isDraggingHandle) return;
+
           e.preventDefault();
           if (this.isDraggingProgress) {
             this.handleTouch(e);
@@ -1435,6 +1594,8 @@
         }
 
         onTouchEnd() {
+          if (this.isDraggingHandle) return;
+
           this.isDraggingProgress = false;
           this.hideTimeTooltip();
         }
@@ -1455,6 +1616,77 @@
           }
         }
 
+        startDragging(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.isDraggingHandle = true;
+          this.progressHandle.classList.add("dragging");
+          this.progressTrack.classList.add("dragging");
+
+          // Show tooltip immediately
+          this.showTimeTooltip(e);
+
+          // Visual feedback
+          this.showStatus("Seeking...", 1000);
+
+          // Prevent text selection during drag
+          document.body.style.userSelect = "none";
+        }
+
+        handleDrag(e) {
+          if (!this.isDraggingHandle) return;
+          
+          e.preventDefault();
+          const rect = this.progressTrack.getBoundingClientRect();
+          let x;
+
+          if (e.type === "mousemove") {
+            x = e.clientX - rect.left;
+          } else if (e.type === "touchmove") {
+            const touch = e.touches[0];
+            x = touch.clientX - rect.left;
+          }
+
+          // Clamp x to track bounds
+          x = Math.max(0, Math.min(rect.width, x));
+          const percentage = x / rect.width;
+
+          if (this.video.duration) {
+            const time = percentage * this.video.duration;
+
+            // Update video time immediately for responsive feedback
+            this.video.currentTime = time;
+            this.progressFill.style.width = `${percentage * 100}%`;
+
+            // Update tooltip position and time
+            this.timeTooltip.textContent = this.formatTime(time);
+            this.timeTooltip.style.left = `${x}px`;
+            this.timeTooltip.style.opacity = "1";
+
+            // Check for section interruption
+            this.checkSectionInterrupt(time);
+          }
+        }
+
+        stopDragging() {
+          if (!this.isDraggingHandle) return;
+
+          this.isDraggingHandle = false;
+          this.progressHandle.classList.remove("dragging");
+          this.progressTrack.classList.remove("dragging");
+          this.hideTimeTooltip();
+
+          // Re-enable text selection
+          document.body.style.userSelect = "";
+
+          // Show completion status
+          const currentTime = this.video.currentTime;
+          this.showStatus(`Seeked to ${this.formatTime(currentTime)}`, 1500);
+
+          // Update hotspot visibility after seeking
+          this.updateHotspotVisibility();
+        }
+
         showPlayIndicator(icon) {
           this.playIndicator.textContent = icon;
           this.playIndicator.classList.add("show");
@@ -1462,6 +1694,27 @@
           setTimeout(() => {
             this.playIndicator.classList.remove("show");
           }, 500);
+        }
+
+        showPlayOverlay() {
+          this.playOverlay.classList.remove("hidden");
+        }
+
+        hidePlayOverlay() {
+          this.playOverlay.classList.add("hidden");
+        }
+
+        startVideo() {
+          // Upgrade to full preload when user wants to play
+          this.video.preload = "auto";
+
+          this.video
+            .play()
+            .then(() => {
+              this.showStatus("Video started");
+              this.showPlayIndicator("▶");
+            })
+            .catch(() => this.showStatus("Error starting video"));
         }
 
         showLoader() {
