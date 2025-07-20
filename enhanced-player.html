@@ -803,7 +803,7 @@
       const VIDEO_CONFIG = {
         // Video sections with start and end times in seconds
         sections: [
-          { name: "Rent Services", start: 4.5, end: 11, icon: "💰" },
+          { name: "Rent Services", start: 4.5, end: 10.885, icon: "💰" },
           { name: "Transportation", start: 12.3, end: 27, icon: "🚚" },
           { name: "Inventory Carry", start: 27, end: 38, icon: "📦" },
           { name: "Labor Solutions", start: 38.5, end: 58, icon: "👷" },
@@ -1124,7 +1124,7 @@
               this.startDragging(e);
             });
           }
-          
+
           document.addEventListener("mousemove", (e) => {
             this.handleDrag(e);
           });
@@ -1139,7 +1139,7 @@
               this.startDragging(e);
             });
           }
-          
+
           document.addEventListener(
             "touchmove",
             (e) => {
@@ -1635,7 +1635,7 @@
 
         handleDrag(e) {
           if (!this.isDraggingHandle) return;
-          
+
           e.preventDefault();
           const rect = this.progressTrack.getBoundingClientRect();
           let x;
