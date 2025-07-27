@@ -281,31 +281,33 @@
 
       /* Unified Minimal Tooltip System */
       .tooltip {
-        position: absolute;
+        position: fixed;
         background: rgba(0, 0, 0, 0.85);
         color: white;
-        padding: 6px 10px;
+        padding: 8px 12px;
         border-radius: 6px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 500;
         opacity: 0;
         visibility: hidden;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
         white-space: nowrap;
-        z-index: 1000;
+        z-index: 10000;
         backdrop-filter: blur(4px);
         border: 1px solid rgba(255, 255, 255, 0.15);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        transform: scale(0.9);
-        max-width: 200px;
+        transform: translateX(-50%) translateY(-100%) scale(0.9);
+        min-width: fit-content;
+        max-width: 300px;
         text-align: center;
+        box-sizing: border-box;
       }
 
       .tooltip.show {
         opacity: 1;
         visibility: visible;
-        transform: scale(1);
+        transform: translateX(-50%) translateY(-100%) scale(1);
       }
 
       .tooltip::before {
@@ -356,17 +358,7 @@
         border-top-color: rgba(0, 0, 0, 0.85);
       }
 
-      /* Control button tooltips */
-      .control-tooltip {
-        bottom: calc(100% + 10px);
-        left: 50%;
-        transform: translateX(-50%) scale(0.9);
-      }
-
-      .control-tooltip.show {
-        transform: translateX(-50%) scale(1);
-      }
-
+      /* Control button tooltips - positioning handled by JavaScript */
       .control-tooltip::before {
         top: 100%;
         left: 50%;
@@ -374,35 +366,15 @@
         border-top-color: rgba(0, 0, 0, 0.85);
       }
 
-      /* Menu button tooltip */
-      .menu-tooltip {
-        top: 50%;
-        left: calc(100% + 10px);
-        transform: translateY(-50%) scale(0.9);
-      }
-
-      .menu-tooltip.show {
-        transform: translateY(-50%) scale(1);
-      }
-
+      /* Menu button tooltip - positioning handled by JavaScript */
       .menu-tooltip::before {
-        top: 50%;
-        right: 100%;
-        transform: translateY(-50%);
-        border-right-color: rgba(0, 0, 0, 0.85);
-      }
-
-      /* Hotspot tooltips */
-      .hotspot-tooltip {
-        bottom: calc(100% + 10px);
+        top: 100%;
         left: 50%;
-        transform: translateX(-50%) scale(0.9);
+        transform: translateX(-50%);
+        border-top-color: rgba(0, 0, 0, 0.85);
       }
 
-      .hotspot-tooltip.show {
-        transform: translateX(-50%) scale(1);
-      }
-
+      /* Hotspot tooltips - positioning handled by JavaScript */
       .hotspot-tooltip::before {
         top: 100%;
         left: 50%;
@@ -410,22 +382,12 @@
         border-top-color: rgba(0, 0, 0, 0.85);
       }
 
-      /* Section button tooltips */
-      .section-tooltip {
-        top: 50%;
-        left: calc(100% + 10px);
-        transform: translateY(-50%) scale(0.9);
-      }
-
-      .section-tooltip.show {
-        transform: translateY(-50%) scale(1);
-      }
-
+      /* Section button tooltips - positioning handled by JavaScript */
       .section-tooltip::before {
-        top: 50%;
-        right: 100%;
-        transform: translateY(-50%);
-        border-right-color: rgba(0, 0, 0, 0.85);
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-top-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Menu System */
@@ -1156,7 +1118,7 @@
 
           // Tooltip system - optimized for minimal design
           this.tooltips = new Map();
-          this.tooltipDelay = 600; // ms - reduced for better responsiveness
+          this.tooltipDelay = 300; // ms - reduced for better responsiveness
           this.tooltipTimeouts = new Map();
 
           // Section indicator timeout
@@ -1234,9 +1196,11 @@
           this.hotspots = document.querySelectorAll(".hotspot");
           this.sectionButtons = document.querySelectorAll(".section-btn");
 
-          // Update tooltips for newly created elements
-          this.updateHotspotTooltips();
-          this.updateSectionTooltips();
+          // Update tooltips for newly created elements immediately
+          setTimeout(() => {
+            this.updateHotspotTooltips();
+            this.updateSectionTooltips();
+          }, 100);
         }
 
         updateHotspots() {
@@ -1371,7 +1335,7 @@
             const sectionName = hotspot.dataset.name;
 
             this.tooltips.set(hotspot, {
-              getContent: () => `Click play to play ${sectionName}`,
+              getContent: () => `${sectionName}`,
               position: "hotspot",
             });
           });
@@ -1414,7 +1378,7 @@
 
           // Universal tooltip event delegation - always show on hover
           if (!isTouchDevice) {
-            document.addEventListener("mouseenter", (e) => {
+            document.addEventListener("mouseover", (e) => {
               const element = this.findClosest(
                 e.target,
                 "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
@@ -1424,13 +1388,16 @@
               }
             });
 
-            document.addEventListener("mouseleave", (e) => {
+            document.addEventListener("mouseout", (e) => {
               const element = this.findClosest(
                 e.target,
                 "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
               );
               if (element && this.tooltips.has(element)) {
-                this.hideTooltip(element);
+                // Check if we're actually leaving the element (not just moving to a child)
+                if (!element.contains(e.relatedTarget)) {
+                  this.hideTooltip(element);
+                }
               }
             });
           }
@@ -1468,9 +1435,34 @@
             tooltip.textContent = content;
             tooltip.setAttribute("data-tooltip-for", element.id || "element");
 
-            // Position and show tooltip
-            element.style.position = "relative";
-            element.appendChild(tooltip);
+            // Get element position without affecting layout
+            const rect = element.getBoundingClientRect();
+            const scrollTop =
+              window.pageYOffset || document.documentElement.scrollTop;
+            const scrollLeft =
+              window.pageXOffset || document.documentElement.scrollLeft;
+
+            // Position tooltip relative to document body
+            tooltip.style.position = "fixed";
+            tooltip.style.zIndex = "10000";
+
+            // Position based on tooltip type
+            if (tooltipData.position === "hotspot") {
+              tooltip.style.left = `${rect.left + rect.width / 2}px`;
+              tooltip.style.top = `${rect.top - 10}px`;
+              tooltip.style.transform = "translateX(-50%) translateY(-100%)";
+            } else if (tooltipData.position === "control") {
+              tooltip.style.left = `${rect.left + rect.width / 2}px`;
+              tooltip.style.top = `${rect.top - 10}px`;
+              tooltip.style.transform = "translateX(-50%) translateY(-100%)";
+            } else {
+              tooltip.style.left = `${rect.left + rect.width / 2}px`;
+              tooltip.style.top = `${rect.top - 10}px`;
+              tooltip.style.transform = "translateX(-50%) translateY(-100%)";
+            }
+
+            // Append to body instead of element to avoid layout issues
+            document.body.appendChild(tooltip);
 
             // Trigger show animation
             requestAnimationFrame(() => {
@@ -1662,11 +1654,22 @@
               this.hasStartedPlaying = true;
 
               // Show appropriate status message based on current state
-              if (this.isPlayingSection && this.currentSectionIndex >= 0) {
+              // Priority: Check if we're in a section first
+              if (
+                this.isPlayingSection &&
+                this.currentSectionIndex >= 0 &&
+                this.sections[this.currentSectionIndex]
+              ) {
                 const currentSection = this.sections[this.currentSectionIndex];
                 this.showStatus(`Playing: ${currentSection.name}`);
               } else {
-                this.showStatus("Video started"); // Simplified status message
+                // Only show "Video started" when truly starting from beginning
+                const currentTime = this.video.currentTime;
+                if (currentTime < 2) {
+                  // Only show at very beginning
+                  this.showStatus("Video started");
+                }
+                // Don't show anything else to avoid conflicts
               }
 
               if (!this.isPlayingSection) {
@@ -2174,7 +2177,6 @@
           this.currentSectionIndex = this.sections.findIndex(
             (section) => section.start === start && section.end === end
           );
-          const currentSection = this.sections[this.currentSectionIndex];
 
           // Mark this as a manual section selection
           this.isManualSectionSelection = true;
@@ -2183,7 +2185,7 @@
             this.closeMenuPanel();
           }
 
-          // Set section state BEFORE changing video time to prevent flicker
+          // Set section state IMMEDIATELY before changing video time
           this.isPlayingSection = true;
           this.sectionEndTime = end;
 
@@ -2192,14 +2194,12 @@
 
           this.video.currentTime = start;
 
-          this.video
-            .play()
-            .then(() => {
-              this.showStatus(`Playing: ${name}`);
-            })
-            .catch((error) => {
-              console.error("Error playing section:", error);
-            });
+          // Play the video - the "playing" event listener will show the section name
+          this.video.play().catch((error) => {
+            console.error("Error playing section:", error);
+            // Show fallback status if play fails
+            this.showStatus(`Error playing: ${name}`);
+          });
         }
 
         startSection(section, sectionIndex) {
@@ -2207,10 +2207,8 @@
           this.waitingForSectionStart = false;
           this.upcomingSectionIndex = -1;
 
-          // Set up section playback
+          // Set up section playback IMMEDIATELY
           this.currentSectionIndex = sectionIndex;
-
-          // Set section state BEFORE changing video time to prevent flicker
           this.isPlayingSection = true;
           this.sectionEndTime = section.end;
           // This is NOT a manual selection - it's from normal playbook progression
@@ -2225,8 +2223,12 @@
             this.closeMenuPanel();
           }
 
-          // The "playing" event listener will now show the section name automatically
-          this.video.play().catch(() => {});
+          // Play the video - the "playing" event listener will show the section name
+          this.video.play().catch((error) => {
+            console.error("Error starting section:", error);
+            // Show fallback status if play fails
+            this.showStatus(`Error starting: ${section.name}`);
+          });
         }
 
         hideAllHotspots() {
