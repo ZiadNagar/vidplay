@@ -49,9 +49,17 @@
         height: 100%;
         object-fit: cover;
         display: block;
-        /* Performance optimizations */
+        /* Enhanced performance optimizations */
         will-change: auto;
         transform: translateZ(0);
+        backface-visibility: hidden;
+        /* Optimize video rendering */
+        image-rendering: optimizeSpeed;
+        /* Enable hardware acceleration */
+        -webkit-transform: translateZ(0);
+        -webkit-backface-visibility: hidden;
+        /* Reduce unnecessary repaints */
+        contain: layout style paint;
       }
 
       /* Interactive Hotspots Container */
@@ -670,6 +678,46 @@
         transform: translateX(-50%) translateY(10px);
       }
 
+      /* Section Indicator */
+      .section-indicator {
+        position: absolute;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 25px;
+        font-size: 16px;
+        font-weight: 600;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s ease;
+        z-index: 24;
+        max-width: 90%;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+      }
+
+      .section-indicator.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) translateY(10px);
+      }
+
+      .section-indicator .section-icon {
+        display: none; /* Hide icon for cleaner look */
+      }
+
+      .section-indicator .section-name {
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
       /* Simplified Animations for Better Performance */
       @keyframes spin {
         from {
@@ -844,6 +892,7 @@
         preload="metadata"
         muted
         playsinline
+        crossorigin="anonymous"
       >
         <source
           src="./video/Colliers-Presentation-FullVideo.mp4"
@@ -872,6 +921,12 @@
 
       <!-- Status Messages -->
       <div class="status-toast" id="statusToast"></div>
+
+      <!-- Current Section Indicator -->
+      <div class="section-indicator" id="sectionIndicator">
+        <span class="section-icon"></span>
+        <span class="section-name"></span>
+      </div>
 
       <!-- Progress Bar -->
       <div class="progress-track" id="progressTrack">
@@ -904,6 +959,74 @@
 
     <script>
       // =================================================================================
+      // GLOBAL ERROR HANDLING
+      // =================================================================================
+
+      // Handle unhandled promise rejections (including extension-related ones)
+      window.addEventListener("unhandledrejection", function (event) {
+        const reason = event.reason;
+        const reasonString = reason ? reason.toString() : "";
+
+        // Check for extension-related errors
+        if (
+          reasonString.includes("Could not establish connection") ||
+          reasonString.includes("Receiving end does not exist") ||
+          reasonString.includes("Extension context invalidated") ||
+          reasonString.includes("message channel closed") ||
+          reasonString.includes("listener indicated an asynchronous response")
+        ) {
+          // Silently prevent extension-related errors from showing
+          event.preventDefault();
+          return;
+        }
+
+        // Log other promise rejections with warning (not error)
+        console.warn("Unhandled promise rejection:", reason);
+        event.preventDefault();
+      });
+
+      // Handle general errors (including extension-related ones)
+      window.addEventListener("error", function (event) {
+        const message = event.message || "";
+
+        // Filter out extension-related errors
+        if (
+          message.includes("extension") ||
+          message.includes("listener") ||
+          message.includes("Could not establish connection") ||
+          message.includes("Receiving end does not exist") ||
+          message.includes("Extension context invalidated") ||
+          message.includes("chrome-extension") ||
+          message.includes("moz-extension")
+        ) {
+          // Silently ignore extension-related errors
+          return;
+        }
+
+        // Log other errors with warning
+        console.warn("General error:", event.error);
+      });
+
+      // Additional console error filtering for extension-related errors
+      const originalConsoleError = console.error;
+      console.error = function (...args) {
+        const message = args.join(" ");
+        if (
+          message.includes("Could not establish connection") ||
+          message.includes("Receiving end does not exist") ||
+          message.includes("Extension context invalidated") ||
+          message.includes("message channel closed") ||
+          message.includes("chrome-extension") ||
+          message.includes("moz-extension")
+        ) {
+          // Silently ignore extension-related console errors
+          return;
+        }
+        // Call original console.error for non-extension errors
+        originalConsoleError.apply(console, args);
+      };
+
+      // =================================================================================
       // VIDEO CONFIGURATION - CHANGE THESE VALUES WHEN YOU GET A NEW VIDEO
       // =================================================================================
       /*
@@ -917,18 +1040,18 @@
       const VIDEO_CONFIG = {
         // Video sections with start and end times in seconds (supports high precision: x.xxx)
         sections: [
-          { name: "Rent Services", start: 4.5, end: 10.886, icon: "💰" },
-          { name: "Transportation", start: 10.886, end: 27, icon: "🚚" },
-          { name: "Inventory Carry", start: 27, end: 38, icon: "📦" },
-          { name: "Labor Solutions", start: 38.5, end: 58, icon: "👷" },
-          { name: "Other Services", start: 58, end: 72, icon: "🛠️" },
+          { name: "Rent Services", start: 4, end: 11, icon: "💰" },
+          { name: "Transportation", start: 11, end: 24.25, icon: "🚚" },
+          { name: "Inventory Carry", start: 24.25, end: 35, icon: "📦" },
+          { name: "Labor Solutions", start: 35, end: 52, icon: "👷" },
+          { name: "Other Services", start: 52, end: 60, icon: "🛠️" },
         ],
 
         // Time intervals where hotspots should be hidden (in seconds - supports high precision)
         hideIntervals: [
-          { start: 30.7, end: 36.0 },
-          { start: 61.4, end: 67.4 },
-          { start: 75.0, end: 999.0 },
+          { start: 27.6, end: 32.5 },
+          { start: 54.6, end: 58.6 },
+          { start: 67.0, end: 999.0 },
         ],
 
         // Menu will be available this many seconds before the first section starts (supports high precision)
@@ -936,12 +1059,9 @@
       };
 
       // =================================================================================
-      // CONFIGURATION HELPER FUNCTIONS
+      // CONFIGURATION VALIDATION
       // =================================================================================
 
-      /**
-       * Helper function to validate video configuration
-       */
       function validateVideoConfig() {
         if (!VIDEO_CONFIG.sections || VIDEO_CONFIG.sections.length === 0) {
           console.error("VIDEO_CONFIG: No sections defined!");
@@ -969,116 +1089,10 @@
             return false;
           }
         }
-
-        console.log("✅ Video configuration is valid");
-        console.log("📊 Configuration summary:");
-        console.log(`   • ${VIDEO_CONFIG.sections.length} sections`);
-        console.log(
-          `   • Total video duration: ${Math.max(
-            ...VIDEO_CONFIG.sections.map((s) => s.end)
-          )} seconds`
-        );
-        console.log(
-          `   • Menu available at: ${
-            VIDEO_CONFIG.sections[0].start - VIDEO_CONFIG.menuAvailableOffset
-          } seconds`
-        );
-        console.log(
-          `   • Hide intervals: ${VIDEO_CONFIG.hideIntervals.length}`
-        );
-
-        // Log detailed section timings for precision verification
-        console.log("🎯 Precise section timings:");
-        VIDEO_CONFIG.sections.forEach((section, index) => {
-          const duration = (section.end - section.start).toFixed(3);
-          console.log(
-            `   ${index + 1}. ${section.name}: ${section.start}s → ${
-              section.end
-            }s (${duration}s duration)`
-          );
-        });
-
         return true;
       }
 
-      /**
-       * Helper function to log current video configuration for debugging
-       */
-      function logVideoSections() {
-        console.table(VIDEO_CONFIG.sections);
-      }
-
-      /**
-       * Helper function to reload video player with new configuration
-       * Call this after changing VIDEO_CONFIG values
-       */
-      function reloadVideoPlayer() {
-        if (window.videoPlayer) {
-          console.log("🔄 Reloading video player with new configuration...");
-
-          // Store current video state
-          const currentTime = window.videoPlayer.video.currentTime;
-          const wasPaused = window.videoPlayer.video.paused;
-
-          // Reinitialize dynamic elements
-          window.videoPlayer.sections = VIDEO_CONFIG.sections;
-          window.videoPlayer.hideIntervals = VIDEO_CONFIG.hideIntervals;
-          window.videoPlayer.firstSectionStart =
-            window.videoPlayer.sections[0]?.start || 0;
-          window.videoPlayer.menuAvailableTime =
-            window.videoPlayer.firstSectionStart -
-            VIDEO_CONFIG.menuAvailableOffset;
-
-          // Update hotspots and menu with new configuration
-          window.videoPlayer.initializeDynamicElements();
-
-          // Restore video state
-          window.videoPlayer.video.currentTime = currentTime;
-          if (!wasPaused) {
-            window.videoPlayer.video
-              .play()
-              .catch(() => console.log("Could not restore play state"));
-          }
-
-          console.log("✅ Video player reloaded successfully");
-          console.log("📊 New configuration applied:");
-          logVideoSections();
-        }
-      }
-
-      /**
-       * Helper function to test a specific section timing
-       */
-      function testSection(sectionName) {
-        const section = VIDEO_CONFIG.sections.find(
-          (s) => s.name === sectionName
-        );
-        if (section && window.videoPlayer) {
-          console.log(`🎬 Testing section: ${sectionName}`);
-          console.log(
-            `   Start: ${section.start}s, End: ${section.end}s, Duration: ${(
-              section.end - section.start
-            ).toFixed(3)}s`
-          );
-
-          // Jump to section start
-          window.videoPlayer.video.currentTime = section.start;
-          window.videoPlayer.video
-            .play()
-            .then(() => {
-              console.log(`▶️ Playing from ${section.start}s`);
-            })
-            .catch(console.error);
-        } else {
-          console.error(
-            `❌ Section "${sectionName}" not found or video player not ready`
-          );
-        }
-      }
-
-      // Validate configuration on load
       validateVideoConfig();
-      // =================================================================================
 
       class VideoPlayerController {
         constructor() {
@@ -1093,6 +1107,11 @@
           this.playButton = document.getElementById("playButton");
           this.loader = document.getElementById("loader");
           this.statusToast = document.getElementById("statusToast");
+          this.sectionIndicator = document.getElementById("sectionIndicator");
+          this.sectionIcon =
+            this.sectionIndicator.querySelector(".section-icon");
+          this.sectionName =
+            this.sectionIndicator.querySelector(".section-name");
 
           // Controls
           this.replayBtn = document.getElementById("replayBtn");
@@ -1119,7 +1138,8 @@
 
           // Performance optimization
           this.lastUpdateTime = 0;
-          this.updateThrottle = 100; // ms
+          this.lastSectionCheck = 0; // Add this for section checking optimization
+          this.updateThrottle = 50; // Reduced from 100ms for smoother updates
           this.lastHotspotState = null;
           this.lastMenuState = null;
 
@@ -1127,6 +1147,9 @@
           this.tooltips = new Map();
           this.tooltipDelay = 750; // ms
           this.tooltipTimeouts = new Map();
+
+          // Section indicator timeout
+          this.sectionIndicatorTimeout = null;
 
           // Configuration-based properties (calculated from VIDEO_CONFIG)
           this.sections = VIDEO_CONFIG.sections;
@@ -1140,6 +1163,53 @@
           this.initializeDynamicElements();
           this.init();
           this.setupTooltips();
+        }
+
+        // Helper function to safely find closest element with fallback
+        findClosest(element, selector) {
+          if (!element || typeof element.closest !== "function") {
+            return null;
+          }
+          try {
+            return element.closest(selector);
+          } catch (error) {
+            // Fallback for older browsers
+            let current = element;
+            while (current && current !== document) {
+              if (this.elementMatches(current, selector)) {
+                return current;
+              }
+              current = current.parentElement;
+            }
+            return null;
+          }
+        }
+
+        // Helper function for element matching with fallback
+        elementMatches(element, selector) {
+          if (!element) return false;
+
+          // Try modern matches method
+          if (element.matches) {
+            return element.matches(selector);
+          }
+
+          // Fallback for older browsers
+          if (element.msMatchesSelector) {
+            return element.msMatchesSelector(selector);
+          }
+
+          if (element.webkitMatchesSelector) {
+            return element.webkitMatchesSelector(selector);
+          }
+
+          // Ultimate fallback - check class names for simple selectors
+          if (selector.startsWith(".")) {
+            const className = selector.substring(1);
+            return element.classList && element.classList.contains(className);
+          }
+
+          return false;
         }
 
         initializeDynamicElements() {
@@ -1207,6 +1277,26 @@
           this.setupKeyboardShortcuts();
           this.updateMuteButton();
           this.optimizeVideoLoading();
+        }
+
+        // Helper method to safely play video with consistent error handling
+        safePlayVideo(
+          successMessage = null,
+          errorMessage = "Error playing video"
+        ) {
+          return this.video
+            .play()
+            .then(() => {
+              if (successMessage) {
+                this.showStatus(successMessage);
+              }
+              this.hideLoader();
+            })
+            .catch((error) => {
+              console.warn("Video play error:", error);
+              this.showStatus(errorMessage);
+              this.hideLoader();
+            });
         }
 
         setupTooltips() {
@@ -1324,7 +1414,8 @@
           // Universal tooltip event delegation (skip on primary touch devices)
           if (!isTouchDevice) {
             document.addEventListener("mouseenter", (e) => {
-              const element = e.target.closest(
+              const element = this.findClosest(
+                e.target,
                 "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
               );
               if (element && this.tooltips.has(element)) {
@@ -1333,7 +1424,8 @@
             });
 
             document.addEventListener("mouseleave", (e) => {
-              const element = e.target.closest(
+              const element = this.findClosest(
+                e.target,
                 "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
               );
               if (element && this.tooltips.has(element)) {
@@ -1342,13 +1434,28 @@
             });
           }
 
-          // Hide tooltips on video interactions
-          this.video.addEventListener("play", () => this.hideAllTooltips());
+          // Hide tooltips on video interactions - with better logic
+          this.video.addEventListener("play", () => {
+            // Hide all tooltips when video starts playing
+            this.hideAllTooltips();
+          });
+
           this.video.addEventListener("timeupdate", () => {
-            // Hide tooltips during active playback for better UX
-            if (!this.video.paused && !this.isPlayingSection) {
-              this.hideAllTooltips();
+            // Hide non-control tooltips during active playback for better UX
+            // Keep control tooltips available even during playback
+            if (!this.video.paused) {
+              this.hideNonControlTooltips();
             }
+          });
+
+          // Hide tooltips when pausing to avoid stale tooltips
+          this.video.addEventListener("pause", () => {
+            // Brief delay to allow hover states to reactivate tooltips if needed
+            setTimeout(() => {
+              if (this.video.paused) {
+                this.hideAllTooltips();
+              }
+            }, 100);
           });
 
           // Hide tooltips on touch interactions for mobile
@@ -1365,12 +1472,20 @@
             clearTimeout(this.tooltipTimeouts.get(element));
           }
 
-          // Don't show tooltips during video playback (except when paused)
-          if (
-            !this.video.paused &&
-            !this.isPlayingSection &&
-            !element.classList.contains("control-btn")
-          ) {
+          // Improved tooltip visibility logic
+          const isControlElement =
+            element.classList.contains("control-btn") ||
+            element.classList.contains("menu-btn");
+          const isVideoPlaying = !this.video.paused;
+
+          // Don't show non-control tooltips during video playback
+          // Control tooltips are always available for better UX
+          if (isVideoPlaying && !isControlElement) {
+            return;
+          }
+
+          // Don't show tooltips if section indicator is showing to avoid conflicts
+          if (this.isSectionIndicatorVisible() && !isControlElement) {
             return;
           }
 
@@ -1440,6 +1555,26 @@
           });
         }
 
+        hideNonControlTooltips() {
+          // Hide only non-control tooltips (keep control tooltips available during playback)
+          this.tooltips.forEach((_, element) => {
+            const isControlElement =
+              element.classList.contains("control-btn") ||
+              element.classList.contains("menu-btn");
+            if (!isControlElement) {
+              this.hideTooltip(element);
+            }
+          });
+        }
+
+        // Helper method to check if section indicator is currently showing
+        isSectionIndicatorVisible() {
+          return (
+            this.sectionIndicator &&
+            this.sectionIndicator.classList.contains("show")
+          );
+        }
+
         getNextSectionTooltipText() {
           const currentTime = this.video.currentTime;
           let nextSectionIndex = -1;
@@ -1470,10 +1605,14 @@
           // Show play overlay initially
           this.showPlayOverlay();
 
-          // Load video metadata immediately for thumbnail
+          // Enhanced video loading optimization
+          this.video.preload = "metadata"; // Start with metadata only
           this.video.load();
 
-          // Optimize for mobile
+          // Detect connection quality and adjust buffering
+          this.setupAdaptiveBuffering();
+
+          // Optimize for mobile and slow connections
           if ("connection" in navigator) {
             const connection = navigator.connection;
             if (
@@ -1481,64 +1620,164 @@
               connection.effectiveType === "2g"
             ) {
               this.showStatus(
-                "Slow connection detected - click play to start video"
+                "Slow connection detected - optimizing for your network"
               );
+              this.video.preload = "none"; // Minimal preload for slow connections
             }
           }
 
-          // Keep metadata preload for thumbnail
+          // Enhanced metadata loading
           this.video.addEventListener(
             "loadedmetadata",
             () => {
               this.hideLoader();
-              // Don't auto-upgrade to full preload
+              this.prebufferKeySections();
             },
             { once: true }
           );
+
+          // Optimize video element attributes for performance
+          this.video.setAttribute("x-webkit-airplay", "allow");
+          this.video.setAttribute("webkit-playsinline", "true");
+
+          // Enable hardware acceleration hints
+          this.video.style.willChange = "transform";
         }
 
-        setupEventListeners() {
-          // Video events
-          this.video.addEventListener("timeupdate", () => this.onTimeUpdate());
-          this.video.addEventListener("loadstart", () => this.showLoader());
-          this.video.addEventListener("canplay", () => this.hideLoader());
-          this.video.addEventListener("waiting", () => this.showLoader());
-          this.video.addEventListener("playing", () => {
-            this.hideLoader();
-            this.hidePlayOverlay();
-            this.hasStartedPlaying = true;
-            if (!this.isPlayingSection) {
-              this.updateHotspotVisibility();
-            }
-          });
-          this.video.addEventListener("pause", () => {
-            this.updateHotspotVisibility();
-            this.hideLoader();
-            // Don't show play overlay again if user manually paused
-          });
-          this.video.addEventListener("ended", () => this.onVideoEnd());
-          this.video.addEventListener("error", (e) => this.onVideoError(e));
-
-          // Add stalled event for better loading feedback
-          this.video.addEventListener("stalled", () => {
-            this.showStatus("Video buffering...");
-          });
-
-          // Add progress event for loading feedback
+        setupAdaptiveBuffering() {
+          // Monitor buffering and adjust quality
           this.video.addEventListener("progress", () => {
             if (this.video.buffered.length > 0) {
-              const buffered =
-                (this.video.buffered.end(0) / this.video.duration) * 100;
-              if (buffered > 10) {
-                // Hide loader when 10% is buffered
+              const bufferedEnd = this.video.buffered.end(
+                this.video.buffered.length - 1
+              );
+              const bufferedPercent = (bufferedEnd / this.video.duration) * 100;
+
+              // Hide loader when sufficient buffer is available
+              if (bufferedPercent > 15 && this.video.readyState >= 3) {
                 this.hideLoader();
               }
             }
           });
 
+          // Handle buffering states more efficiently
+          this.video.addEventListener("waiting", () => {
+            this.showLoader();
+          });
+
+          this.video.addEventListener("canplaythrough", () => {
+            this.hideLoader();
+          });
+        }
+
+        prebufferKeySections() {
+          // Pre-buffer the first few seconds of each section for smooth transitions
+          if (!this.sections || this.sections.length === 0) return;
+
+          // Enhanced prebuffering strategy
+          const prebufferSections = async () => {
+            const originalTime = this.video.currentTime;
+            const originalPaused = this.video.paused;
+
+            try {
+              // Brief seek to each section start to trigger buffering
+              for (let i = 0; i < Math.min(3, this.sections.length); i++) {
+                const section = this.sections[i];
+                if (section.start > 0) {
+                  this.video.currentTime = section.start;
+                  await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+              }
+
+              // Restore original position
+              this.video.currentTime = originalTime;
+              if (!originalPaused) {
+                this.video.play().catch(() => {});
+              }
+            } catch (error) {
+              // Restore position anyway
+              this.video.currentTime = originalTime;
+            }
+          };
+
+          // Start prebuffering after a short delay
+          setTimeout(prebufferSections, 500);
+        }
+        setupEventListeners() {
+          // Optimized video events with passive listeners where possible
+          this.video.addEventListener("timeupdate", () => this.onTimeUpdate(), {
+            passive: true,
+          });
+          this.video.addEventListener("loadstart", () => this.showLoader(), {
+            passive: true,
+          });
+          this.video.addEventListener("canplay", () => this.hideLoader(), {
+            passive: true,
+          });
+          this.video.addEventListener("waiting", () => this.showLoader(), {
+            passive: true,
+          });
+          this.video.addEventListener(
+            "playing",
+            () => {
+              this.hideLoader();
+              this.hidePlayOverlay();
+              this.hasStartedPlaying = true;
+              if (!this.isPlayingSection) {
+                this.updateHotspotVisibility();
+              }
+            },
+            { passive: true }
+          );
+          this.video.addEventListener(
+            "pause",
+            () => {
+              this.updateHotspotVisibility();
+              this.hideLoader();
+              // Don't show play overlay again if user manually paused
+            },
+            { passive: true }
+          );
+          this.video.addEventListener("ended", () => this.onVideoEnd(), {
+            passive: true,
+          });
+          this.video.addEventListener("error", (e) => this.onVideoError(e), {
+            passive: true,
+          });
+
+          // Optimized buffering events
+          this.video.addEventListener(
+            "stalled",
+            () => {
+              this.showStatus("Video buffering...");
+            },
+            { passive: true }
+          );
+
+          // Throttled progress event for better performance
+          let progressTimeout;
+          this.video.addEventListener(
+            "progress",
+            () => {
+              if (progressTimeout) return;
+              progressTimeout = setTimeout(() => {
+                if (this.video.buffered.length > 0) {
+                  const buffered =
+                    (this.video.buffered.end(0) / this.video.duration) * 100;
+                  if (buffered > 15) {
+                    // Hide loader when 15% is buffered
+                    this.hideLoader();
+                  }
+                }
+                progressTimeout = null;
+              }, 100);
+            },
+            { passive: true }
+          );
+
           // Video click for play/pause
           this.video.addEventListener("click", (e) => {
-            if (!e.target.closest(".hotspot")) {
+            if (!this.findClosest(e.target, ".hotspot")) {
               this.togglePlayPause();
             }
           });
@@ -1587,11 +1826,13 @@
 
           // Hotspots and section buttons (using event delegation for dynamic elements)
           document.addEventListener("click", (e) => {
-            if (e.target.closest(".hotspot")) {
-              this.playSection(e.target.closest(".hotspot"));
+            const hotspot = this.findClosest(e.target, ".hotspot");
+            if (hotspot) {
+              this.playSection(hotspot);
             }
-            if (e.target.closest(".section-btn")) {
-              this.playSection(e.target.closest(".section-btn"));
+            const sectionBtn = this.findClosest(e.target, ".section-btn");
+            if (sectionBtn) {
+              this.playSection(sectionBtn);
             }
           });
 
@@ -1683,28 +1924,41 @@
         }
 
         onTimeUpdate() {
-          // Throttle updates for performance
+          // Enhanced throttling for better performance
           const now = performance.now();
           if (now - this.lastUpdateTime < this.updateThrottle) {
             return;
           }
           this.lastUpdateTime = now;
 
-          // Update progress bar
-          if (this.video.duration) {
-            const progress =
-              (this.video.currentTime / this.video.duration) * 100;
-            this.progressFill.style.width = `${progress}%`;
+          // Batch DOM updates using requestAnimationFrame
+          requestAnimationFrame(() => {
+            // Update progress bar only if visible and significant change
+            if (this.video.duration) {
+              const progress =
+                (this.video.currentTime / this.video.duration) * 100;
+              const currentWidth =
+                parseFloat(this.progressFill.style.width) || 0;
+
+              // Only update if change is significant (> 0.1%)
+              if (Math.abs(progress - currentWidth) > 0.1) {
+                this.progressFill.style.width = `${progress}%`;
+              }
+            }
+
+            // Update visibility with reduced frequency
+            this.updateHotspotVisibility();
+            this.updateMenuVisibility();
+          });
+
+          // Check for upcoming sections with reduced frequency
+          if (now - this.lastSectionCheck > 500) {
+            // Check every 500ms instead of every frame
+            this.checkForUpcomingSections();
+            this.lastSectionCheck = now;
           }
 
-          // Update visibility with throttling
-          this.updateHotspotVisibility();
-          this.updateMenuVisibility();
-
-          // Check for upcoming sections and pause before them
-          this.checkForUpcomingSections();
-
-          // Check section end
+          // Check section end (this needs to be responsive)
           if (
             this.sectionEndTime &&
             this.video.currentTime >= this.sectionEndTime
@@ -1720,7 +1974,10 @@
               this.sectionEndTime = null;
               this.isPlayingSection = false;
               this.isManualSectionSelection = false; // Reset flag
+              this.hideSectionIndicator();
               this.updateHotspotVisibility();
+              // Allow tooltips to work properly after section ends
+              setTimeout(() => this.hideNonControlTooltips(), 500);
               this.showStatus("Final section completed - Video continues");
             } else {
               // Pause after manually selected sections or non-last sections
@@ -1728,8 +1985,11 @@
               this.sectionEndTime = null;
               this.isPlayingSection = false;
               this.isManualSectionSelection = false; // Reset flag
+              this.hideSectionIndicator();
               // Keep current section index for next section navigation
               this.updateHotspotVisibility();
+              // Clear any stale tooltips after section ends and video pauses
+              setTimeout(() => this.hideAllTooltips(), 200);
               this.showStatus(
                 "Section completed - Press Play for next section"
               );
@@ -1745,20 +2005,30 @@
               ? Math.max(...this.sections.map((s) => s.end))
               : 83;
 
-          // Check if in hide interval - this always takes priority
-          const inHideInterval = this.hideIntervals.some(
-            (interval) =>
-              currentTime >= interval.start && currentTime < interval.end
-          );
+          // Optimize hide interval check - use efficient loop
+          let inHideInterval = false;
+          for (let i = 0; i < this.hideIntervals.length; i++) {
+            const interval = this.hideIntervals[i];
+            if (currentTime >= interval.start && currentTime < interval.end) {
+              inHideInterval = true;
+              break;
+            }
+          }
 
-          // Check if in any section time (optimized)
-          const inSectionTime =
-            this.hotspots.length > 0 &&
-            Array.prototype.some.call(this.hotspots, (hotspot) => {
+          // Optimize section time check - cache section bounds
+          let inSectionTime = false;
+          if (this.hotspots.length > 0 && !inHideInterval) {
+            // Use more efficient loop instead of Array.prototype.some
+            for (let i = 0; i < this.hotspots.length; i++) {
+              const hotspot = this.hotspots[i];
               const start = parseFloat(hotspot.dataset.start);
               const end = parseFloat(hotspot.dataset.end);
-              return currentTime >= start && currentTime <= end;
-            });
+              if (currentTime >= start && currentTime <= end) {
+                inSectionTime = true;
+                break;
+              }
+            }
+          }
 
           // Enhanced visibility logic - show during section playback unless in hide interval
           const shouldShow =
@@ -1769,6 +2039,8 @@
               (this.video.paused && inSectionTime) ||
               // Show when waiting for section to start
               (this.waitingForSectionStart && this.video.paused) ||
+              // Show when video is paused after the last section (allow replay)
+              (this.video.paused && currentTime >= showTime) ||
               // Show during normal video playback in available time range
               (currentTime >= showTime &&
                 currentTime < lastEnd &&
@@ -1781,18 +2053,17 @@
           }
           this.lastHotspotState = shouldShow;
 
-          // Batch DOM updates
+          // Optimized DOM updates
           if (shouldShow) {
-            // Use requestAnimationFrame for smoother animation
+            // Use single requestAnimationFrame with batch update
             requestAnimationFrame(() => {
-              this.hotspots.forEach((hotspot, index) => {
-                setTimeout(() => {
-                  hotspot.classList.add("active");
-                }, index * 50); // Reduced delay for faster response
+              // Add all classes at once to minimize reflows
+              this.hotspots.forEach((hotspot) => {
+                hotspot.classList.add("active");
               });
             });
           } else {
-            // Immediate hide for better responsiveness
+            // Immediate hide for better responsiveness - no animation needed
             this.hotspots.forEach((hotspot) => {
               hotspot.classList.remove("active");
             });
@@ -1910,12 +2181,16 @@
         }
 
         replay() {
+          // Clean up all UI state including tooltips
+          this.hideAllTooltips();
+
           this.isPlayingSection = false;
           this.sectionEndTime = null;
           this.currentSectionIndex = -1;
           this.waitingForSectionStart = false;
           this.upcomingSectionIndex = -1;
           this.isManualSectionSelection = false; // Reset manual selection flag
+          this.hideSectionIndicator();
           this.video.currentTime = 0;
           this.progressFill.style.width = "0%";
           this.hideAllHotspots();
@@ -1936,6 +2211,9 @@
         }
 
         openMenuPanel() {
+          // Hide all tooltips before opening menu to prevent conflicts
+          this.hideAllTooltips();
+
           this.menuOpen = true;
           this.sectionsMenu.classList.add("open");
           this.menuToggle.style.opacity = "0";
@@ -1951,6 +2229,11 @@
           this.menuToggle.style.opacity = "1";
           this.menuToggle.style.pointerEvents = "all";
           this.menuToggle.focus();
+
+          // Clear any tooltips that might be showing from menu interaction
+          setTimeout(() => {
+            this.hideAllTooltips();
+          }, 100);
         }
 
         playSection(element) {
@@ -1958,10 +2241,11 @@
           const end = parseFloat(element.dataset.end);
           const name = element.dataset.name;
 
-          // Find the section index
+          // Find the section index and get section data
           this.currentSectionIndex = this.sections.findIndex(
             (section) => section.start === start && section.end === end
           );
+          const currentSection = this.sections[this.currentSectionIndex];
 
           // Mark this as a manual section selection
           this.isManualSectionSelection = true;
@@ -1977,11 +2261,19 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
+          // Show section indicator
+          if (currentSection) {
+            this.showSectionIndicator(name, currentSection.icon);
+          }
+
           this.video.currentTime = start;
 
           this.video
             .play()
-            .then(() => this.showStatus(`Playing: ${name}`))
+            .then(() => {
+              // Section indicator already shows the playing message
+              // this.showStatus(`Playing: ${name}`) - removed to avoid duplicate
+            })
             .catch(() => this.showStatus("Error playing section"));
         }
 
@@ -2002,6 +2294,9 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
+          // Show section indicator
+          this.showSectionIndicator(section.name, section.icon);
+
           this.video.currentTime = section.start;
 
           if (this.menuOpen) {
@@ -2010,7 +2305,10 @@
 
           this.video
             .play()
-            .then(() => this.showStatus(`Playing: ${section.name}`))
+            .then(() => {
+              // Section indicator already shows the playing message
+              // this.showStatus(`Playing: ${section.name}`) - removed to avoid duplicate
+            })
             .catch(() => this.showStatus("Error playing section"));
         }
 
@@ -2067,6 +2365,7 @@
               if (time < start || time >= end) {
                 this.isPlayingSection = false;
                 this.sectionEndTime = null;
+                this.hideSectionIndicator();
                 this.updateHotspotVisibility();
                 this.showStatus("Section interrupted");
               }
@@ -2176,16 +2475,58 @@
         }
 
         startVideo() {
-          // Upgrade to full preload when user wants to play
-          this.video.preload = "auto";
+          // Progressive loading strategy
+          if (this.video.preload !== "auto") {
+            this.video.preload = "auto";
 
-          this.video
-            .play()
-            .then(() => {
-              this.showStatus("Video started");
-              this.showPlayIndicator("▶");
-            })
-            .catch(() => this.showStatus("Error starting video"));
+            // Show loading immediately
+            this.showLoader();
+            this.showStatus("Loading video...");
+          }
+
+          // Ensure video is ready before playing
+          const playVideo = () => {
+            this.video
+              .play()
+              .then(() => {
+                this.showStatus("Video started");
+                this.showPlayIndicator("▶");
+                this.hideLoader();
+              })
+              .catch((error) => {
+                console.error("Play error:", error);
+                this.showStatus("Error starting video - click to retry");
+                this.hideLoader();
+              });
+          };
+
+          // Check if enough data is loaded
+          if (this.video.readyState >= 3) {
+            // HAVE_FUTURE_DATA or higher - can start playing
+            playVideo();
+          } else {
+            // Wait for enough data with improved race condition handling
+            let handlerCalled = false;
+
+            const canPlayHandler = () => {
+              if (handlerCalled) return;
+              handlerCalled = true;
+              this.video.removeEventListener("canplay", canPlayHandler);
+              playVideo();
+            };
+
+            this.video.addEventListener("canplay", canPlayHandler);
+
+            // Timeout fallback with race condition protection
+            setTimeout(() => {
+              if (handlerCalled) return;
+              handlerCalled = true;
+              this.video.removeEventListener("canplay", canPlayHandler);
+              if (this.video.readyState >= 1) {
+                playVideo(); // Try anyway if we have metadata
+              }
+            }, 5000);
+          }
         }
 
         showLoader() {
@@ -2205,13 +2546,46 @@
           }, duration);
         }
 
+        showSectionIndicator(sectionName, sectionIcon) {
+          // Clear any existing timeout
+          if (this.sectionIndicatorTimeout) {
+            clearTimeout(this.sectionIndicatorTimeout);
+          }
+
+          // Hide non-control tooltips to prevent conflicts with section indicator
+          this.hideNonControlTooltips();
+
+          // Show only the section name (no icon for cleaner look)
+          this.sectionIcon.textContent = "";
+          this.sectionName.textContent = `Playing: ${sectionName}`;
+          this.sectionIndicator.classList.add("show");
+
+          // Auto-hide after 3 seconds
+          this.sectionIndicatorTimeout = setTimeout(() => {
+            this.hideSectionIndicator();
+          }, 3000);
+        }
+
+        hideSectionIndicator() {
+          if (this.sectionIndicatorTimeout) {
+            clearTimeout(this.sectionIndicatorTimeout);
+            this.sectionIndicatorTimeout = null;
+          }
+          this.sectionIndicator.classList.remove("show");
+        }
+
         onVideoEnd() {
+          // Clean up all UI state when video ends
+          this.hideAllTooltips();
           this.showStatus("Video ended");
           this.sectionEndTime = null;
           this.isPlayingSection = false;
+          this.hideSectionIndicator();
         }
 
         onVideoError(e) {
+          // Clean up UI state on error
+          this.hideAllTooltips();
           this.hideLoader();
           console.error("Video error:", e);
 
@@ -2292,12 +2666,16 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
+          // Show section indicator
+          this.showSectionIndicator(nextSection.name, nextSection.icon);
+
           this.video.currentTime = nextSection.start;
 
           this.video
             .play()
             .then(() => {
-              this.showStatus(`Playing: ${nextSection.name}`);
+              // Section indicator already shows the playing message
+              // this.showStatus(`Playing: ${nextSection.name}`) - removed to avoid duplicate
               this.showPlayIndicator("⏭️");
             })
             .catch(() => this.showStatus("Error playing next section"));
