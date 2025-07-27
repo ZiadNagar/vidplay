@@ -271,67 +271,156 @@
         position: relative;
       }
 
-      .progress-handle {
+      /* Enhanced Tooltip System */
+      .tooltip {
         position: absolute;
-        right: -8px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 16px;
-        height: 16px;
-        background: white;
-        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.9);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 400;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+        white-space: nowrap;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transform: scale(0.8);
+      }
+
+      .tooltip.show {
         opacity: 1;
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-        cursor: grab;
-        z-index: 30;
-        border: 2px solid #1e3c72;
-        /* Ensure it's always visible */
         visibility: visible;
-        display: block;
+        transform: scale(1);
       }
 
-      /* Alternative handle positioning when progress is 0 */
-      .progress-fill[style*="width: 0%"] .progress-handle,
-      .progress-fill:not([style*="width"]) .progress-handle {
-        right: auto;
-        left: -8px;
+      .tooltip::before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
       }
 
-      .progress-track:hover .progress-handle {
-        opacity: 1;
-        transform: translateY(-50%) scale(1.15);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-      }
-
-      .progress-handle:hover {
-        transform: translateY(-50%) scale(1.25);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-        border-color: #2a5298;
-      }
-
-      .progress-handle:active,
-      .progress-handle.dragging {
-        cursor: grabbing;
-        transform: translateY(-50%) scale(1.3);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-        transition: none;
-        border-color: #2a5298;
-      }
-
+      /* Time tooltip for progress bar */
       .time-tooltip {
         position: absolute;
-        bottom: 8px;
-        background: rgba(0, 0, 0, 0.8);
+        bottom: 12px;
+        background: rgba(0, 0, 0, 0.9);
         color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
-        transform: translateX(-50%);
+        transform: translateX(-50%) scale(0.9);
         white-space: nowrap;
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      }
+
+      .time-tooltip.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(-50%) scale(1);
+      }
+
+      .time-tooltip::before {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+      }
+
+      /* Control button tooltips */
+      .control-tooltip {
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%) scale(0.8);
+      }
+
+      .control-tooltip.show {
+        transform: translateX(-50%) scale(1);
+      }
+
+      .control-tooltip::before {
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+      }
+
+      /* Menu button tooltip */
+      .menu-tooltip {
+        top: 50%;
+        left: calc(100% + 8px);
+        transform: translateY(-50%) scale(0.8);
+      }
+
+      .menu-tooltip.show {
+        transform: translateY(-50%) scale(1);
+      }
+
+      .menu-tooltip::before {
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        border: 4px solid transparent;
+        border-right-color: rgba(0, 0, 0, 0.9);
+      }
+
+      /* Hotspot tooltips */
+      .hotspot-tooltip {
+        bottom: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%) scale(0.8);
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+
+      .hotspot-tooltip.show {
+        transform: translateX(-50%) scale(1);
+      }
+
+      .hotspot-tooltip::before {
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 4px solid transparent;
+        border-top-color: rgba(0, 0, 0, 0.9);
+      }
+
+      /* Section button tooltips */
+      .section-tooltip {
+        top: 50%;
+        left: calc(100% + 8px);
+        transform: translateY(-50%) scale(0.8);
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+
+      .section-tooltip.show {
+        transform: translateY(-50%) scale(1);
+      }
+
+      .section-tooltip::before {
+        top: 50%;
+        right: 100%;
+        transform: translateY(-50%);
+        border: 4px solid transparent;
+        border-right-color: rgba(0, 0, 0, 0.9);
       }
 
       /* Menu System */
@@ -643,6 +732,23 @@
           height: 38px;
           font-size: 14px;
         }
+
+        /* Mobile tooltip adjustments */
+        .tooltip {
+          font-size: 11px;
+          padding: 6px 10px;
+        }
+
+        .time-tooltip {
+          font-size: 10px;
+          padding: 4px 8px;
+        }
+
+        .hotspot-tooltip,
+        .section-tooltip {
+          font-size: 10px;
+          padding: 4px 8px;
+        }
       }
 
       @media (max-width: 480px) {
@@ -668,6 +774,23 @@
           width: 32px;
           height: 32px;
           font-size: 12px;
+        }
+
+        /* Smaller tooltips for small screens */
+        .tooltip {
+          font-size: 10px;
+          padding: 4px 8px;
+        }
+
+        .time-tooltip {
+          font-size: 9px;
+          padding: 3px 6px;
+        }
+
+        /* Hide tooltips on very small screens during touch interactions */
+        .hotspot-tooltip,
+        .section-tooltip {
+          display: none;
         }
       }
 
@@ -721,7 +844,6 @@
         preload="metadata"
         muted
         playsinline
-        crossorigin="anonymous"
       >
         <source
           src="./video/Colliers-Presentation-FullVideo.mp4"
@@ -753,28 +875,20 @@
 
       <!-- Progress Bar -->
       <div class="progress-track" id="progressTrack">
-        <div class="progress-fill" id="progressFill">
-          <div class="progress-handle"></div>
-        </div>
+        <div class="progress-fill" id="progressFill"></div>
         <div class="time-tooltip" id="timeTooltip">00:00</div>
       </div>
 
       <!-- Control Buttons -->
       <div class="video-controls">
-        <button class="control-btn" id="nextSectionBtn" title="Next Section">
-          ⏭️
-        </button>
-        <button class="control-btn" id="replayBtn" title="Replay">🔄</button>
-        <button class="control-btn" id="muteBtn" title="Mute">🔊</button>
-        <button class="control-btn" id="fullscreenBtn" title="Fullscreen">
-          ⛶
-        </button>
+        <button class="control-btn" id="nextSectionBtn">⏭️</button>
+        <button class="control-btn" id="replayBtn">🔄</button>
+        <button class="control-btn" id="muteBtn">🔊</button>
+        <button class="control-btn" id="fullscreenBtn">⛶</button>
       </div>
 
       <!-- Menu Toggle -->
-      <button class="menu-btn" id="menuToggle" title="Video Sections Menu">
-        ☰
-      </button>
+      <button class="menu-btn" id="menuToggle">☰</button>
 
       <!-- Sections Menu -->
       <div class="sections-menu" id="sectionsMenu">
@@ -801,23 +915,23 @@
       */
 
       const VIDEO_CONFIG = {
-        // Video sections with start and end times in seconds
+        // Video sections with start and end times in seconds (supports high precision: x.xxx)
         sections: [
-          { name: "Rent Services", start: 4.5, end: 10.885, icon: "💰" },
-          { name: "Transportation", start: 12.3, end: 27, icon: "🚚" },
+          { name: "Rent Services", start: 4.5, end: 10.886, icon: "💰" },
+          { name: "Transportation", start: 10.886, end: 27, icon: "🚚" },
           { name: "Inventory Carry", start: 27, end: 38, icon: "📦" },
           { name: "Labor Solutions", start: 38.5, end: 58, icon: "👷" },
-          { name: "Other Services", start: 58.5, end: 72, icon: "🛠️" },
+          { name: "Other Services", start: 58, end: 72, icon: "🛠️" },
         ],
 
-        // Time intervals where hotspots should be hidden (in seconds)
+        // Time intervals where hotspots should be hidden (in seconds - supports high precision)
         hideIntervals: [
-          { start: 30.7, end: 36 },
+          { start: 30.7, end: 36.0 },
           { start: 61.4, end: 67.4 },
-          { start: 75, end: 999 },
+          { start: 75.0, end: 999.0 },
         ],
 
-        // Menu will be available this many seconds before the first section starts
+        // Menu will be available this many seconds before the first section starts (supports high precision)
         menuAvailableOffset: 1.2,
       };
 
@@ -873,6 +987,17 @@
           `   • Hide intervals: ${VIDEO_CONFIG.hideIntervals.length}`
         );
 
+        // Log detailed section timings for precision verification
+        console.log("🎯 Precise section timings:");
+        VIDEO_CONFIG.sections.forEach((section, index) => {
+          const duration = (section.end - section.start).toFixed(3);
+          console.log(
+            `   ${index + 1}. ${section.name}: ${section.start}s → ${
+              section.end
+            }s (${duration}s duration)`
+          );
+        });
+
         return true;
       }
 
@@ -881,6 +1006,74 @@
        */
       function logVideoSections() {
         console.table(VIDEO_CONFIG.sections);
+      }
+
+      /**
+       * Helper function to reload video player with new configuration
+       * Call this after changing VIDEO_CONFIG values
+       */
+      function reloadVideoPlayer() {
+        if (window.videoPlayer) {
+          console.log("🔄 Reloading video player with new configuration...");
+
+          // Store current video state
+          const currentTime = window.videoPlayer.video.currentTime;
+          const wasPaused = window.videoPlayer.video.paused;
+
+          // Reinitialize dynamic elements
+          window.videoPlayer.sections = VIDEO_CONFIG.sections;
+          window.videoPlayer.hideIntervals = VIDEO_CONFIG.hideIntervals;
+          window.videoPlayer.firstSectionStart =
+            window.videoPlayer.sections[0]?.start || 0;
+          window.videoPlayer.menuAvailableTime =
+            window.videoPlayer.firstSectionStart -
+            VIDEO_CONFIG.menuAvailableOffset;
+
+          // Update hotspots and menu with new configuration
+          window.videoPlayer.initializeDynamicElements();
+
+          // Restore video state
+          window.videoPlayer.video.currentTime = currentTime;
+          if (!wasPaused) {
+            window.videoPlayer.video
+              .play()
+              .catch(() => console.log("Could not restore play state"));
+          }
+
+          console.log("✅ Video player reloaded successfully");
+          console.log("📊 New configuration applied:");
+          logVideoSections();
+        }
+      }
+
+      /**
+       * Helper function to test a specific section timing
+       */
+      function testSection(sectionName) {
+        const section = VIDEO_CONFIG.sections.find(
+          (s) => s.name === sectionName
+        );
+        if (section && window.videoPlayer) {
+          console.log(`🎬 Testing section: ${sectionName}`);
+          console.log(
+            `   Start: ${section.start}s, End: ${section.end}s, Duration: ${(
+              section.end - section.start
+            ).toFixed(3)}s`
+          );
+
+          // Jump to section start
+          window.videoPlayer.video.currentTime = section.start;
+          window.videoPlayer.video
+            .play()
+            .then(() => {
+              console.log(`▶️ Playing from ${section.start}s`);
+            })
+            .catch(console.error);
+        } else {
+          console.error(
+            `❌ Section "${sectionName}" not found or video player not ready`
+          );
+        }
       }
 
       // Validate configuration on load
@@ -894,8 +1087,6 @@
           this.wrapper = document.getElementById("videoWrapper");
           this.progressTrack = document.getElementById("progressTrack");
           this.progressFill = document.getElementById("progressFill");
-          this.progressHandle =
-            this.progressFill.querySelector(".progress-handle");
           this.timeTooltip = document.getElementById("timeTooltip");
           this.playIndicator = document.getElementById("playIndicator");
           this.playOverlay = document.getElementById("playOverlay");
@@ -918,16 +1109,24 @@
           this.currentSection = null;
           this.sectionEndTime = null;
           this.isPlayingSection = false;
+          this.isManualSectionSelection = false; // Track if user manually selected section
           this.menuOpen = false;
           this.isDraggingProgress = false;
-          this.isDraggingHandle = false;
           this.hasStartedPlaying = false;
+          this.waitingForSectionStart = false;
+          this.upcomingSectionIndex = -1;
+          this.pauseBeforeSection = 0.5; // Pause 0.5 seconds before each section
 
           // Performance optimization
           this.lastUpdateTime = 0;
           this.updateThrottle = 100; // ms
           this.lastHotspotState = null;
           this.lastMenuState = null;
+
+          // Tooltip system
+          this.tooltips = new Map();
+          this.tooltipDelay = 750; // ms
+          this.tooltipTimeouts = new Map();
 
           // Configuration-based properties (calculated from VIDEO_CONFIG)
           this.sections = VIDEO_CONFIG.sections;
@@ -940,6 +1139,7 @@
           // Initialize dynamic elements
           this.initializeDynamicElements();
           this.init();
+          this.setupTooltips();
         }
 
         initializeDynamicElements() {
@@ -952,6 +1152,10 @@
           // Re-select hotspots and section buttons after dynamic creation
           this.hotspots = document.querySelectorAll(".hotspot");
           this.sectionButtons = document.querySelectorAll(".section-btn");
+
+          // Update tooltips for newly created elements
+          this.updateHotspotTooltips();
+          this.updateSectionTooltips();
         }
 
         updateHotspots() {
@@ -969,10 +1173,6 @@
             hotspot.setAttribute("data-start", section.start);
             hotspot.setAttribute("data-end", section.end);
             hotspot.setAttribute("data-name", section.name);
-            hotspot.setAttribute(
-              "title",
-              `Click to play ${section.name} section`
-            );
 
             const icon = document.createElement("span");
             icon.className = "hotspot-icon";
@@ -1007,6 +1207,263 @@
           this.setupKeyboardShortcuts();
           this.updateMuteButton();
           this.optimizeVideoLoading();
+        }
+
+        setupTooltips() {
+          // Initialize tooltip system for all interactive elements
+          this.initializeControlTooltips();
+          this.initializeHotspotTooltips();
+          this.initializeMenuTooltips();
+          this.setupTooltipEventListeners();
+        }
+
+        initializeControlTooltips() {
+          // Control button tooltips with dynamic content
+          const controlTooltips = [
+            {
+              element: this.nextSectionBtn,
+              getContent: () => this.getNextSectionTooltipText(),
+              position: "control",
+            },
+            {
+              element: this.replayBtn,
+              content: "Replay from beginning (R)",
+              position: "control",
+            },
+            {
+              element: this.muteBtn,
+              getContent: () => (this.video.muted ? "Unmute (M)" : "Mute (M)"),
+              position: "control",
+            },
+            {
+              element: this.fullscreenBtn,
+              getContent: () =>
+                document.fullscreenElement
+                  ? "Exit fullscreen (F)"
+                  : "Enter fullscreen (F)",
+              position: "control",
+            },
+          ];
+
+          controlTooltips.forEach(
+            ({ element, content, getContent, position }) => {
+              if (element) {
+                this.tooltips.set(element, { content, getContent, position });
+              }
+            }
+          );
+        }
+
+        initializeHotspotTooltips() {
+          // Hotspot tooltips - will be set up after dynamic creation
+          this.updateHotspotTooltips();
+        }
+
+        updateHotspotTooltips() {
+          // Clear existing hotspot tooltips
+          this.hotspots?.forEach((hotspot) => {
+            this.removeTooltip(hotspot);
+          });
+
+          // Add tooltips to newly created hotspots
+          this.hotspots?.forEach((hotspot) => {
+            const sectionName = hotspot.dataset.name;
+            const startTime = parseFloat(hotspot.dataset.start);
+            const endTime = parseFloat(hotspot.dataset.end);
+
+            this.tooltips.set(hotspot, {
+              getContent: () =>
+                `${sectionName} (${this.formatTime(
+                  startTime
+                )} - ${this.formatTime(endTime)})`,
+              position: "hotspot",
+            });
+          });
+        }
+
+        initializeMenuTooltips() {
+          // Menu button tooltip
+          if (this.menuToggle) {
+            this.tooltips.set(this.menuToggle, {
+              content: "Video sections menu (Tab)",
+              position: "menu",
+            });
+          }
+
+          // Section button tooltips - will be set up after dynamic creation
+          this.updateSectionTooltips();
+        }
+
+        updateSectionTooltips() {
+          // Clear existing section tooltips
+          this.sectionButtons?.forEach((button) => {
+            this.removeTooltip(button);
+          });
+
+          // Add tooltips to newly created section buttons
+          this.sectionButtons?.forEach((button) => {
+            const sectionName = button.dataset.name;
+            const startTime = parseFloat(button.dataset.start);
+            const endTime = parseFloat(button.dataset.end);
+
+            this.tooltips.set(button, {
+              getContent: () =>
+                `Jump to ${sectionName} (${this.formatTime(
+                  startTime
+                )} - ${this.formatTime(endTime)})`,
+              position: "section",
+            });
+          });
+        }
+
+        setupTooltipEventListeners() {
+          // Check if device has touch capability
+          const isTouchDevice =
+            "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+          // Universal tooltip event delegation (skip on primary touch devices)
+          if (!isTouchDevice) {
+            document.addEventListener("mouseenter", (e) => {
+              const element = e.target.closest(
+                "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
+              );
+              if (element && this.tooltips.has(element)) {
+                this.showTooltip(element, e);
+              }
+            });
+
+            document.addEventListener("mouseleave", (e) => {
+              const element = e.target.closest(
+                "[data-tooltip], .control-btn, .hotspot, .menu-btn, .section-btn"
+              );
+              if (element && this.tooltips.has(element)) {
+                this.hideTooltip(element);
+              }
+            });
+          }
+
+          // Hide tooltips on video interactions
+          this.video.addEventListener("play", () => this.hideAllTooltips());
+          this.video.addEventListener("timeupdate", () => {
+            // Hide tooltips during active playback for better UX
+            if (!this.video.paused && !this.isPlayingSection) {
+              this.hideAllTooltips();
+            }
+          });
+
+          // Hide tooltips on touch interactions for mobile
+          if (isTouchDevice) {
+            document.addEventListener("touchstart", () =>
+              this.hideAllTooltips()
+            );
+          }
+        }
+
+        showTooltip(element, event) {
+          // Clear any existing timeout for this element
+          if (this.tooltipTimeouts.has(element)) {
+            clearTimeout(this.tooltipTimeouts.get(element));
+          }
+
+          // Don't show tooltips during video playback (except when paused)
+          if (
+            !this.video.paused &&
+            !this.isPlayingSection &&
+            !element.classList.contains("control-btn")
+          ) {
+            return;
+          }
+
+          const timeout = setTimeout(() => {
+            const tooltipData = this.tooltips.get(element);
+            if (!tooltipData) return;
+
+            // Get tooltip content (dynamic or static)
+            const content = tooltipData.getContent
+              ? tooltipData.getContent()
+              : tooltipData.content;
+            if (!content) return;
+
+            // Remove any existing tooltip for this element
+            this.removeTooltip(element);
+
+            // Create tooltip element
+            const tooltip = document.createElement("div");
+            tooltip.className = `tooltip ${tooltipData.position}-tooltip`;
+            tooltip.textContent = content;
+            tooltip.setAttribute("data-tooltip-for", element.id || "element");
+
+            // Position and show tooltip
+            element.style.position = "relative";
+            element.appendChild(tooltip);
+
+            // Trigger show animation
+            requestAnimationFrame(() => {
+              tooltip.classList.add("show");
+            });
+
+            // Store reference for cleanup
+            element._tooltip = tooltip;
+          }, this.tooltipDelay);
+
+          this.tooltipTimeouts.set(element, timeout);
+        }
+
+        hideTooltip(element) {
+          // Clear timeout
+          if (this.tooltipTimeouts.has(element)) {
+            clearTimeout(this.tooltipTimeouts.get(element));
+            this.tooltipTimeouts.delete(element);
+          }
+
+          // Remove tooltip with animation
+          this.removeTooltip(element);
+        }
+
+        removeTooltip(element) {
+          const tooltip = element._tooltip;
+          if (tooltip) {
+            tooltip.classList.remove("show");
+            setTimeout(() => {
+              if (tooltip.parentNode) {
+                tooltip.parentNode.removeChild(tooltip);
+              }
+            }, 300); // Match CSS transition duration
+            element._tooltip = null;
+          }
+        }
+
+        hideAllTooltips() {
+          // Hide all active tooltips
+          this.tooltips.forEach((_, element) => {
+            this.hideTooltip(element);
+          });
+        }
+
+        getNextSectionTooltipText() {
+          const currentTime = this.video.currentTime;
+          let nextSectionIndex = -1;
+
+          if (this.isPlayingSection && this.currentSectionIndex >= 0) {
+            nextSectionIndex = this.currentSectionIndex + 1;
+          } else {
+            for (let i = 0; i < this.sections.length; i++) {
+              if (currentTime < this.sections[i].start) {
+                nextSectionIndex = i;
+                break;
+              }
+            }
+          }
+
+          if (
+            nextSectionIndex === -1 ||
+            nextSectionIndex >= this.sections.length
+          ) {
+            return "Next section: Back to start (N)";
+          }
+
+          const nextSection = this.sections[nextSectionIndex];
+          return `Next section: ${nextSection.name} (N)`;
         }
 
         optimizeVideoLoading() {
@@ -1116,41 +1573,6 @@
           this.progressTrack.addEventListener("mouseleave", () =>
             this.hideTimeTooltip()
           );
-
-          // Progress handle dragging
-          if (this.progressHandle) {
-            this.progressHandle.addEventListener("mousedown", (e) => {
-              e.preventDefault();
-              this.startDragging(e);
-            });
-          }
-
-          document.addEventListener("mousemove", (e) => {
-            this.handleDrag(e);
-          });
-          document.addEventListener("mouseup", () => {
-            this.stopDragging();
-          });
-
-          // Touch support for progress handle
-          if (this.progressHandle) {
-            this.progressHandle.addEventListener("touchstart", (e) => {
-              e.preventDefault();
-              this.startDragging(e);
-            });
-          }
-
-          document.addEventListener(
-            "touchmove",
-            (e) => {
-              if (this.isDraggingHandle) {
-                e.preventDefault();
-                this.handleDrag(e);
-              }
-            },
-            { passive: false }
-          );
-          document.addEventListener("touchend", () => this.stopDragging());
 
           // Touch support for progress track
           this.progressTrack.addEventListener("touchstart", (e) =>
@@ -1279,17 +1701,39 @@
           this.updateHotspotVisibility();
           this.updateMenuVisibility();
 
+          // Check for upcoming sections and pause before them
+          this.checkForUpcomingSections();
+
           // Check section end
           if (
             this.sectionEndTime &&
             this.video.currentTime >= this.sectionEndTime
           ) {
-            this.video.pause();
-            this.sectionEndTime = null;
-            this.isPlayingSection = false;
-            // Keep current section index for next section navigation
-            this.updateHotspotVisibility();
-            this.showStatus("Section completed - Press N for next section");
+            // Check if this is the last section AND it was reached through normal playback (not manual selection)
+            const isLastSection =
+              this.currentSectionIndex === this.sections.length - 1;
+            const shouldContinueAfterLastSection =
+              isLastSection && !this.isManualSectionSelection;
+
+            if (shouldContinueAfterLastSection) {
+              // Don't pause after the last section if reached through normal playback
+              this.sectionEndTime = null;
+              this.isPlayingSection = false;
+              this.isManualSectionSelection = false; // Reset flag
+              this.updateHotspotVisibility();
+              this.showStatus("Final section completed - Video continues");
+            } else {
+              // Pause after manually selected sections or non-last sections
+              this.video.pause();
+              this.sectionEndTime = null;
+              this.isPlayingSection = false;
+              this.isManualSectionSelection = false; // Reset flag
+              // Keep current section index for next section navigation
+              this.updateHotspotVisibility();
+              this.showStatus(
+                "Section completed - Press Play for next section"
+              );
+            }
           }
         }
 
@@ -1301,7 +1745,7 @@
               ? Math.max(...this.sections.map((s) => s.end))
               : 83;
 
-          // Check if in hide interval
+          // Check if in hide interval - this always takes priority
           const inHideInterval = this.hideIntervals.some(
             (interval) =>
               currentTime >= interval.start && currentTime < interval.end
@@ -1316,11 +1760,16 @@
               return currentTime >= start && currentTime <= end;
             });
 
-          // Visibility logic
+          // Enhanced visibility logic - show during section playback unless in hide interval
           const shouldShow =
             !inHideInterval &&
-            ((this.video.paused && inSectionTime && !this.isPlayingSection) ||
-              (this.video.paused && this.isPlayingSection) ||
+            // Show during section playback (even when video is playing)
+            (this.isPlayingSection ||
+              // Show when video is paused and in section time
+              (this.video.paused && inSectionTime) ||
+              // Show when waiting for section to start
+              (this.waitingForSectionStart && this.video.paused) ||
+              // Show during normal video playback in available time range
               (currentTime >= showTime &&
                 currentTime < lastEnd &&
                 !this.isPlayingSection &&
@@ -1372,12 +1821,51 @@
           }
         }
 
+        checkForUpcomingSections() {
+          // Don't check if already waiting for section start or playing a specific section
+          if (this.waitingForSectionStart || this.isPlayingSection) {
+            return;
+          }
+
+          const currentTime = this.video.currentTime;
+
+          // Find the next upcoming section
+          for (let i = 0; i < this.sections.length; i++) {
+            const section = this.sections[i];
+            const pauseTime = section.start - this.pauseBeforeSection;
+
+            // Check if we're approaching this section (within pause time)
+            if (currentTime >= pauseTime && currentTime < section.start) {
+              // Pause the video before the section
+              this.video.pause();
+              this.waitingForSectionStart = true;
+              this.upcomingSectionIndex = i;
+
+              // Show status message with section name
+              this.showStatus(
+                `Next: ${section.name} - Press play to continue to this section`,
+                5000
+              );
+
+              // Update hotspot visibility to show available sections
+              this.updateHotspotVisibility();
+              break;
+            }
+          }
+        }
+
         togglePlayPause() {
           if (this.video.paused) {
-            this.video
-              .play()
-              .then(() => this.showPlayIndicator("▶"))
-              .catch(() => this.showStatus("Error playing video"));
+            // If we're waiting for a section to start, handle it specially
+            if (this.waitingForSectionStart && this.upcomingSectionIndex >= 0) {
+              const section = this.sections[this.upcomingSectionIndex];
+              this.startSection(section, this.upcomingSectionIndex);
+            } else {
+              this.video
+                .play()
+                .then(() => this.showPlayIndicator("▶"))
+                .catch(() => this.showStatus("Error playing video"));
+            }
           } else {
             this.video.pause();
             this.showPlayIndicator("⏸");
@@ -1391,7 +1879,7 @@
 
         updateMuteButton() {
           this.muteBtn.textContent = this.video.muted ? "🔇" : "🔊";
-          this.muteBtn.title = this.video.muted ? "Unmute" : "Mute";
+          // Tooltip content will be updated dynamically via getContent function
         }
 
         toggleFullscreen() {
@@ -1414,9 +1902,7 @@
           );
 
           this.fullscreenBtn.textContent = isFullscreen ? "⛶" : "⛶";
-          this.fullscreenBtn.title = isFullscreen
-            ? "Exit fullscreen"
-            : "Fullscreen";
+          // Tooltip content will be updated dynamically via getContent function
 
           if (isFullscreen) {
             this.showStatus("Press R to replay, F to exit fullscreen");
@@ -1427,6 +1913,9 @@
           this.isPlayingSection = false;
           this.sectionEndTime = null;
           this.currentSectionIndex = -1;
+          this.waitingForSectionStart = false;
+          this.upcomingSectionIndex = -1;
+          this.isManualSectionSelection = false; // Reset manual selection flag
           this.video.currentTime = 0;
           this.progressFill.style.width = "0%";
           this.hideAllHotspots();
@@ -1474,18 +1963,54 @@
             (section) => section.start === start && section.end === end
           );
 
+          // Mark this as a manual section selection
+          this.isManualSectionSelection = true;
+
           if (this.menuOpen) {
             this.closeMenuPanel();
           }
 
-          this.video.currentTime = start;
-          this.sectionEndTime = end;
+          // Set section state BEFORE changing video time to prevent flicker
           this.isPlayingSection = true;
-          this.hideAllHotspots();
+          this.sectionEndTime = end;
+
+          // Update hotspot visibility immediately to prevent flicker
+          this.updateHotspotVisibility();
+
+          this.video.currentTime = start;
 
           this.video
             .play()
             .then(() => this.showStatus(`Playing: ${name}`))
+            .catch(() => this.showStatus("Error playing section"));
+        }
+
+        startSection(section, sectionIndex) {
+          // Clear waiting state
+          this.waitingForSectionStart = false;
+          this.upcomingSectionIndex = -1;
+
+          // Set up section playback
+          this.currentSectionIndex = sectionIndex;
+
+          // Set section state BEFORE changing video time to prevent flicker
+          this.isPlayingSection = true;
+          this.sectionEndTime = section.end;
+          // This is NOT a manual selection - it's from normal playbook progression
+          this.isManualSectionSelection = false;
+
+          // Update hotspot visibility immediately to prevent flicker
+          this.updateHotspotVisibility();
+
+          this.video.currentTime = section.start;
+
+          if (this.menuOpen) {
+            this.closeMenuPanel();
+          }
+
+          this.video
+            .play()
+            .then(() => this.showStatus(`Playing: ${section.name}`))
             .catch(() => this.showStatus("Error playing section"));
         }
 
@@ -1500,9 +2025,6 @@
         }
 
         seekTo(e) {
-          // Don't seek if we're dragging the handle
-          if (this.isDraggingHandle) return;
-
           const rect = this.progressTrack.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const percentage = Math.max(0, Math.min(1, x / rect.width));
@@ -1526,6 +2048,12 @@
         }
 
         checkSectionInterrupt(time) {
+          // Clear waiting state when seeking
+          if (this.waitingForSectionStart) {
+            this.waitingForSectionStart = false;
+            this.upcomingSectionIndex = -1;
+          }
+
           if (this.isPlayingSection && this.sectionEndTime) {
             const currentSection = Array.from(this.hotspots).find(
               (hotspot) =>
@@ -1547,9 +2075,6 @@
         }
 
         showTimeTooltip(e) {
-          // Don't show tooltip on track hover if dragging handle
-          if (this.isDraggingHandle && e.target === this.progressTrack) return;
-
           const rect = this.progressTrack.getBoundingClientRect();
           let x;
 
@@ -1560,33 +2085,40 @@
             x = touch.clientX - rect.left;
           }
 
-          const percentage = x / rect.width;
+          const percentage = Math.max(0, Math.min(1, x / rect.width));
 
           if (this.video.duration) {
             const time = percentage * this.video.duration;
-            this.timeTooltip.textContent = this.formatTime(time);
+
+            // Enhanced content with section information
+            let content = this.formatTime(time);
+
+            // Add section info if hovering over a section
+            const hoveredSection = this.sections.find(
+              (section) => time >= section.start && time <= section.end
+            );
+
+            if (hoveredSection) {
+              content += ` • ${hoveredSection.name}`;
+            }
+
+            this.timeTooltip.textContent = content;
             this.timeTooltip.style.left = `${x}px`;
-            this.timeTooltip.style.opacity = "1";
+            this.timeTooltip.classList.add("show");
           }
         }
 
         hideTimeTooltip() {
-          this.timeTooltip.style.opacity = "0";
+          this.timeTooltip.classList.remove("show");
         }
 
         onTouchStart(e) {
-          // Don't handle track touch if touching the handle
-          if (e.target === this.progressHandle) return;
-
           e.preventDefault();
           this.isDraggingProgress = true;
           this.handleTouch(e);
         }
 
         onTouchMove(e) {
-          // Don't handle track touch if dragging handle
-          if (this.isDraggingHandle) return;
-
           e.preventDefault();
           if (this.isDraggingProgress) {
             this.handleTouch(e);
@@ -1594,8 +2126,6 @@
         }
 
         onTouchEnd() {
-          if (this.isDraggingHandle) return;
-
           this.isDraggingProgress = false;
           this.hideTimeTooltip();
         }
@@ -1610,81 +2140,22 @@
             const time = percentage * this.video.duration;
             this.video.currentTime = time;
             this.progressFill.style.width = `${percentage * 100}%`;
-            this.timeTooltip.textContent = this.formatTime(time);
+
+            // Enhanced content with section information
+            let content = this.formatTime(time);
+
+            const hoveredSection = this.sections.find(
+              (section) => time >= section.start && time <= section.end
+            );
+
+            if (hoveredSection) {
+              content += ` • ${hoveredSection.name}`;
+            }
+
+            this.timeTooltip.textContent = content;
             this.timeTooltip.style.left = `${x}px`;
-            this.timeTooltip.style.opacity = "1";
+            this.timeTooltip.classList.add("show");
           }
-        }
-
-        startDragging(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          this.isDraggingHandle = true;
-          this.progressHandle.classList.add("dragging");
-          this.progressTrack.classList.add("dragging");
-
-          // Show tooltip immediately
-          this.showTimeTooltip(e);
-
-          // Visual feedback
-          this.showStatus("Seeking...", 1000);
-
-          // Prevent text selection during drag
-          document.body.style.userSelect = "none";
-        }
-
-        handleDrag(e) {
-          if (!this.isDraggingHandle) return;
-
-          e.preventDefault();
-          const rect = this.progressTrack.getBoundingClientRect();
-          let x;
-
-          if (e.type === "mousemove") {
-            x = e.clientX - rect.left;
-          } else if (e.type === "touchmove") {
-            const touch = e.touches[0];
-            x = touch.clientX - rect.left;
-          }
-
-          // Clamp x to track bounds
-          x = Math.max(0, Math.min(rect.width, x));
-          const percentage = x / rect.width;
-
-          if (this.video.duration) {
-            const time = percentage * this.video.duration;
-
-            // Update video time immediately for responsive feedback
-            this.video.currentTime = time;
-            this.progressFill.style.width = `${percentage * 100}%`;
-
-            // Update tooltip position and time
-            this.timeTooltip.textContent = this.formatTime(time);
-            this.timeTooltip.style.left = `${x}px`;
-            this.timeTooltip.style.opacity = "1";
-
-            // Check for section interruption
-            this.checkSectionInterrupt(time);
-          }
-        }
-
-        stopDragging() {
-          if (!this.isDraggingHandle) return;
-
-          this.isDraggingHandle = false;
-          this.progressHandle.classList.remove("dragging");
-          this.progressTrack.classList.remove("dragging");
-          this.hideTimeTooltip();
-
-          // Re-enable text selection
-          document.body.style.userSelect = "";
-
-          // Show completion status
-          const currentTime = this.video.currentTime;
-          this.showStatus(`Seeked to ${this.formatTime(currentTime)}`, 1500);
-
-          // Update hotspot visibility after seeking
-          this.updateHotspotVisibility();
         }
 
         showPlayIndicator(icon) {
@@ -1778,6 +2249,10 @@
         }
 
         nextSection() {
+          // Clear waiting state
+          this.waitingForSectionStart = false;
+          this.upcomingSectionIndex = -1;
+
           // Determine current section or find next one
           const currentTime = this.video.currentTime;
           let nextSectionIndex = -1;
@@ -1807,10 +2282,17 @@
           const nextSection = this.sections[nextSectionIndex];
           this.currentSectionIndex = nextSectionIndex;
 
-          this.video.currentTime = nextSection.start;
-          this.sectionEndTime = nextSection.end;
+          // Mark this as a manual section selection (using Next button)
+          this.isManualSectionSelection = true;
+
+          // Set section state BEFORE changing video time to prevent flicker
           this.isPlayingSection = true;
-          this.hideAllHotspots();
+          this.sectionEndTime = nextSection.end;
+
+          // Update hotspot visibility immediately to prevent flicker
+          this.updateHotspotVisibility();
+
+          this.video.currentTime = nextSection.start;
 
           this.video
             .play()
