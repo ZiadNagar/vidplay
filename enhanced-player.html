@@ -279,25 +279,27 @@
         position: relative;
       }
 
-      /* Enhanced Tooltip System */
+      /* Unified Minimal Tooltip System */
       .tooltip {
         position: absolute;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.85);
         color: white;
-        padding: 8px 12px;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 400;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 500;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
         white-space: nowrap;
         z-index: 1000;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        transform: scale(0.8);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        transform: scale(0.9);
+        max-width: 200px;
+        text-align: center;
       }
 
       .tooltip.show {
@@ -312,13 +314,15 @@
         width: 0;
         height: 0;
         border-style: solid;
+        border-width: 4px;
+        border-color: transparent;
       }
 
-      /* Time tooltip for progress bar */
+      /* Progress bar time tooltip */
       .time-tooltip {
         position: absolute;
         bottom: 12px;
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(0, 0, 0, 0.85);
         color: white;
         padding: 6px 10px;
         border-radius: 6px;
@@ -326,13 +330,14 @@
         font-weight: 500;
         opacity: 0;
         visibility: hidden;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         pointer-events: none;
         transform: translateX(-50%) scale(0.9);
         white-space: nowrap;
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
       }
 
       .time-tooltip.show {
@@ -348,14 +353,14 @@
         left: 50%;
         transform: translateX(-50%);
         border: 4px solid transparent;
-        border-top-color: rgba(0, 0, 0, 0.9);
+        border-top-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Control button tooltips */
       .control-tooltip {
-        bottom: calc(100% + 8px);
+        bottom: calc(100% + 10px);
         left: 50%;
-        transform: translateX(-50%) scale(0.8);
+        transform: translateX(-50%) scale(0.9);
       }
 
       .control-tooltip.show {
@@ -366,15 +371,14 @@
         top: 100%;
         left: 50%;
         transform: translateX(-50%);
-        border: 4px solid transparent;
-        border-top-color: rgba(0, 0, 0, 0.9);
+        border-top-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Menu button tooltip */
       .menu-tooltip {
         top: 50%;
-        left: calc(100% + 8px);
-        transform: translateY(-50%) scale(0.8);
+        left: calc(100% + 10px);
+        transform: translateY(-50%) scale(0.9);
       }
 
       .menu-tooltip.show {
@@ -385,17 +389,14 @@
         top: 50%;
         right: 100%;
         transform: translateY(-50%);
-        border: 4px solid transparent;
-        border-right-color: rgba(0, 0, 0, 0.9);
+        border-right-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Hotspot tooltips */
       .hotspot-tooltip {
         bottom: calc(100% + 10px);
         left: 50%;
-        transform: translateX(-50%) scale(0.8);
-        font-size: 11px;
-        padding: 6px 10px;
+        transform: translateX(-50%) scale(0.9);
       }
 
       .hotspot-tooltip.show {
@@ -406,17 +407,14 @@
         top: 100%;
         left: 50%;
         transform: translateX(-50%);
-        border: 4px solid transparent;
-        border-top-color: rgba(0, 0, 0, 0.9);
+        border-top-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Section button tooltips */
       .section-tooltip {
         top: 50%;
-        left: calc(100% + 8px);
-        transform: translateY(-50%) scale(0.8);
-        font-size: 11px;
-        padding: 6px 10px;
+        left: calc(100% + 10px);
+        transform: translateY(-50%) scale(0.9);
       }
 
       .section-tooltip.show {
@@ -427,8 +425,7 @@
         top: 50%;
         right: 100%;
         transform: translateY(-50%);
-        border: 4px solid transparent;
-        border-right-color: rgba(0, 0, 0, 0.9);
+        border-right-color: rgba(0, 0, 0, 0.85);
       }
 
       /* Menu System */
@@ -781,21 +778,35 @@
           font-size: 14px;
         }
 
-        /* Mobile tooltip adjustments */
+        /* Mobile tooltip adjustments - unified minimal styling */
         .tooltip {
-          font-size: 11px;
-          padding: 6px 10px;
+          font-size: 10px;
+          padding: 5px 8px;
+          border-radius: 4px;
+          backdrop-filter: blur(3px);
         }
 
         .time-tooltip {
           font-size: 10px;
-          padding: 4px 8px;
+          padding: 5px 8px;
+          border-radius: 4px;
+          backdrop-filter: blur(3px);
         }
 
         .hotspot-tooltip,
-        .section-tooltip {
+        .section-tooltip,
+        .control-tooltip,
+        .menu-tooltip {
           font-size: 10px;
-          padding: 4px 8px;
+          padding: 5px 8px;
+          border-radius: 4px;
+          backdrop-filter: blur(3px);
+        }
+
+        /* Smaller arrow size for mobile */
+        .tooltip::before,
+        .time-tooltip::before {
+          border-width: 3px;
         }
       }
 
@@ -1143,9 +1154,9 @@
           this.lastHotspotState = null;
           this.lastMenuState = null;
 
-          // Tooltip system
+          // Tooltip system - optimized for minimal design
           this.tooltips = new Map();
-          this.tooltipDelay = 750; // ms
+          this.tooltipDelay = 600; // ms - reduced for better responsiveness
           this.tooltipTimeouts = new Map();
 
           // Section indicator timeout
@@ -1300,7 +1311,7 @@
         }
 
         setupTooltips() {
-          // Initialize tooltip system for all interactive elements
+          // Initialize simplified tooltip system
           this.initializeControlTooltips();
           this.initializeHotspotTooltips();
           this.initializeMenuTooltips();
@@ -1308,7 +1319,7 @@
         }
 
         initializeControlTooltips() {
-          // Control button tooltips with dynamic content
+          // Control button tooltips - simplified to show on hover
           const controlTooltips = [
             {
               element: this.nextSectionBtn,
@@ -1317,20 +1328,20 @@
             },
             {
               element: this.replayBtn,
-              content: "Replay from beginning (R)",
+              content: "Replay from beginning",
               position: "control",
             },
             {
               element: this.muteBtn,
-              getContent: () => (this.video.muted ? "Unmute (M)" : "Mute (M)"),
+              getContent: () => (this.video.muted ? "Unmute" : "Mute"),
               position: "control",
             },
             {
               element: this.fullscreenBtn,
               getContent: () =>
                 document.fullscreenElement
-                  ? "Exit fullscreen (F)"
-                  : "Enter fullscreen (F)",
+                  ? "Exit fullscreen"
+                  : "Enter fullscreen",
               position: "control",
             },
           ];
@@ -1358,14 +1369,9 @@
           // Add tooltips to newly created hotspots
           this.hotspots?.forEach((hotspot) => {
             const sectionName = hotspot.dataset.name;
-            const startTime = parseFloat(hotspot.dataset.start);
-            const endTime = parseFloat(hotspot.dataset.end);
 
             this.tooltips.set(hotspot, {
-              getContent: () =>
-                `${sectionName} (${this.formatTime(
-                  startTime
-                )} - ${this.formatTime(endTime)})`,
+              getContent: () => `Click play to play ${sectionName}`,
               position: "hotspot",
             });
           });
@@ -1375,7 +1381,7 @@
           // Menu button tooltip
           if (this.menuToggle) {
             this.tooltips.set(this.menuToggle, {
-              content: "Video sections menu (Tab)",
+              content: "Video sections menu",
               position: "menu",
             });
           }
@@ -1393,14 +1399,9 @@
           // Add tooltips to newly created section buttons
           this.sectionButtons?.forEach((button) => {
             const sectionName = button.dataset.name;
-            const startTime = parseFloat(button.dataset.start);
-            const endTime = parseFloat(button.dataset.end);
 
             this.tooltips.set(button, {
-              getContent: () =>
-                `Jump to ${sectionName} (${this.formatTime(
-                  startTime
-                )} - ${this.formatTime(endTime)})`,
+              getContent: () => `Click play to play ${sectionName}`,
               position: "section",
             });
           });
@@ -1411,7 +1412,7 @@
           const isTouchDevice =
             "ontouchstart" in window || navigator.maxTouchPoints > 0;
 
-          // Universal tooltip event delegation (skip on primary touch devices)
+          // Universal tooltip event delegation - always show on hover
           if (!isTouchDevice) {
             document.addEventListener("mouseenter", (e) => {
               const element = this.findClosest(
@@ -1434,30 +1435,6 @@
             });
           }
 
-          // Hide tooltips on video interactions - with better logic
-          this.video.addEventListener("play", () => {
-            // Hide all tooltips when video starts playing
-            this.hideAllTooltips();
-          });
-
-          this.video.addEventListener("timeupdate", () => {
-            // Hide non-control tooltips during active playback for better UX
-            // Keep control tooltips available even during playback
-            if (!this.video.paused) {
-              this.hideNonControlTooltips();
-            }
-          });
-
-          // Hide tooltips when pausing to avoid stale tooltips
-          this.video.addEventListener("pause", () => {
-            // Brief delay to allow hover states to reactivate tooltips if needed
-            setTimeout(() => {
-              if (this.video.paused) {
-                this.hideAllTooltips();
-              }
-            }, 100);
-          });
-
           // Hide tooltips on touch interactions for mobile
           if (isTouchDevice) {
             document.addEventListener("touchstart", () =>
@@ -1470,23 +1447,6 @@
           // Clear any existing timeout for this element
           if (this.tooltipTimeouts.has(element)) {
             clearTimeout(this.tooltipTimeouts.get(element));
-          }
-
-          // Improved tooltip visibility logic
-          const isControlElement =
-            element.classList.contains("control-btn") ||
-            element.classList.contains("menu-btn");
-          const isVideoPlaying = !this.video.paused;
-
-          // Don't show non-control tooltips during video playback
-          // Control tooltips are always available for better UX
-          if (isVideoPlaying && !isControlElement) {
-            return;
-          }
-
-          // Don't show tooltips if section indicator is showing to avoid conflicts
-          if (this.isSectionIndicatorVisible() && !isControlElement) {
-            return;
           }
 
           const timeout = setTimeout(() => {
@@ -1555,26 +1515,6 @@
           });
         }
 
-        hideNonControlTooltips() {
-          // Hide only non-control tooltips (keep control tooltips available during playback)
-          this.tooltips.forEach((_, element) => {
-            const isControlElement =
-              element.classList.contains("control-btn") ||
-              element.classList.contains("menu-btn");
-            if (!isControlElement) {
-              this.hideTooltip(element);
-            }
-          });
-        }
-
-        // Helper method to check if section indicator is currently showing
-        isSectionIndicatorVisible() {
-          return (
-            this.sectionIndicator &&
-            this.sectionIndicator.classList.contains("show")
-          );
-        }
-
         getNextSectionTooltipText() {
           const currentTime = this.video.currentTime;
           let nextSectionIndex = -1;
@@ -1594,11 +1534,11 @@
             nextSectionIndex === -1 ||
             nextSectionIndex >= this.sections.length
           ) {
-            return "Next section: Back to start (N)";
+            return "Next section: Back to start";
           }
 
           const nextSection = this.sections[nextSectionIndex];
-          return `Next section: ${nextSection.name} (N)`;
+          return `Next section: ${nextSection.name}`;
         }
 
         optimizeVideoLoading() {
@@ -1619,9 +1559,6 @@
               connection.effectiveType === "slow-2g" ||
               connection.effectiveType === "2g"
             ) {
-              this.showStatus(
-                "Slow connection detected - optimizing for your network"
-              );
               this.video.preload = "none"; // Minimal preload for slow connections
             }
           }
@@ -1723,6 +1660,7 @@
               this.hideLoader();
               this.hidePlayOverlay();
               this.hasStartedPlaying = true;
+              this.showStatus("Video started"); // Simplified status message
               if (!this.isPlayingSection) {
                 this.updateHotspotVisibility();
               }
@@ -1738,21 +1676,22 @@
             },
             { passive: true }
           );
-          this.video.addEventListener("ended", () => this.onVideoEnd(), {
-            passive: true,
-          });
+          this.video.addEventListener(
+            "ended",
+            () => {
+              this.showStatus("Video ended"); // Simplified status message
+              this.onVideoEnd();
+            },
+            {
+              passive: true,
+            }
+          );
           this.video.addEventListener("error", (e) => this.onVideoError(e), {
             passive: true,
           });
 
           // Optimized buffering events
-          this.video.addEventListener(
-            "stalled",
-            () => {
-              this.showStatus("Video buffering...");
-            },
-            { passive: true }
-          );
+          this.video.addEventListener("stalled", () => {}, { passive: true });
 
           // Throttled progress event for better performance
           let progressTimeout;
@@ -1791,14 +1730,21 @@
           });
 
           // Control buttons
-          this.replayBtn.addEventListener("click", () => this.replay());
-          this.muteBtn.addEventListener("click", () => this.toggleMute());
+          this.replayBtn.addEventListener("click", () => {
+            this.replay();
+            this.showStatus("Replay from beginning"); // Show status when clicked
+          });
+          this.muteBtn.addEventListener("click", () => {
+            this.toggleMute();
+            this.showStatus(this.video.muted ? "Muted" : "Unmuted"); // Show status when clicked
+          });
           this.fullscreenBtn.addEventListener("click", () =>
             this.toggleFullscreen()
           );
-          this.nextSectionBtn.addEventListener("click", () =>
-            this.nextSection()
-          );
+          this.nextSectionBtn.addEventListener("click", () => {
+            this.nextSection();
+            // Status will be shown by the nextSection method
+          });
 
           // Menu controls
           this.menuToggle.addEventListener("click", () => this.toggleMenu());
@@ -1829,10 +1775,12 @@
             const hotspot = this.findClosest(e.target, ".hotspot");
             if (hotspot) {
               this.playSection(hotspot);
+              return;
             }
             const sectionBtn = this.findClosest(e.target, ".section-btn");
             if (sectionBtn) {
               this.playSection(sectionBtn);
+              return;
             }
           });
 
@@ -1974,10 +1922,7 @@
               this.sectionEndTime = null;
               this.isPlayingSection = false;
               this.isManualSectionSelection = false; // Reset flag
-              this.hideSectionIndicator();
               this.updateHotspotVisibility();
-              // Allow tooltips to work properly after section ends
-              setTimeout(() => this.hideNonControlTooltips(), 500);
               this.showStatus("Final section completed - Video continues");
             } else {
               // Pause after manually selected sections or non-last sections
@@ -1985,14 +1930,9 @@
               this.sectionEndTime = null;
               this.isPlayingSection = false;
               this.isManualSectionSelection = false; // Reset flag
-              this.hideSectionIndicator();
               // Keep current section index for next section navigation
               this.updateHotspotVisibility();
-              // Clear any stale tooltips after section ends and video pauses
-              setTimeout(() => this.hideAllTooltips(), 200);
-              this.showStatus(
-                "Section completed - Press Play for next section"
-              );
+              this.showStatus("Section ended"); // Simplified status message
             }
           }
         }
@@ -2111,13 +2051,6 @@
               this.video.pause();
               this.waitingForSectionStart = true;
               this.upcomingSectionIndex = i;
-
-              // Show status message with section name
-              this.showStatus(
-                `Next: ${section.name} - Press play to continue to this section`,
-                5000
-              );
-
               // Update hotspot visibility to show available sections
               this.updateHotspotVisibility();
               break;
@@ -2132,14 +2065,10 @@
               const section = this.sections[this.upcomingSectionIndex];
               this.startSection(section, this.upcomingSectionIndex);
             } else {
-              this.video
-                .play()
-                .then(() => this.showPlayIndicator("▶"))
-                .catch(() => this.showStatus("Error playing video"));
+              this.video.play().catch(() => {});
             }
           } else {
             this.video.pause();
-            this.showPlayIndicator("⏸");
           }
         }
 
@@ -2174,10 +2103,6 @@
 
           this.fullscreenBtn.textContent = isFullscreen ? "⛶" : "⛶";
           // Tooltip content will be updated dynamically via getContent function
-
-          if (isFullscreen) {
-            this.showStatus("Press R to replay, F to exit fullscreen");
-          }
         }
 
         replay() {
@@ -2190,15 +2115,11 @@
           this.waitingForSectionStart = false;
           this.upcomingSectionIndex = -1;
           this.isManualSectionSelection = false; // Reset manual selection flag
-          this.hideSectionIndicator();
           this.video.currentTime = 0;
           this.progressFill.style.width = "0%";
           this.hideAllHotspots();
           this.hasStartedPlaying = false;
           this.showPlayOverlay();
-
-          // Don't auto-play on replay, show overlay instead
-          this.showStatus("Ready to replay from beginning");
         }
 
         toggleMenu() {
@@ -2261,20 +2182,16 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
-          // Show section indicator
-          if (currentSection) {
-            this.showSectionIndicator(name, currentSection.icon);
-          }
-
           this.video.currentTime = start;
 
           this.video
             .play()
             .then(() => {
-              // Section indicator already shows the playing message
-              // this.showStatus(`Playing: ${name}`) - removed to avoid duplicate
+              this.showStatus(`Playing: ${name}`);
             })
-            .catch(() => this.showStatus("Error playing section"));
+            .catch((error) => {
+              console.error("Error playing section:", error);
+            });
         }
 
         startSection(section, sectionIndex) {
@@ -2294,22 +2211,13 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
-          // Show section indicator
-          this.showSectionIndicator(section.name, section.icon);
-
           this.video.currentTime = section.start;
 
           if (this.menuOpen) {
             this.closeMenuPanel();
           }
 
-          this.video
-            .play()
-            .then(() => {
-              // Section indicator already shows the playing message
-              // this.showStatus(`Playing: ${section.name}`) - removed to avoid duplicate
-            })
-            .catch(() => this.showStatus("Error playing section"));
+          this.video.play().catch(() => {});
         }
 
         hideAllHotspots() {
@@ -2330,7 +2238,6 @@
 
           this.video.currentTime = time;
           this.checkSectionInterrupt(time);
-          this.showStatus(`Seeked to ${this.formatTime(time)}`);
         }
 
         seek(seconds) {
@@ -2340,9 +2247,6 @@
           );
           this.video.currentTime = newTime;
           this.checkSectionInterrupt(newTime);
-
-          const direction = seconds > 0 ? "forward" : "backward";
-          this.showStatus(`Seeked ${direction} ${Math.abs(seconds)}s`);
         }
 
         checkSectionInterrupt(time) {
@@ -2365,9 +2269,7 @@
               if (time < start || time >= end) {
                 this.isPlayingSection = false;
                 this.sectionEndTime = null;
-                this.hideSectionIndicator();
                 this.updateHotspotVisibility();
-                this.showStatus("Section interrupted");
               }
             }
           }
@@ -2481,21 +2383,16 @@
 
             // Show loading immediately
             this.showLoader();
-            this.showStatus("Loading video...");
-          }
-
-          // Ensure video is ready before playing
+          } // Ensure video is ready before playing
           const playVideo = () => {
             this.video
               .play()
               .then(() => {
-                this.showStatus("Video started");
-                this.showPlayIndicator("▶");
+                // Status message will be shown by the 'playing' event listener
                 this.hideLoader();
               })
               .catch((error) => {
                 console.error("Play error:", error);
-                this.showStatus("Error starting video - click to retry");
                 this.hideLoader();
               });
           };
@@ -2552,9 +2449,6 @@
             clearTimeout(this.sectionIndicatorTimeout);
           }
 
-          // Hide non-control tooltips to prevent conflicts with section indicator
-          this.hideNonControlTooltips();
-
           // Show only the section name (no icon for cleaner look)
           this.sectionIcon.textContent = "";
           this.sectionName.textContent = `Playing: ${sectionName}`;
@@ -2577,10 +2471,9 @@
         onVideoEnd() {
           // Clean up all UI state when video ends
           this.hideAllTooltips();
-          this.showStatus("Video ended");
+          // Status message will be shown by the 'ended' event listener
           this.sectionEndTime = null;
           this.isPlayingSection = false;
-          this.hideSectionIndicator();
         }
 
         onVideoError(e) {
@@ -2603,14 +2496,8 @@
           }
 
           if (nextSource) {
-            this.showStatus("Switching to backup video source...", 3000);
             this.video.src = nextSource;
             this.video.load();
-          } else {
-            this.showStatus(
-              "Error loading video - please refresh the page",
-              8000
-            );
           }
         }
 
@@ -2666,19 +2553,16 @@
           // Update hotspot visibility immediately to prevent flicker
           this.updateHotspotVisibility();
 
-          // Show section indicator
-          this.showSectionIndicator(nextSection.name, nextSection.icon);
-
           this.video.currentTime = nextSection.start;
 
           this.video
             .play()
             .then(() => {
-              // Section indicator already shows the playing message
-              // this.showStatus(`Playing: ${nextSection.name}`) - removed to avoid duplicate
-              this.showPlayIndicator("⏭️");
+              this.showStatus(`Jump to section: ${nextSection.name}`);
             })
-            .catch(() => this.showStatus("Error playing next section"));
+            .catch((error) => {
+              console.error("Error jumping to section:", error);
+            });
         }
       }
 
