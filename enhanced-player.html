@@ -1660,7 +1660,15 @@
               this.hideLoader();
               this.hidePlayOverlay();
               this.hasStartedPlaying = true;
-              this.showStatus("Video started"); // Simplified status message
+
+              // Show appropriate status message based on current state
+              if (this.isPlayingSection && this.currentSectionIndex >= 0) {
+                const currentSection = this.sections[this.currentSectionIndex];
+                this.showStatus(`Playing: ${currentSection.name}`);
+              } else {
+                this.showStatus("Video started"); // Simplified status message
+              }
+
               if (!this.isPlayingSection) {
                 this.updateHotspotVisibility();
               }
@@ -2217,6 +2225,7 @@
             this.closeMenuPanel();
           }
 
+          // The "playing" event listener will now show the section name automatically
           this.video.play().catch(() => {});
         }
 
