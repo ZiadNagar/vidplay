@@ -1,0 +1,1277 @@
+/* Reset and Base Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Video Container */
+.vidplay-video-wrapper {
+  position: relative;
+  width: 90vw;
+  max-width: 1200px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  aspect-ratio: 16 / 9;
+
+  /* Performance optimizations */
+  transform: translateZ(0);
+
+  will-change: transform;
+
+  contain: layout style paint;
+}
+
+.vidplay-video-player {
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+  /* Enhanced performance optimizations */
+
+  will-change: auto;
+
+  transform: translateZ(0);
+
+  backface-visibility: hidden;
+
+  /* Optimize video rendering */
+
+  image-rendering: optimizeSpeed;
+
+  /* Enable hardware acceleration */
+
+  -webkit-transform: translateZ(0);
+
+  -webkit-backface-visibility: hidden;
+
+  /* Reduce unnecessary repaints */
+
+  contain: layout style paint;
+}
+
+/* Interactive Hotspots Container */
+
+.vidplay-hotspots-layer {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  pointer-events: none;
+
+  z-index: 10;
+}
+
+/* Individual Hotspot Buttons */
+
+.vidplay-hotspot {
+  position: absolute;
+
+  width: var(--vidplay-hotspot-size);
+
+  height: var(--vidplay-hotspot-size);
+
+  background: rgba(255, 255, 255, 0.1);
+
+  border: 2px solid rgba(255, 255, 255, 0.2);
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  pointer-events: all;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: var(--vidplay-hotspot-icon-size);
+
+  color: rgba(255, 255, 255, 0.9);
+
+  backdrop-filter: blur(10px);
+
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transform: translate(-50%, -50%) scale(0.8);
+
+  will-change: transform, opacity;
+}
+
+.vidplay-hotspot.active {
+  opacity: 0.8;
+
+  visibility: visible;
+
+  transform: translate(-50%, -50%) scale(1);
+
+  animation: vidplaySubtlePulse 3s ease-in-out infinite;
+}
+
+.vidplay-hotspot.active:hover {
+  opacity: 1;
+
+  transform: translate(-50%, -50%) scale(1.1);
+
+  background: rgba(255, 255, 255, 0.2);
+
+  border-color: rgba(255, 255, 255, 0.4);
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+  animation: none;
+}
+
+.vidplay-hotspot.active:active {
+  transform: translate(-50%, -50%) scale(1.05);
+
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Simplified transitions when removing active class */
+
+.vidplay-hotspot:not(.active) {
+  transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+}
+
+/* Hotspot Icon */
+
+.vidplay-hotspot-icon {
+  font-size: inherit;
+}
+
+.vidplay-hotspot:hover .vidplay-hotspot-icon {
+  animation: vidplayIconSpin 0.5s ease-in-out;
+}
+
+/* CSS Custom Properties for Hotspot Positions */
+
+:root {
+  /* Desktop/Tablet positions - Aligned with the arrow line across the warehouse */
+
+  /* These positions remain constant across all screen sizes */
+
+  --vidplay-hotspot-1-top: 30%;
+
+  --vidplay-hotspot-1-left: 29%;
+
+  --vidplay-hotspot-2-top: 34%;
+
+  --vidplay-hotspot-2-left: 46%;
+
+  --vidplay-hotspot-3-top: 38%;
+
+  --vidplay-hotspot-3-left: 64%;
+
+  --vidplay-hotspot-4-top: 39%;
+
+  --vidplay-hotspot-4-left: 70%;
+
+  --vidplay-hotspot-5-top: 40%;
+
+  --vidplay-hotspot-5-left: 77%;
+
+  --vidplay-hotspot-6-top: 52%;
+
+  --vidplay-hotspot-6-left: 88%;
+
+  --vidplay-hotspot-7-top: 52%;
+
+  --vidplay-hotspot-7-left: 25%;
+
+  --vidplay-hotspot-8-top: 52%;
+
+  --vidplay-hotspot-8-left: 67%;
+
+  /* Responsive icon sizing using clamp() for smooth scaling */
+
+  --vidplay-hotspot-size: clamp(28px, 4vw, 50px);
+
+  --vidplay-hotspot-icon-size: clamp(14px, 2vw, 24px);
+}
+
+/* Hotspot Positions - Using CSS Custom Properties */
+
+.vidplay-hotspot:nth-child(1) {
+  top: var(--vidplay-hotspot-1-top);
+
+  left: var(--vidplay-hotspot-1-left);
+
+  animation-delay: 0s;
+}
+
+.vidplay-hotspot:nth-child(2) {
+  top: var(--vidplay-hotspot-2-top);
+
+  left: var(--vidplay-hotspot-2-left);
+
+  animation-delay: 0.4s;
+}
+
+.vidplay-hotspot:nth-child(3) {
+  top: var(--vidplay-hotspot-3-top);
+
+  left: var(--vidplay-hotspot-3-left);
+
+  animation-delay: 0.8s;
+}
+
+.vidplay-hotspot:nth-child(4) {
+  top: var(--vidplay-hotspot-4-top);
+
+  left: var(--vidplay-hotspot-4-left);
+
+  animation-delay: 1.2s;
+}
+
+.vidplay-hotspot:nth-child(5) {
+  top: var(--vidplay-hotspot-5-top);
+
+  left: var(--vidplay-hotspot-5-left);
+
+  animation-delay: 1.6s;
+}
+
+.vidplay-hotspot:nth-child(6) {
+  top: var(--vidplay-hotspot-6-top);
+
+  left: var(--vidplay-hotspot-6-left);
+
+  animation-delay: 2s;
+}
+
+.vidplay-hotspot:nth-child(7) {
+  top: var(--vidplay-hotspot-7-top);
+
+  left: var(--vidplay-hotspot-7-left);
+
+  animation-delay: 2.4s;
+}
+
+.vidplay-hotspot:nth-child(8) {
+  top: var(--vidplay-hotspot-8-top);
+
+  left: var(--vidplay-hotspot-8-left);
+
+  animation-delay: 2.8s;
+}
+
+/* Video Controls */
+
+.vidplay-video-controls {
+  position: absolute;
+
+  bottom: 0;
+
+  left: 0;
+
+  right: 0;
+
+  padding: 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  z-index: 20;
+}
+
+.vidplay-control-btn {
+  width: 32px;
+
+  height: 32px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: rgba(255, 255, 255, 0.9);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 14px;
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  backdrop-filter: blur(10px);
+
+  outline: none;
+}
+
+.vidplay-control-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+
+  transform: scale(1.05);
+
+  color: white;
+
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Progress Bar */
+
+.vidplay-progress-track {
+  position: absolute;
+
+  bottom: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 6px;
+
+  background: rgba(255, 255, 255, 0.2);
+
+  cursor: pointer;
+
+  z-index: 15;
+
+  transition: height 0.2s ease;
+}
+
+.vidplay-progress-track:hover {
+  height: 8px;
+}
+
+.vidplay-progress-track.dragging {
+  height: 8px;
+}
+
+.vidplay-progress-track.dragging .vidplay-progress-fill {
+  background: linear-gradient(90deg, #2a5298, #1e3c72);
+
+  box-shadow: 0 0 10px rgba(42, 82, 152, 0.5);
+}
+
+.vidplay-progress-fill {
+  height: 100%;
+
+  background: linear-gradient(90deg, #1e3c72, #2a5298);
+
+  width: 0%;
+
+  transition: width 0.1s ease;
+
+  position: relative;
+}
+
+/* Unified Minimal Tooltip System */
+
+.vidplay-tooltip {
+  position: fixed;
+
+  background: rgba(0, 0, 0, 0.85);
+
+  color: white;
+
+  padding: 8px 12px;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  pointer-events: none;
+
+  white-space: nowrap;
+
+  z-index: 10000;
+
+  backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  transform: translateX(-50%) translateY(-100%) scale(0.9);
+
+  min-width: fit-content;
+
+  max-width: 300px;
+
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+.vidplay-tooltip.show {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateX(-50%) translateY(-100%) scale(1);
+}
+
+.vidplay-tooltip::before {
+  content: "";
+
+  position: absolute;
+
+  width: 0;
+
+  height: 0;
+
+  border-style: solid;
+
+  border-width: 4px;
+
+  border-color: transparent;
+}
+
+/* Progress bar time tooltip */
+
+.vidplay-time-tooltip {
+  position: absolute;
+
+  bottom: 12px;
+
+  background: rgba(0, 0, 0, 0.85);
+
+  color: white;
+
+  padding: 6px 10px;
+
+  border-radius: 6px;
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  pointer-events: none;
+
+  transform: translateX(-50%) scale(0.9);
+
+  white-space: nowrap;
+
+  backdrop-filter: blur(4px);
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  z-index: 1000;
+}
+
+.vidplay-time-tooltip.show {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateX(-50%) scale(1);
+}
+
+.vidplay-time-tooltip::before {
+  content: "";
+
+  position: absolute;
+
+  top: 100%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border: 4px solid transparent;
+
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Control button tooltips - positioning handled by JavaScript */
+
+.vidplay-control-tooltip::before {
+  top: 100%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Menu button tooltip - positioning handled by JavaScript */
+
+.vidplay-menu-tooltip::before {
+  top: 100%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Hotspot tooltips - positioning handled by JavaScript */
+
+.vidplay-hotspot-tooltip::before {
+  top: 100%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Section button tooltips - positioning handled by JavaScript */
+
+.vidplay-section-tooltip::before {
+  top: 100%;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Menu System */
+
+.vidplay-menu-btn {
+  position: absolute;
+
+  top: 15px;
+
+  left: 15px;
+
+  width: 44px;
+
+  height: 44px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  color: rgba(255, 255, 255, 0.9);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  display: none;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 16px;
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  z-index: 30;
+
+  backdrop-filter: blur(10px);
+
+  visibility: hidden;
+
+  outline: none;
+}
+
+.vidplay-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+
+  transform: scale(1.05);
+
+  color: white;
+
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.vidplay-sections-menu {
+  position: absolute;
+
+  top: 15px;
+
+  left: 15px;
+
+  background: rgba(255, 255, 255, 0.05);
+
+  backdrop-filter: blur(20px);
+
+  border-radius: 12px;
+
+  padding: 16px;
+
+  transform: translateX(-100%) scale(0.8);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  z-index: 40;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  width: min(25vw, 280px);
+
+  max-width: 25%;
+
+  min-width: 200px;
+
+  max-height: 70%;
+
+  overflow-y: auto;
+}
+
+.vidplay-sections-menu.open {
+  transform: translateX(0) scale(1);
+
+  opacity: 1;
+
+  visibility: visible;
+}
+
+.vidplay-menu-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  font-size: 14px;
+
+  font-weight: 400;
+
+  margin-bottom: 16px;
+
+  padding-bottom: 12px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vidplay-menu-header h3 {
+  font-weight: 500;
+
+  font-size: 14px;
+}
+
+.vidplay-close-menu {
+  background: none;
+
+  border: none;
+
+  color: rgba(255, 255, 255, 0.7);
+
+  font-size: 18px;
+
+  cursor: pointer;
+
+  padding: 4px;
+
+  border-radius: 4px;
+
+  transition: all 0.2s ease;
+
+  outline: none;
+}
+
+.vidplay-close-menu:hover {
+  color: white;
+
+  background: rgba(255, 255, 255, 0.1);
+
+  transform: scale(1.1);
+}
+
+.vidplay-section-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.vidplay-section-btn {
+  padding: 12px 16px;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  color: rgba(255, 255, 255, 0.9);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+
+  font-weight: 400;
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  backdrop-filter: blur(10px);
+
+  text-align: left;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  outline: none;
+}
+
+.vidplay-section-btn:hover {
+  transform: translateY(-1px);
+
+  background: rgba(255, 255, 255, 0.08);
+
+  border-color: rgba(255, 255, 255, 0.15);
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+  color: white;
+}
+
+/* Overlays */
+
+.vidplay-play-indicator {
+  position: absolute;
+
+  top: 50%;
+
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  font-size: 48px;
+
+  color: white;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.3s ease;
+
+  z-index: 25;
+
+  pointer-events: none;
+
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Play Button Overlay */
+
+.vidplay-play-overlay {
+  position: absolute;
+
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.3);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  z-index: 30;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  backdrop-filter: blur(2px);
+}
+
+.vidplay-play-overlay.hidden {
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+}
+
+.vidplay-play-button {
+  width: 80px;
+
+  height: 80px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  border: none;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  outline: none;
+}
+
+.vidplay-play-button:hover {
+  transform: scale(1.1);
+
+  background: white;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.vidplay-play-button:active {
+  transform: scale(1.05);
+}
+
+.vidplay-play-button-icon {
+  font-size: 32px;
+
+  color: #1e3c72;
+
+  margin-left: 4px; /* Slight offset to center the triangle visually */
+}
+
+.vidplay-play-indicator.show {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translate(-50%, -50%) scale(1.2);
+}
+
+.vidplay-loader {
+  position: absolute;
+
+  top: 50%;
+
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: 40px;
+
+  height: 40px;
+
+  border: 3px solid rgba(255, 255, 255, 0.2);
+
+  border-top: 3px solid white;
+
+  border-radius: 50%;
+
+  animation: vidplaySpin 1s linear infinite;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.3s ease;
+
+  z-index: 25;
+}
+
+.vidplay-loader.show {
+  opacity: 1;
+
+  visibility: visible;
+}
+
+.vidplay-status-toast {
+  position: absolute;
+
+  top: 20px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: rgba(0, 0, 0, 0.8);
+
+  color: white;
+
+  padding: 8px 16px;
+
+  border-radius: 20px;
+
+  font-size: 14px;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.3s ease;
+
+  z-index: 25;
+
+  max-width: 80%;
+
+  text-align: center;
+}
+
+.vidplay-status-toast.show {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateX(-50%) translateY(10px);
+}
+
+/* Section Indicator */
+
+.vidplay-section-indicator {
+  position: absolute;
+
+  top: 60px;
+
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  background: rgba(0, 0, 0, 0.9);
+
+  color: white;
+
+  padding: 12px 20px;
+
+  border-radius: 25px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  transition: all 0.4s ease;
+
+  z-index: 24;
+
+  max-width: 90%;
+
+  text-align: center;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 2px solid rgba(255, 255, 255, 0.2);
+
+  backdrop-filter: blur(10px);
+}
+
+.vidplay-section-indicator.show {
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translateX(-50%) translateY(10px);
+}
+
+.vidplay-section-indicator .vidplay-section-icon {
+  display: none; /* Hide icon for cleaner look */
+}
+
+.vidplay-section-indicator .vidplay-section-name {
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+/* Simplified Animations for Better Performance */
+
+@keyframes vidplaySpin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes vidplaySubtlePulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes vidplayIconSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fullscreen Adjustments */
+
+.vidplay-video-wrapper:-webkit-full-screen,
+.vidplay-video-wrapper:-moz-full-screen,
+.vidplay-video-wrapper:fullscreen {
+  max-width: 100%;
+
+  border-radius: 0;
+}
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .vidplay-control-btn {
+    width: 36px;
+
+    height: 36px;
+
+    font-size: 14px;
+  }
+
+  .vidplay-sections-menu {
+    width: min(35vw, 250px);
+
+    max-width: 35%;
+
+    min-width: 180px;
+
+    padding: 12px;
+  }
+
+  .vidplay-section-btn {
+    padding: 10px 12px;
+
+    font-size: 12px;
+  }
+
+  .vidplay-menu-btn {
+    width: 38px;
+
+    height: 38px;
+
+    font-size: 14px;
+  }
+
+  /* Mobile tooltip adjustments - unified minimal styling */
+
+  .vidplay-tooltip {
+    font-size: 10px;
+
+    padding: 5px 8px;
+
+    border-radius: 4px;
+
+    backdrop-filter: blur(3px);
+  }
+
+  .vidplay-time-tooltip {
+    font-size: 10px;
+
+    padding: 5px 8px;
+
+    border-radius: 4px;
+
+    backdrop-filter: blur(3px);
+  }
+
+  .vidplay-hotspot-tooltip,
+  .vidplay-section-tooltip,
+  .vidplay-control-tooltip,
+  .vidplay-menu-tooltip {
+    font-size: 10px;
+
+    padding: 5px 8px;
+
+    border-radius: 4px;
+
+    backdrop-filter: blur(3px);
+  }
+
+  /* Smaller arrow size for mobile */
+
+  .vidplay-tooltip::before,
+  .vidplay-time-tooltip::before {
+    border-width: 3px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vidplay-sections-menu {
+    width: min(45vw, 200px);
+
+    max-width: 45%;
+
+    min-width: 160px;
+
+    padding: 10px;
+  }
+
+  .vidplay-section-btn {
+    padding: 8px 10px;
+
+    font-size: 11px;
+  }
+
+  .vidplay-menu-btn {
+    width: 36px;
+
+    height: 36px;
+
+    font-size: 13px;
+  }
+
+  .vidplay-control-btn {
+    width: 32px;
+
+    height: 32px;
+
+    font-size: 12px;
+  }
+
+  /* Smaller tooltips for small screens */
+
+  .vidplay-tooltip {
+    font-size: 10px;
+
+    padding: 4px 8px;
+  }
+
+  .vidplay-time-tooltip {
+    font-size: 9px;
+
+    padding: 3px 6px;
+  }
+
+  /* Hide tooltips on very small screens during touch interactions */
+
+  .vidplay-hotspot-tooltip,
+  .vidplay-section-tooltip {
+    display: none;
+  }
+}
+
+@media (max-width: 320px) {
+  .vidplay-control-btn {
+    width: 28px;
+
+    height: 28px;
+
+    font-size: 11px;
+  }
+
+  .vidplay-menu-btn {
+    width: 32px;
+
+    height: 32px;
+
+    font-size: 12px;
+  }
+}
+
+/* Ultra small screens (very small phones) */
+
+@media (max-width: 280px) {
+  .vidplay-control-btn {
+    width: 24px;
+
+    height: 24px;
+
+    font-size: 10px;
+  }
+
+  .vidplay-menu-btn {
+    width: 28px;
+
+    height: 28px;
+
+    font-size: 11px;
+  }
+
+  .vidplay-sections-menu {
+    width: min(50vw, 180px);
+
+    max-width: 50%;
+
+    min-width: 140px;
+
+    padding: 8px;
+  }
+
+  .vidplay-section-btn {
+    padding: 6px 8px;
+
+    font-size: 10px;
+  }
+}
